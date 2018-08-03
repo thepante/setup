@@ -1,1 +1,1 @@
-# .pante-dotfiles
+# pante's dotfiles
