@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Exec=devilspie2
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[en_US]=Devilspie2
+Name=Devilspie2
+Comment[en_US]=Minimizar
+Comment=Minimizar

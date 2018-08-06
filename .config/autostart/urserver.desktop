@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Unified Remote
+Comment=Start Unified Remote Server
+Terminal=false
+Type=Application
+Categories=Network;
+Icon=urserver
+Exec=/opt/urserver/urserver-start --no-manager --no-notify
+X-GNOME-Autostart-enabled=true
