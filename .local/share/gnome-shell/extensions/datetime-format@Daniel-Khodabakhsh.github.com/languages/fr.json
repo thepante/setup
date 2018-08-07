@@ -1,0 +1,109 @@
+{
+	"format": "Format",
+	"preview": "Aperçu",
+	"formatOptions": "Options de format",
+	"pages": [
+		{
+			"label": "Date",
+			"content": [
+				["%c", "La représentation classique de la date et de l'heure, suivant la localisation en cours."],
+				["%D", "Équivalent à %m/%d/%y."],
+				["%F", "Équivalent de %Y-%m-%d (format de date ISO 8601)."],
+				["%x", "La représentation usuelle de la date, sans l'heure, dans la localisation en cours."]
+			]
+		},
+		{
+			"label": "Année",
+			"content": [
+				["%C", "Le siècle (année/100) sous forme de nombre de deux chiffres."],
+				["%G", "L'année ISO 8601 avec le siècle comme nombre décimal. L'année sur quatre chiffres correspond au numéro de la semaine ISO. C'est le même format que %y, sauf que si le numéro de semaine appartient à l'année suivante ou précédente, c'est celle-ci qui est affichée à la place."],
+				["%g", "Comme %G sans le siècle, c'est-à-dire avec une année sur deux chiffres (00-99)."],
+				["%y", "L'année, sous forme de nombre décimal, sans le siècle (entre 00 et 99)."],
+				["%Y", "L'année, sous forme de nombre décimal, incluant le siècle."]
+			]
+		},
+		{
+			"label": "Mois",
+			"content": [
+				["%b", "Le nom abrégé du mois, en fonction de la localisation en cours."],
+				["%B", "Le nom complet du mois, en fonction de la localisation en cours."],
+				["%m", "Le numéro du mois (entre 01 et 12)."]
+			]
+		},
+		{
+			"label": "Semaine",
+			"content": [
+				["%U", "Le numéro de la semaine dans l'année, sous forme de nombre décimal (00-53), en commençant le comptage au premier dimanche de l'année."],
+				["%V", "Le numéro de semaine ISO 8601:1988 de l'année en cours sous forme de nombre décimal dans l'intervalle 01-53, où la semaine 1 est la première ayant au moins 4 jours dans l'année en cours, et où lundi est le premier jour de la semaine."],
+				["%W", "Le numéro de la semaine dans l'année, sous forme de nombre décimal (00-53), en commençant le comptage au premier Lundi de l'année."]
+			]
+		},
+		{
+			"label": "Jour",
+			"content": [
+				["%a", "Le nom abrégé du jour de la semaine, en fonction de la localisation en cours."],
+				["%A", "Le nom complet du jour de la semaine, en fonction de la localisation en cours."],
+				["%d", "Le quantième du mois sous forme de nombre décimal (entre 01 et 31)."],
+				["%e", "Comme %d, le quantième du mois sous forme décimal, mais l'éventuel zéro en tête est remplacé par un espace."],
+				["%j", "Le numéro du jour dans l'année (entre 001 et 366)."],
+				["%u", "Le jour de la semaine sous forme décimal, de 1 (lundi) à 7."],
+				["%w", "Le numéro du jour de la semaine, sous forme décimale (0-6), dimanche valant 0."]
+			]
+		},
+		{
+			"label": "Temps",
+			"content": [
+				["%r", "L'heure en notation a.m. ou p.m. Dans la localisation POSIX, c'est équivalent à %I:%M:%S %p."],
+				["%R", "L'heure en format 24 heures (%H:%M)."],
+				["%T", "L'heure en notation 24 heures (%H:%M:%S)."],
+				["%X", "La représentation usuelle de l'heure, sans la date, dans la localisation en cours."]
+			]
+		},
+		{
+			"label": "Heure",
+			"content": [
+				["%H", "L'heure, sur 24 heures, sous forme de nombre décimal (entre 00 et 23)."],
+				["%I", "L'heure, sur 12 heures, sous forme de nombre décimal (entre 01 et 12)."],
+				["%k", "L'heure (sur 24 heures) sous forme de nombre décimal (intervalle 0 à 23). Les chiffres uniques sont précédés d'un blanc."],
+				["%l", "L'heure (sur 12 heures) sous forme de nombre décimal (intervalle 1 à 12). Les chiffres uniques sont précédés d'un blanc."],
+				["%p", "L'une des deux chaînes « AM » ou « PM » en fonction de l'heure, ou la traduction de ces chaînes en fonctions de la localisation en cours. Midi est traité comme « PM » et minuit comme « AM »."],
+				["%P", "Comme %p mais en minuscule : « am » ou « pm » ou une chaîne locale équivalente."]
+			]
+		},
+		{
+			"label": "Minute",
+			"content": [
+				["%M", "La minute, sous forme de nombre décimal (00 à 59)."]
+			]
+		},
+		{
+			"label": "Seconde",
+			"content": [
+				["%s", "Le nombre de secondes écoulées depuis le 1er janvier 1970 à 00:00:00 UTC."],
+				["%S", "La seconde, sous forme de nombre décimal (00-60). L'intervalle peut être supérieur à 60 pour autoriser des secondes de rattrapage."]
+			]
+		},
+		{
+			"label": "Fuseau horaire",
+			"content": [
+				["%z", "Le fuseau horaire sous forme de décalage GMT."],
+				["%Z", "Le nom ou l'abréviation du fuseau horaire."]
+			]
+		},
+		{
+			"label": "Options de format",
+			"content": [
+				["%n", "Un caractère saut-de-ligne."],
+				["%t", "Un caractère de tabulation."],
+				["%%", "Un caractère « % »."],
+				["_", "(souligné) Compléter une chaîne de résultat numérique avec des espaces."],
+				["-", "(tiret) Ne pas compléter une chaîne de résultat numérique."],
+				["0", "Compléter une chaîne de résultat numérique avec des zéros même si le caractère spécificateur de conversion utilise des espaces par défaut."],
+				["^", "Convertir une chaîne alphabétique en une chaîne résultante en majuscule."],
+				["#", "Échanger la casse de la chaîne résultat."],
+				["1, 2, ...", "Un spécificateur de largeur décimal optionnel peut suivre l'(éventuellement absent) attribut. Si la taille naturelle du champ est plus petite que cette largeur, la chaîne résultat sera alors complétée (sur la gauche) jusqu'à la largeur spécifiée."],
+				["E, O", "Certaines spécifications de conversion peuvent être modifiées en faisant précéder le caractère spécificateur de conversion par le modificateur E ou O pour indiquer un format de rechange. Si le format de rechange n'existe pas pour la localisation en cours, le comportement ne sera pas modifié. Les spécifications Single Unix mentionnent %Ec, %EC, %Ex, %EX, %Ey, %EY, %Od, %Oe, %OH, %OI, %Om, %OM, %OS, %Ou, %OU, %OV, %Ow, %OW, %Oy, où l'action du modificateur O est d'utiliser un autre format numérique (par exemple des chiffres romains), et l'action de E est d'utiliser une représentation dépendant de la localisation."]
+			]
+		}
+	]
+}
