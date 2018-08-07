@@ -1,0 +1,32 @@
+<schemalist>
+  <schema gettext-domain="gnome-shell-extension-panel-osd" id="org.gnome.shell.extensions.panel-osd" path="/org/gnome/shell/extensions/panel-osd/">
+    <key name="x-pos" type="d">
+      <default>50.0</default>
+      <summary>Horizontal position of notification.</summary>
+    </key>
+    <key name="y-pos" type="d">
+      <default>100.0</default>
+      <summary>Vertical position of notification.</summary>
+    </key>
+    <key name="x-res" type="b">
+      <default>false</default>
+      <summary>Allow resetting horizontal position of notification.</summary>
+    </key>
+    <key name="y-res" type="b">
+      <default>false</default>
+      <summary>Allow resetting vertical position of notification.</summary>
+    </key>
+    <key name="force-expand" type="b">
+      <default>false</default>
+      <summary>Always expand notifications.</summary>
+    </key>
+    <key name="test-delay" type="d">
+      <default>1.0</default>
+      <summary>Delay before test notification is shown.</summary>
+    </key>
+    <key name="test-notification" type="b">
+      <default>false</default>
+      <summary>If the value is true a test-notification is send and then set back to false.</summary>
+    </key>
+  </schema>
+</schemalist>
