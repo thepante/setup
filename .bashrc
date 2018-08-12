@@ -122,4 +122,5 @@ alias streamv='acestream-launcher -e "acestreamplayer.engine --client-console" -
 alias stream='acestream-launcher -e "acestreamplayer.engine --client-console"'
 alias mp3='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
 alias download='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s'
+alias neo='neofetch'
 
