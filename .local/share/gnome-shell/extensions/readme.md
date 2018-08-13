@@ -3,3 +3,6 @@ apt-update-indicator : /media/*file*.svg is custom - *file*-O.svg is the origina
 simplenetspeed : extension.js - l143 c20 - l153 c66 - symbol changed  
 
 > gnomenu maybe it's bugged and need to update manually then restart shell
+
+**extensions non of my authory as you can see**  
+gonna put links to repo to get those updated ones | those here are only as backup & small adjustments for custom usage
