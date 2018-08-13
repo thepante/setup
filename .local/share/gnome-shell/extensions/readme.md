@@ -1,4 +1,4 @@
-**extensions non of my authory as you can see**  
+**extensions are not of my authorship as you can see**  
 those here are only as backup & small adjustments for custom usage  
 i will put links to original repos so get there the updated ones
   
