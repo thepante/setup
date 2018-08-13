@@ -1,4 +1,5 @@
 // Modified for a real Spanish keyboard by Jon Tombs.
+// + pante : slash (/) en vez de ç y degree (°) en vez de Ç
 
 default  partial alphanumeric_keys
 xkb_symbols "basic" {
