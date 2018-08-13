@@ -1,7 +1,16 @@
-﻿/* UBUNTU 01/06/2018 Limpio, Pante's Custom · t.me/fasito - u/thepante */
+/* UBUNTU 06/08/2018 Limpio, Pante's Custom · t.me/fasito - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 @-moz-document url(chrome://browser/content/browser.xul) {
+
+/*
+#main-window[sizemode="maximized"] #titlebar {display: none;}
+#main-window:not([sizemode="normal"]) .titlebar-placeholder[type="post-tabs"]{display: none;}
+*/
+
+#main-window {
+	--lwt-accent-color: #0F1419;
+}
 
 /* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
 #alltabs-button {
@@ -239,4 +248,3 @@ tooltip :nth-child(2) {
 }
 
 }
-
