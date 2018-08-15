@@ -1,0 +1,551 @@
+# Russian translations for Gnome Global Application Menu package.
+# Copyright (C) 2017 THE Gnome Global Application Menu'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Gnome Global Application Menu package.
+# Dragonic <dragonicua@gmail.com>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Gnome Global Application Menu 0.1-Beta\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-07-11 23:06-0500\n"
+"PO-Revision-Date: 2017-04-21 17:55+0300\n"
+"Last-Translator: Dragonic <dragonicua@gmail.com>\n"
+"Language-Team: \n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Poedit 2.0.1\n"
+
+#: applet.js:383
+msgid "Comments:"
+msgstr ""
+
+#: applet.js:396
+msgid "Website:"
+msgstr ""
+
+#: applet.js:421
+msgid "Contributors:"
+msgstr ""
+
+#: applet.js:428
+msgid "Close"
+msgstr ""
+
+#: applet.js:906 extensionManager.js:545
+#, javascript-format
+msgid "Remove '%s'"
+msgstr ""
+
+#: applet.js:922 extensionManager.js:560
+msgid "About..."
+msgstr ""
+
+#: applet.js:944 extensionManager.js:577
+msgid "Configure..."
+msgstr ""
+
+#: prefs.js:167
+msgid "Ok"
+msgstr ""
+
+#. metadata.json->name
+#: extensionManager.js:305
+msgid "Gnome Global Application Menu"
+msgstr "Глобальное меню для Gnome"
+
+#: extensionManager.js:422
+#, javascript-format
+msgid "You need restart your computer, to active the %s backend"
+msgstr ""
+
+#: extensionManager.js:681
+msgid "The environment variable cannot be changed"
+msgstr "Невозможно изменить переменную среды"
+
+#: extensionManager.js:683
+msgid ""
+"The environment variable was set, a logout will be required to apply the "
+"changes"
+msgstr ""
+"Переменная среды установлена. Для того, чтобы внесенные изменения вступили в "
+"силу, нужно выйти из системы и войти снова"
+
+#: extensionManager.js:844 extensionManager.js:847
+msgid ""
+"Only can be selected a unique modifier acelerator, not a convination or also "
+"not if include a key."
+msgstr ""
+
+#: settings/xletSettings.js:111
+msgid "extension, settings, configuration"
+msgstr ""
+
+#: settings/xletSettings.js:197
+msgid "Previous instance"
+msgstr ""
+
+#: settings/xletSettings.js:202
+msgid "Next instance"
+msgstr ""
+
+#: settings/xletSettings.js:383
+#, javascript-format
+msgid "Settings for %s"
+msgstr ""
+
+#: settings/xletSettings.js:459
+msgid "Select or enter file to export to"
+msgstr ""
+
+#: settings/xletSettings.js:471 settings/xletSettings.js:499
+msgid "JSON files"
+msgstr ""
+
+#: settings/xletSettings.js:488
+msgid "Select a JSON file to import"
+msgstr ""
+
+#: settings/gSettingsWidgets.js:271
+msgid "Checking dependencies"
+msgstr ""
+
+#: settings/gSettingsWidgets.js:272
+#, javascript-format
+msgid "Please install: %s"
+msgstr ""
+
+#. settings-schema.json->oversize-mode->options
+#. settings-schema.json->effect->options
+#: settings/chooserButtonWidgets.js:25
+msgid "None"
+msgstr "Нет"
+
+#. settings-schema.json->effect->options
+#: settings/chooserButtonWidgets.js:26
+msgid "Scale"
+msgstr "Масштабирование"
+
+#: settings/chooserButtonWidgets.js:27
+msgid "Fade"
+msgstr ""
+
+#: settings/chooserButtonWidgets.js:28
+msgid "Blend"
+msgstr ""
+
+#: settings/chooserButtonWidgets.js:29
+msgid "Move"
+msgstr ""
+
+#: settings/chooserButtonWidgets.js:30
+msgid "Fly up"
+msgstr ""
+
+#: settings/chooserButtonWidgets.js:31
+msgid "Fly down"
+msgstr ""
+
+#: settings/chooserButtonWidgets.js:32
+msgid "Traditional"
+msgstr ""
+
+#: settings/chooserButtonWidgets.js:258
+msgid "Select a date"
+msgstr ""
+
+#: settings/chooserButtonWidgets.js:276
+msgid "Today"
+msgstr ""
+
+#: settings/chooserButtonWidgets.js:303
+msgid "%B %e, %Y"
+msgstr ""
+
+#: settings/keybindingWidgets.js:190
+msgid "unassigned"
+msgstr ""
+
+#: settings/keybindingWidgets.js:217
+msgid "Pick an accelerator"
+msgstr ""
+
+#: settings/keybindingWidgets.js:342
+#, javascript-format
+msgid ""
+"This key combination, '<b>%s</b>' cannot be used because it would become "
+"impossible to type using this key."
+msgstr ""
+
+#: settings/keybindingWidgets.js:343
+msgid ""
+"Please try again with a modifier key such as Control, Alt or Super (Windows "
+"key) at the same time."
+msgstr ""
+
+#: settings/settingsWidgets.js:1234
+msgid "Sound files"
+msgstr ""
+
+#: settings/settingsWidgets.js:1329
+msgid "Choose an Icon"
+msgstr ""
+
+#: settings/settingsWidgets.js:1340
+msgid "Image files"
+msgstr ""
+
+#: settings/modules/cg_settings.js:35
+msgid "Manage the extension settings"
+msgstr ""
+
+#: utils/environment.js:47
+msgid "Global Menu Environment Usage"
+msgstr "Использование Среды Глобального Меню"
+
+#: utils/environment.js:48
+msgid "Install environment variables"
+msgstr "Установить переменные среды"
+
+#: utils/environment.js:49
+msgid "Uninstall environment variables"
+msgstr "Удалить переменные среды"
+
+#: utils/environment.js:147
+msgid ""
+"Please enter your password to configure the Menu Proxy environment variable"
+msgstr "Введите ваш пароль, чтобы настроить переменную среды Menu Proxy"
+
+#: utils/environment.js:158
+msgid "Could not acquire root privileges"
+msgstr "Не удалось получить привилегии суперпользователя"
+
+#: utils/environment.js:170 utils/environment.js:174
+msgid "Could not find current file"
+msgstr "Не удалось найти текущий файл"
+
+#. metadata.json->comments
+msgid ""
+"This is a Gnome Shell extension to provide a global application menu "
+"integration on the Gnome Shell desktop enviroment"
+msgstr ""
+
+#. metadata.json->description
+msgid "A Gnome Shell extension to provide a global application menu."
+msgstr ""
+
+#. settings-schema.json->head-support->description
+msgid "Support"
+msgstr "Поддержка"
+
+#. settings-schema.json->enable-environment->description
+msgid "Statically set the menu proxy environment variable (Experimental)"
+msgstr "Статически задать переменную menu proxy (экспериментально)"
+
+#. settings-schema.json->enable-environment->tooltip
+msgid ""
+"Select if you want to set statically the menu proxy environment variable."
+msgstr "Выберите, чтобы статически задать переменную среды menu proxy."
+
+#. settings-schema.json->enable-jayantana->description
+msgid "Enable the support for JAyatana (Experimental)"
+msgstr ""
+
+#. settings-schema.json->enable-jayantana->tooltip
+msgid "Select if you want to enable the support for JAyatana."
+msgstr ""
+
+#. settings-schema.json->replace-appmenu->description
+msgid "Use the extension as a replace of Gnome AppMenu (Experimental)"
+msgstr ""
+
+#. settings-schema.json->replace-appmenu->tooltip
+msgid "Select if you want to use the extension as a replace of Gnome AppMenu."
+msgstr ""
+
+#. settings-schema.json->synchronize-panel->description
+msgid ""
+"Allow to synchronize the menus with others in the same panel (Experimental)"
+msgstr ""
+
+#. settings-schema.json->synchronize-panel->tooltip
+msgid ""
+"Select if you want to synchronize the menus with others in the same panel."
+msgstr ""
+
+#. settings-schema.json->head-application->description
+msgid "Applications"
+msgstr "Приложения"
+
+#. settings-schema.json->show-app-icon->description
+msgid "Show the application icon in the panel"
+msgstr "Отображать значки приложений на панели задач"
+
+#. settings-schema.json->show-app-icon->tooltip
+msgid "Select if you want to show the application icon in the panel."
+msgstr "Выберите для отображения пиктограмм приложений на панели задач."
+
+#. settings-schema.json->desaturate-app-icon->description
+msgid "Desaturate the application icon"
+msgstr "Обесцвечивать пиктограммы приложений"
+
+#. settings-schema.json->desaturate-app-icon->tooltip
+msgid "Select if you want to desaturate the application icon."
+msgstr "Выберите для обесцвечивания пиктограмм приложений."
+
+#. settings-schema.json->show-app-name->description
+msgid "Show the application name in the panel"
+msgstr "Отображать названия приложений на панели задач"
+
+#. settings-schema.json->show-app-name->tooltip
+msgid "Select if you want to show the application name in the panel."
+msgstr "Выберите для отображения названий приложений на панели задач."
+
+#. settings-schema.json->used-window-title->description
+msgid "Show the window title instead of the application name in the panel"
+msgstr ""
+
+#. settings-schema.json->used-window-title->tooltip
+msgid ""
+"Select if you want to show the window title instead of the application name "
+"in the panel."
+msgstr ""
+
+#. settings-schema.json->text-gradient->description
+msgid "Show a linear gradient effect in the application name"
+msgstr "Отображать линейный градиент в названиях приложений"
+
+#. settings-schema.json->text-gradient->tooltip
+msgid ""
+"Select if you want to show a linear gradient effect in the application name."
+msgstr ""
+"Выберите для активации эффекта линейного градиента в названиях приложений."
+
+#. settings-schema.json->max-app-name-size->units
+msgid "characters"
+msgstr "символы"
+
+#. settings-schema.json->max-app-name-size->description
+msgid "Maximum size of the application name:"
+msgstr "Максимальная длина названия приложения:"
+
+#. settings-schema.json->max-app-name-size->tooltip
+msgid "Set the maximum size of the application name."
+msgstr "Установить максимальную длину названия приложения."
+
+#. settings-schema.json->head-hudmenu->description
+msgid "Hud controller"
+msgstr ""
+
+#. settings-schema.json->enable-search-provider->description
+msgid "Enable the HUD Gnome search provider"
+msgstr ""
+
+#. settings-schema.json->enable-search-provider->tooltip
+msgid ""
+"Select if you want to enable the HUD Gnome search provider for searching the "
+"window menu actions."
+msgstr ""
+
+#. settings-schema.json->hud-overlay-key->description
+msgid "Keyboard shortcut to open and close the hud menu"
+msgstr ""
+
+#. settings-schema.json->num-items->units
+msgid "items"
+msgstr ""
+
+#. settings-schema.json->num-items->description
+msgid "Maximum number of items:"
+msgstr ""
+
+#. settings-schema.json->num-items->tooltip
+msgid ""
+"The maximum number of items that will be displayed in the HUD menu (more is "
+"slower)."
+msgstr ""
+
+#. settings-schema.json->head-mainmenu->description
+msgid "Main menu"
+msgstr "Главное меню"
+
+#. settings-schema.json->global-overlay-key->description
+msgid "Keyboard shortcut to open and close the menu"
+msgstr "Комбинация клавиш открытия и закрытия меню"
+
+#. settings-schema.json->oversize-mode->description
+msgid "Apply this mode when the panel is oversized:"
+msgstr ""
+
+#. settings-schema.json->oversize-mode->tooltip
+msgid ""
+"Select the action to take when the panel menu oversize the available space."
+msgstr ""
+
+#. settings-schema.json->oversize-mode->options
+msgid "Fake Menu"
+msgstr ""
+
+#. settings-schema.json->oversize-mode->options
+msgid "Auto Scrolling"
+msgstr ""
+
+#. settings-schema.json->oversize-mode->options
+msgid "Wrap Text"
+msgstr ""
+
+#. settings-schema.json->display-in-panel->description
+msgid "Display the main menu in the panel"
+msgstr "Отображать главное меню на панели задач"
+
+#. settings-schema.json->display-in-panel->tooltip
+msgid "Select if you want to display the main menu in the panel."
+msgstr "Выберите для отображения главного меню на панели задач."
+
+#. settings-schema.json->automatic-active-mainmenu->description
+msgid "Automatically activate the main menu"
+msgstr "Автоматически активировать главное меню"
+
+#. settings-schema.json->automatic-active-mainmenu->tooltip
+msgid "Select if you want to automatically activate the main menu."
+msgstr "Выберите для автоматического открытия главного меню."
+
+#. settings-schema.json->activate-on-hover->description
+msgid "Open the menu when I move my mouse over it"
+msgstr "Открывать меню при наведении курсора мыши"
+
+#. settings-schema.json->activate-on-hover->tooltip
+msgid "Enable opening the menu when the mouse enters the applet."
+msgstr "Открывать меню при каждом наведении курсора мыши на апплет."
+
+#. settings-schema.json->shortcut-modifier->description
+msgid "Modifier shortcut to open and close the menu of the items"
+msgstr ""
+
+#. settings-schema.json->underline-shortcut->description
+msgid "Underline the selected shortcut characters"
+msgstr ""
+
+#. settings-schema.json->underline-shortcut->tooltip
+msgid "Allow to underline the selected shortcut characters."
+msgstr ""
+
+#. settings-schema.json->allow-shortcut-colors->description
+msgid "Allow to set a color for the selected shortcut characters"
+msgstr ""
+
+#. settings-schema.json->allow-shortcut-colors->tooltip
+msgid ""
+"Select if you want to allow set a color for the selected shortcut characters."
+msgstr ""
+
+#. settings-schema.json->shortcut-color->description
+msgid "Set the shortcut color"
+msgstr ""
+
+#. settings-schema.json->shortcut-color->tooltip
+msgid "Set a color to realce the character shortcut"
+msgstr ""
+
+#. settings-schema.json->head-submenu->description
+msgid "Submenu"
+msgstr "Подменю"
+
+#. settings-schema.json->open-active-submenu->description
+msgid "Automatically open the submenu"
+msgstr "Автоматически открывать подменю"
+
+#. settings-schema.json->open-active-submenu->tooltip
+msgid ""
+"Select if you want to automatically open the submenu when the mouse is "
+"inside of the launcher."
+msgstr ""
+"Выберите для автоматического открытия подменю при наведении курсора мыши."
+
+#. settings-schema.json->close-active-submenu->description
+msgid "Automatically close the submenu"
+msgstr "Автоматически закрывать подменю"
+
+#. settings-schema.json->close-active-submenu->tooltip
+msgid ""
+"Select if you want to automatically close the submenu when the mouse is out "
+"of the launcher."
+msgstr ""
+"Выберите для автоматического закрытия подменю когда курсор покидает пределы "
+"лаунчера."
+
+#. settings-schema.json->show-boxpointer->description
+msgid "Show the boxpointers"
+msgstr "Отображать стрелочные указатели"
+
+#. settings-schema.json->show-boxpointer->tooltip
+msgid "Select if you want to show the boxpointer of all floating menus."
+msgstr ""
+"Выберите для отображения стрелочных указателей во всех всплывающих меню."
+
+#. settings-schema.json->align-menu-launcher->description
+msgid "Align all menus with his launcher"
+msgstr "Выровнять все меню с их лаунчерами"
+
+#. settings-schema.json->align-menu-launcher->tooltip
+msgid "Select if you want to align all menus with his launcher."
+msgstr "Выберите, чтобы выровнять все меню с их лаунчерами."
+
+#. settings-schema.json->effect->description
+msgid "Effect on opening and closing:"
+msgstr "Эффект анимации открытия и закрытия меню:"
+
+#. settings-schema.json->effect->tooltip
+msgid "Select the effect on the menu opening and closing."
+msgstr "Выбрать эффект открытия и закрытия меню."
+
+#. settings-schema.json->effect->options
+msgid "Dispel"
+msgstr "Рассеивание"
+
+#. settings-schema.json->effect->options
+msgid "Hide Horizontal"
+msgstr "Скрыть горизонтально"
+
+#. settings-schema.json->effect->options
+msgid "Hide Vertical"
+msgstr "Скрыть вертикально"
+
+#. settings-schema.json->effect->options
+msgid "Windows"
+msgstr "Окна"
+
+#. settings-schema.json->effect-time->units
+msgid "seconds"
+msgstr "секунды"
+
+#. settings-schema.json->effect-time->description
+msgid "Duration of effect:"
+msgstr "Продолжительность эффекта:"
+
+#. settings-schema.json->effect-time->tooltip
+msgid "The time on seconds to perform the effect (more time is slower)."
+msgstr "Время выполнения эффекта в секундах (чем больше, тем медленнее)."
+
+#. settings-schema.json->head-menuitem->description
+msgid "Menu items"
+msgstr "Пункты меню"
+
+#. settings-schema.json->show-item-icon->description
+msgid "Show icons in the menu items"
+msgstr "Отображать значки в пунктах меню"
+
+#. settings-schema.json->show-item-icon->tooltip
+msgid "Select if you want to show icons in the menu items."
+msgstr "Выберите для отображения значков в пунктах меню."
+
+#. settings-schema.json->desaturate-item-icon->description
+msgid "Desaturate icons in the menu items"
+msgstr "Обесцвечивать пиктограммы в пунктах меню"
+
+#. settings-schema.json->desaturate-item-icon->tooltip
+msgid "Select if you want to desaturate icons in the menu items."
+msgstr "Выберите для обесцвечивания пиктограмм приложений в пунктах меню."

@@ -1,0 +1,15 @@
+<interface name="org.gtk.Menus">
+    <!-- Functions -->
+    <method name="Start">
+         <arg type="au" name="groups" direction="in" />
+         <arg type="a(uuaa{sv})" name="content" direction="out" />
+    </method>
+    <method name="End">
+         <arg type="au" name="groups" direction="in" />
+    </method>
+
+    <!-- Signals -->
+    <signal name="Changed">
+         <arg type="a(uuuuaa{sv})" name="changes" />
+    </signal>
+</interface>

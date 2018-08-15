@@ -1,0 +1,30 @@
+<interface name="com.canonical.AppMenu.Registrar">
+    <!-- Functions -->
+    <method name="RegisterWindow">
+        <arg name="windowId" type="u" direction="in"/>
+        <arg name="menuObjectPath" type="o" direction="in"/>
+    </method>
+
+    <method name="UnregisterWindow">
+        <arg name="windowId" type="u" direction="in"/>
+    </method>
+
+    <method name="GetMenuForWindow">
+        <arg name="windowId" type="u" direction="in"/>
+        <arg name="service" type="s" direction="out"/>
+        <arg name="menuObjectPath" type="o" direction="out"/>
+    </method>
+    <method name="GetMenus">
+        <arg name="menus" type="a(uso)" direction="out"/>
+    </method>
+
+    <!-- Signals -->
+    <signal name="WindowRegistered">
+        <arg name="windowId" type="u" direction="out"/>
+        <arg name="service" type="s" direction="out"/>
+        <arg name="menuObjectPath" type="o" direction="out"/>
+    </signal>
+    <signal name="WindowUnregistered">
+        <arg name="windowId" type="u" direction="out"/>
+    </signal>
+</interface>

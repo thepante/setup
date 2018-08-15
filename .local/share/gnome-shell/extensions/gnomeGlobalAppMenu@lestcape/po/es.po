@@ -1,0 +1,585 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <lestcape@gmail.com>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Gnome Global Application Menu 0.1-Beta\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-07-11 23:06-0500\n"
+"PO-Revision-Date: 2018-07-11 23:09-0500\n"
+"Last-Translator: Lester Carballo Pérez <lestcape@gmail.com>\n"
+"Language-Team: Lester Carballo Pérez <lestcape@gmail.com>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 2.0.6\n"
+
+#: applet.js:383
+msgid "Comments:"
+msgstr "Comentarios:"
+
+#: applet.js:396
+msgid "Website:"
+msgstr "Sitio web:"
+
+#: applet.js:421
+msgid "Contributors:"
+msgstr "Colaboradores:"
+
+#: applet.js:428
+msgid "Close"
+msgstr "Cerrar"
+
+#: applet.js:906 extensionManager.js:545
+#, javascript-format
+msgid "Remove '%s'"
+msgstr "Elimina '%s'"
+
+#: applet.js:922 extensionManager.js:560
+msgid "About..."
+msgstr "Acerca de..."
+
+#: applet.js:944 extensionManager.js:577
+msgid "Configure..."
+msgstr "Configurar..."
+
+#: prefs.js:167
+msgid "Ok"
+msgstr "Aceptar"
+
+#. metadata.json->name
+#: extensionManager.js:305
+msgid "Gnome Global Application Menu"
+msgstr "Gnome Global Application Menu"
+
+#: extensionManager.js:422
+#, javascript-format
+msgid "You need restart your computer, to active the %s backend"
+msgstr "Necesita reiniciar su computadora para activar el sistema de fondo %s"
+
+#: extensionManager.js:681
+msgid "The environment variable cannot be changed"
+msgstr "La variable de entorno no se puede cambiar"
+
+#: extensionManager.js:683
+msgid ""
+"The environment variable was set, a logout will be required to apply the "
+"changes"
+msgstr ""
+"Se estableció la variable de entorno, se requerirá un cierre de sesión para "
+"aplicar los cambios"
+
+#: extensionManager.js:844 extensionManager.js:847
+msgid ""
+"Only can be selected a unique modifier acelerator, not a convination or also "
+"not if include a key."
+msgstr ""
+"Solo se puede seleccionar un acelerador de modificador exclusivo, no una "
+"combinación de teclas, ni tampoco se puede incluir una sola tecla."
+
+#: settings/xletSettings.js:111
+msgid "extension, settings, configuration"
+msgstr "extensión, configuración, configuración"
+
+#: settings/xletSettings.js:197
+msgid "Previous instance"
+msgstr "Instancia anterior"
+
+#: settings/xletSettings.js:202
+msgid "Next instance"
+msgstr "Siguiente instancia"
+
+#: settings/xletSettings.js:383
+#, javascript-format
+msgid "Settings for %s"
+msgstr "Configuraciones para %s"
+
+#: settings/xletSettings.js:459
+msgid "Select or enter file to export to"
+msgstr "Seleccione o ingrese el archivo para exportar a"
+
+#: settings/xletSettings.js:471 settings/xletSettings.js:499
+msgid "JSON files"
+msgstr "Archivos JSON"
+
+#: settings/xletSettings.js:488
+msgid "Select a JSON file to import"
+msgstr "Seleccione un archivo JSON para importar"
+
+#: settings/gSettingsWidgets.js:271
+msgid "Checking dependencies"
+msgstr "Comprobando dependencias"
+
+#: settings/gSettingsWidgets.js:272
+#, javascript-format
+msgid "Please install: %s"
+msgstr "Por favor instala: %s"
+
+#. settings-schema.json->oversize-mode->options
+#. settings-schema.json->effect->options
+#: settings/chooserButtonWidgets.js:25
+msgid "None"
+msgstr "Ninguno"
+
+#. settings-schema.json->effect->options
+#: settings/chooserButtonWidgets.js:26
+msgid "Scale"
+msgstr "Escala"
+
+#: settings/chooserButtonWidgets.js:27
+msgid "Fade"
+msgstr "Descolorarse"
+
+#: settings/chooserButtonWidgets.js:28
+msgid "Blend"
+msgstr "Mezcla"
+
+#: settings/chooserButtonWidgets.js:29
+msgid "Move"
+msgstr "Movimiento"
+
+#: settings/chooserButtonWidgets.js:30
+msgid "Fly up"
+msgstr "Ir arriba"
+
+#: settings/chooserButtonWidgets.js:31
+msgid "Fly down"
+msgstr "Ir abajo"
+
+#: settings/chooserButtonWidgets.js:32
+msgid "Traditional"
+msgstr "Tradicional"
+
+#: settings/chooserButtonWidgets.js:258
+msgid "Select a date"
+msgstr "Seleccione una fecha"
+
+#: settings/chooserButtonWidgets.js:276
+msgid "Today"
+msgstr "Hoy"
+
+#: settings/chooserButtonWidgets.js:303
+msgid "%B %e, %Y"
+msgstr "%B %e, %Y"
+
+#: settings/keybindingWidgets.js:190
+msgid "unassigned"
+msgstr "sin asignar"
+
+#: settings/keybindingWidgets.js:217
+msgid "Pick an accelerator"
+msgstr "Elige un acelerador"
+
+#: settings/keybindingWidgets.js:342
+#, javascript-format
+msgid ""
+"This key combination, '<b>%s</b>' cannot be used because it would become "
+"impossible to type using this key."
+msgstr ""
+"Esta combinación de teclas, '<b>%s</b>' no se puede usar porque sería "
+"imposible escribir con esta tecla."
+
+#: settings/keybindingWidgets.js:343
+msgid ""
+"Please try again with a modifier key such as Control, Alt or Super (Windows "
+"key) at the same time."
+msgstr ""
+"Intente de nuevo con una tecla modificadora como Control, Alt o Super (tecla "
+"de Windows) al mismo tiempo."
+
+#: settings/settingsWidgets.js:1234
+msgid "Sound files"
+msgstr "Archivos de sonido"
+
+#: settings/settingsWidgets.js:1329
+msgid "Choose an Icon"
+msgstr "Elige un icono"
+
+#: settings/settingsWidgets.js:1340
+msgid "Image files"
+msgstr "Archivos de imagen"
+
+#: settings/modules/cg_settings.js:35
+msgid "Manage the extension settings"
+msgstr "Administrar la configuración de la extensión"
+
+#: utils/environment.js:47
+msgid "Global Menu Environment Usage"
+msgstr "Uso de Global Menu Environment"
+
+#: utils/environment.js:48
+msgid "Install environment variables"
+msgstr "Instalar variables de entorno"
+
+#: utils/environment.js:49
+msgid "Uninstall environment variables"
+msgstr "Desintalar variables de entorno"
+
+#: utils/environment.js:147
+msgid ""
+"Please enter your password to configure the Menu Proxy environment variable"
+msgstr ""
+"Por favor, introduzca su contraseña para configurar la variable de entorno "
+"Menu Proxy"
+
+#: utils/environment.js:158
+msgid "Could not acquire root privileges"
+msgstr "No se pueden obtener privilegios de root"
+
+#: utils/environment.js:170 utils/environment.js:174
+msgid "Could not find current file"
+msgstr "No se pudo encontrar el archivo actual"
+
+#. metadata.json->comments
+msgid ""
+"This is a Gnome Shell extension to provide a global application menu "
+"integration on the Gnome Shell desktop enviroment"
+msgstr ""
+"Esta es una extensión Gnome Shell para proporcionar una integración del menú "
+"global de aplicaciones en el entorno de escritorio Gnome Shell"
+
+#. metadata.json->description
+msgid "A Gnome Shell extension to provide a global application menu."
+msgstr ""
+"Una extensión de Gnome Shell para proporcionar un menú global de aplicación."
+
+#. settings-schema.json->head-support->description
+msgid "Support"
+msgstr "Soporte"
+
+#. settings-schema.json->enable-environment->description
+msgid "Statically set the menu proxy environment variable (Experimental)"
+msgstr ""
+"Establecer estáticamente la variable de entorno de proxy de menú "
+"(Experimental)"
+
+#. settings-schema.json->enable-environment->tooltip
+msgid ""
+"Select if you want to set statically the menu proxy environment variable."
+msgstr ""
+"Seleccione si desea establecer de forma estática la variable de entorno de "
+"proxy de menú."
+
+#. settings-schema.json->enable-jayantana->description
+msgid "Enable the support for JAyatana (Experimental)"
+msgstr "Habilita el soporte para JAyatana (Experimental)"
+
+#. settings-schema.json->enable-jayantana->tooltip
+msgid "Select if you want to enable the support for JAyatana."
+msgstr "Seleccione si desea habilitar el soporte para JAyatana."
+
+#. settings-schema.json->replace-appmenu->description
+msgid "Use the extension as a replace of Gnome AppMenu (Experimental)"
+msgstr "Use la extensión como reemplazo de Gnome AppMenu (Experimental)"
+
+#. settings-schema.json->replace-appmenu->tooltip
+msgid "Select if you want to use the extension as a replace of Gnome AppMenu."
+msgstr "Seleccione si desea usar la extensión como reemplazo de Gnome AppMenu."
+
+#. settings-schema.json->synchronize-panel->description
+msgid ""
+"Allow to synchronize the menus with others in the same panel (Experimental)"
+msgstr ""
+"Permitir sincronizar los menús con otros en el mismo panel (Experimental)"
+
+#. settings-schema.json->synchronize-panel->tooltip
+msgid ""
+"Select if you want to synchronize the menus with others in the same panel."
+msgstr "Seleccione si desea sincronizar los menús con otros en el mismo panel."
+
+#. settings-schema.json->head-application->description
+msgid "Applications"
+msgstr "Aplicaciones"
+
+#. settings-schema.json->show-app-icon->description
+msgid "Show the application icon in the panel"
+msgstr "Mostrar el icono de la aplicación en el panel"
+
+#. settings-schema.json->show-app-icon->tooltip
+msgid "Select if you want to show the application icon in the panel."
+msgstr "Seleccione si desea mostrar el icono de la aplicación en el panel."
+
+#. settings-schema.json->desaturate-app-icon->description
+msgid "Desaturate the application icon"
+msgstr "Desaturar el icono de la aplicación"
+
+#. settings-schema.json->desaturate-app-icon->tooltip
+msgid "Select if you want to desaturate the application icon."
+msgstr "Seleccione si desea desaturar el ícono de la aplicación."
+
+#. settings-schema.json->show-app-name->description
+msgid "Show the application name in the panel"
+msgstr "Mostrar el nombre de la aplicación en el panel"
+
+#. settings-schema.json->show-app-name->tooltip
+msgid "Select if you want to show the application name in the panel."
+msgstr "Seleccione si desea mostrar el nombre de la aplicación en el panel."
+
+#. settings-schema.json->used-window-title->description
+msgid "Show the window title instead of the application name in the panel"
+msgstr ""
+"Mostrar el título de la ventana en lugar del nombre de la aplicación en el "
+"panel"
+
+#. settings-schema.json->used-window-title->tooltip
+msgid ""
+"Select if you want to show the window title instead of the application name "
+"in the panel."
+msgstr ""
+"Seleccione si desea mostrar el título de la ventana en lugar del nombre de "
+"la aplicación en el panel."
+
+#. settings-schema.json->text-gradient->description
+msgid "Show a linear gradient effect in the application name"
+msgstr "Mostrar un efecto de degradado lineal en el nombre de la aplicación"
+
+#. settings-schema.json->text-gradient->tooltip
+msgid ""
+"Select if you want to show a linear gradient effect in the application name."
+msgstr ""
+"Seleccione si desea mostrar un efecto de degradado lineal en el nombre de la "
+"aplicación."
+
+#. settings-schema.json->max-app-name-size->units
+msgid "characters"
+msgstr "caracteres"
+
+#. settings-schema.json->max-app-name-size->description
+msgid "Maximum size of the application name:"
+msgstr "Tamaño máximo del nombre de la aplicación:"
+
+#. settings-schema.json->max-app-name-size->tooltip
+msgid "Set the maximum size of the application name."
+msgstr "Establezca el tamaño máximo del nombre de la aplicación."
+
+#. settings-schema.json->head-hudmenu->description
+msgid "Hud controller"
+msgstr "Controlador Hud"
+
+#. settings-schema.json->enable-search-provider->description
+msgid "Enable the HUD Gnome search provider"
+msgstr "Habilite el proveedor de búsqueda de Gnome para el HUD"
+
+#. settings-schema.json->enable-search-provider->tooltip
+msgid ""
+"Select if you want to enable the HUD Gnome search provider for searching the "
+"window menu actions."
+msgstr ""
+"Seleccione si desea habilitar el proveedor de búsqueda de Gnome para el HUD, "
+"para buscar en las acciones del menú de la ventana."
+
+#. settings-schema.json->hud-overlay-key->description
+msgid "Keyboard shortcut to open and close the hud menu"
+msgstr "Método abreviado de teclado para abrir y cerrar el menú Hud"
+
+#. settings-schema.json->num-items->units
+msgid "items"
+msgstr "elementos"
+
+#. settings-schema.json->num-items->description
+msgid "Maximum number of items:"
+msgstr "Cantidad máxima de elementos:"
+
+#. settings-schema.json->num-items->tooltip
+msgid ""
+"The maximum number of items that will be displayed in the HUD menu (more is "
+"slower)."
+msgstr ""
+"La cantidad máxima de elementos que se mostrarán en el menú de Hud (más es "
+"más lento)."
+
+#. settings-schema.json->head-mainmenu->description
+msgid "Main menu"
+msgstr "Menú principal"
+
+#. settings-schema.json->global-overlay-key->description
+msgid "Keyboard shortcut to open and close the menu"
+msgstr "Método abreviado de teclado para abrir y cerrar el menú"
+
+#. settings-schema.json->oversize-mode->description
+msgid "Apply this mode when the panel is oversized:"
+msgstr "Aplicar este modo cuando el panel esté sobre-dimensionado:"
+
+#. settings-schema.json->oversize-mode->tooltip
+msgid ""
+"Select the action to take when the panel menu oversize the available space."
+msgstr ""
+"Seleccione la acción a tomar cuando el menú del panel sobre-dimensione el "
+"espacio disponible."
+
+#. settings-schema.json->oversize-mode->options
+msgid "Fake Menu"
+msgstr "Menú falso"
+
+#. settings-schema.json->oversize-mode->options
+msgid "Auto Scrolling"
+msgstr "Desplazamiento automático"
+
+#. settings-schema.json->oversize-mode->options
+msgid "Wrap Text"
+msgstr "Ajustar texto"
+
+#. settings-schema.json->display-in-panel->description
+msgid "Display the main menu in the panel"
+msgstr "Muestra el menú principal en el panel"
+
+#. settings-schema.json->display-in-panel->tooltip
+msgid "Select if you want to display the main menu in the panel."
+msgstr "Seleccione si desea mostrar el menú principal en el panel."
+
+#. settings-schema.json->automatic-active-mainmenu->description
+msgid "Automatically activate the main menu"
+msgstr "Activar automáticamente el menú principal"
+
+#. settings-schema.json->automatic-active-mainmenu->tooltip
+msgid "Select if you want to automatically activate the main menu."
+msgstr "Seleccione si desea activar automáticamente el menú principal."
+
+#. settings-schema.json->activate-on-hover->description
+msgid "Open the menu when I move my mouse over it"
+msgstr "Abrir el menú cuando el ratón pase por encima"
+
+#. settings-schema.json->activate-on-hover->tooltip
+msgid "Enable opening the menu when the mouse enters the applet."
+msgstr "Habilite abrir el menú cuando el mouse pase por encima del elemento."
+
+#. settings-schema.json->shortcut-modifier->description
+msgid "Modifier shortcut to open and close the menu of the items"
+msgstr ""
+"Modificador de acceso directo para abrir y cerrar los menús de los elementos "
+"del menú"
+
+#. settings-schema.json->underline-shortcut->description
+msgid "Underline the selected shortcut characters"
+msgstr "Subrayar los caracteres de acceso directo seleccionados"
+
+#. settings-schema.json->underline-shortcut->tooltip
+msgid "Allow to underline the selected shortcut characters."
+msgstr "Permitir subrayar los caracteres de acceso directo seleccionados."
+
+#. settings-schema.json->allow-shortcut-colors->description
+msgid "Allow to set a color for the selected shortcut characters"
+msgstr ""
+"Permitir establecer un color para los caracteres de acceso directo "
+"seleccionados"
+
+#. settings-schema.json->allow-shortcut-colors->tooltip
+msgid ""
+"Select if you want to allow set a color for the selected shortcut characters."
+msgstr ""
+"Seleccione si desea permitir establecer un color para los caracteres de "
+"acceso directo seleccionados."
+
+#. settings-schema.json->shortcut-color->description
+msgid "Set the shortcut color"
+msgstr "Establecer el color del atajo"
+
+#. settings-schema.json->shortcut-color->tooltip
+msgid "Set a color to realce the character shortcut"
+msgstr "Establecer un color para realzar los caracteres de el atajo de teclado"
+
+#. settings-schema.json->head-submenu->description
+msgid "Submenu"
+msgstr "Submenú"
+
+#. settings-schema.json->open-active-submenu->description
+msgid "Automatically open the submenu"
+msgstr "Abrir automáticamente el submenú"
+
+#. settings-schema.json->open-active-submenu->tooltip
+msgid ""
+"Select if you want to automatically open the submenu when the mouse is "
+"inside of the launcher."
+msgstr ""
+"Seleccione si desea abrir automáticamente el submenú cuando el ratón está "
+"dentro del lanzador."
+
+#. settings-schema.json->close-active-submenu->description
+msgid "Automatically close the submenu"
+msgstr "Cerrar automáticamente el submenú"
+
+#. settings-schema.json->close-active-submenu->tooltip
+msgid ""
+"Select if you want to automatically close the submenu when the mouse is out "
+"of the launcher."
+msgstr ""
+"Seleccione si desea cerrar automáticamente el submenú cuando el ratón está "
+"fuera del lanzador."
+
+#. settings-schema.json->show-boxpointer->description
+msgid "Show the boxpointers"
+msgstr "Mostrar los boxpointers"
+
+#. settings-schema.json->show-boxpointer->tooltip
+msgid "Select if you want to show the boxpointer of all floating menus."
+msgstr ""
+"Seleccione si desea mostrar los boxpointer de todos los menús flotantes."
+
+#. settings-schema.json->align-menu-launcher->description
+msgid "Align all menus with his launcher"
+msgstr "Alinear todos los menús con su lanzador"
+
+#. settings-schema.json->align-menu-launcher->tooltip
+msgid "Select if you want to align all menus with his launcher."
+msgstr "Seleccione si desea alinear todos los menús con su lanzador."
+
+#. settings-schema.json->effect->description
+msgid "Effect on opening and closing:"
+msgstr "Efecto sobre la apertura y cierre:"
+
+#. settings-schema.json->effect->tooltip
+msgid "Select the effect on the menu opening and closing."
+msgstr "Seleccionar el efecto sobre la apertura y el cierre del menú."
+
+#. settings-schema.json->effect->options
+msgid "Dispel"
+msgstr "Desvanecer"
+
+#. settings-schema.json->effect->options
+msgid "Hide Horizontal"
+msgstr "Ocultar Horizontal"
+
+#. settings-schema.json->effect->options
+msgid "Hide Vertical"
+msgstr "Ocultar Vertical"
+
+#. settings-schema.json->effect->options
+msgid "Windows"
+msgstr "Ventanas"
+
+#. settings-schema.json->effect-time->units
+msgid "seconds"
+msgstr "segundos"
+
+#. settings-schema.json->effect-time->description
+msgid "Duration of effect:"
+msgstr "Duración del efecto:"
+
+#. settings-schema.json->effect-time->tooltip
+msgid "The time on seconds to perform the effect (more time is slower)."
+msgstr ""
+"El tiempo en segundos para realizar el efecto (más tiempo es más lento)."
+
+#. settings-schema.json->head-menuitem->description
+msgid "Menu items"
+msgstr "Elementos del menú"
+
+#. settings-schema.json->show-item-icon->description
+msgid "Show icons in the menu items"
+msgstr "Mostrar los iconos en los elementos del menú"
+
+#. settings-schema.json->show-item-icon->tooltip
+msgid "Select if you want to show icons in the menu items."
+msgstr "Seleccione si desea mostrar los iconos de los elementos del menú."
+
+#. settings-schema.json->desaturate-item-icon->description
+msgid "Desaturate icons in the menu items"
+msgstr "Desaturar los iconos de los elementos del menú"
+
+#. settings-schema.json->desaturate-item-icon->tooltip
+msgid "Select if you want to desaturate icons in the menu items."
+msgstr "Seleccione si desea desaturar los iconos de los elementos del menú."

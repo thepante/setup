@@ -1,0 +1,51 @@
+/*The container box for the popup-menu-item*/
+.configurable-menu .popup-menu {
+    padding-top: 0.625em;
+    padding-bottom: 0.625em;
+}
+
+/*The popup-menu-item of this alternative popup-menu implementation*/
+.configurable-menu .popup-menu-item {
+    padding-left: 1.875em;
+    padding-right: 1.562em;
+}
+
+/*The popup-menu-item inside a panel*/
+.popup-menu-item.applet-box {
+    padding: 0 0.5em 0 0.5em;
+}
+
+/*The popup-menu-item acceletator label*/
+.popup-menu-accel-label {
+    text-align: right;
+    padding-left: 0.625em;
+    padding-right: 0.625em;
+}
+
+/*The popup-menu-item gradient*/
+.gradient-menu-item {
+   spacing: 0.125em;
+}
+
+.hud-menu .menu-search-entry {
+   width: 30.0em;
+}
+
+/*The popup-menu-item label inside a panel
+.popup-menu-item .applet-label {
+    font-size: 10pt;
+}
+*/
+
+/*The popup-menu-item gradient label
+.gradient-label-menu-item {
+    color: red;
+}
+*/
+
+/*The popup-menu-item gradient icon box
+.gradient-icon-box {
+    width: 15px;
+    height: 15px;
+}
+*/

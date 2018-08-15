@@ -1,0 +1,283 @@
+{
+    "separator-support-top" : {
+        "type": "separator"
+    },
+    "head-support" : {
+        "type" : "header",
+        "description" : "Support"
+    },
+    "separator-support-bottom" : {
+        "type": "separator"
+    },
+    "enable-environment" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Statically set the menu proxy environment variable (Experimental)",
+        "tooltip": "Select if you want to set statically the menu proxy environment variable."
+    },
+    "enable-jayantana" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Enable the support for JAyatana (Experimental)",
+        "tooltip": "Select if you want to enable the support for JAyatana."
+    },
+    "replace-appmenu" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Use the extension as a replace of Gnome AppMenu (Experimental)",
+        "tooltip": "Select if you want to use the extension as a replace of Gnome AppMenu."
+    },
+    "synchronize-panel" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Allow to synchronize the menus with others in the same panel (Experimental)",
+        "tooltip": "Select if you want to synchronize the menus with others in the same panel."
+    },
+    "separator-application-top" : {
+        "type": "separator"
+    },
+    "head-application" : {
+        "type" : "header",
+        "description" : "Applications"
+    },
+    "separator-application-bottom" : {
+        "type": "separator"
+    },
+    "show-app-icon" : {
+        "type" : "checkbox",
+        "default" : true,
+        "description": "Show the application icon in the panel",
+        "tooltip": "Select if you want to show the application icon in the panel."
+    },
+    "desaturate-app-icon" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Desaturate the application icon",
+        "tooltip": "Select if you want to desaturate the application icon.",
+        "indent": true,
+        "dependency": "show-app-icon"
+    },
+    "show-app-name" : {
+        "type" : "checkbox",
+        "default" : true,
+        "description": "Show the application name in the panel",
+        "tooltip": "Select if you want to show the application name in the panel."
+    },
+    "used-window-title" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Show the window title instead of the application name in the panel",
+        "tooltip": "Select if you want to show the window title instead of the application name in the panel."
+    },
+    "text-gradient" : {
+        "type" : "checkbox",
+        "default" : true,
+        "indent": true,
+        "dependency": "show-app-name",
+        "description": "Show a linear gradient effect in the application name",
+        "tooltip": "Select if you want to show a linear gradient effect in the application name."
+    },
+    "max-app-name-size" : {
+        "type": "spinbutton",
+        "default": 10,
+        "min": 0,
+        "max": 60,
+        "step": 1,
+        "units": "characters",
+        "description": "Maximum size of the application name:",
+        "tooltip": "Set the maximum size of the application name.",
+        "indent": true,
+        "dependency": "show-app-name"
+    },
+    "separator-hudmenu-top" : {
+        "type": "separator"
+    },
+    "head-hudmenu" : {
+        "type" : "header",
+        "description" : "Hud controller"
+    },
+    "separator-hudmenu-bottom" : {
+        "type": "separator"
+    },
+    "enable-search-provider" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Enable the HUD Gnome search provider",
+        "tooltip": "Select if you want to enable the HUD Gnome search provider for searching the window menu actions."
+    },
+    "hud-overlay-key" : {
+        "type" : "keybinding",
+        "description" : "Keyboard shortcut to open and close the hud menu",
+        "default" : "<Super>u"
+    },
+    "num-items": {
+        "type": "spinbutton",
+        "default": 50,
+        "min": 0,
+        "max": 100,
+        "step": 1,
+        "units": "items",
+        "description": "Maximum number of items:",
+        "tooltip": "The maximum number of items that will be displayed in the HUD menu (more is slower)."
+    },
+    "separator-mainmenu-top" : {
+        "type": "separator"
+    },
+    "head-mainmenu" : {
+        "type" : "header",
+        "description" : "Main menu"
+    },
+    "separator-mainmenu-bottom" : {
+        "type": "separator"
+    },
+    "global-overlay-key" : {
+        "type" : "keybinding",
+        "description" : "Keyboard shortcut to open and close the menu",
+        "default" : "<Super>g"
+    },
+    "oversize-mode": {
+        "type": "combobox",
+        "description": "Apply this mode when the panel is oversized:",
+        "default": "1",
+        "tooltip": "Select the action to take when the panel menu oversize the available space.",
+        "options": {
+            "None": 1,
+            "Fake Menu": 2,
+            "Auto Scrolling": 3,
+            "Wrap Text": 4
+        }
+    },
+    "display-in-panel" : {
+        "type" : "checkbox",
+        "default" : true,
+        "description": "Display the main menu in the panel",
+        "tooltip": "Select if you want to display the main menu in the panel."
+    },
+    "automatic-active-mainmenu" : {
+        "type" : "checkbox",
+        "default" : true,
+        "description": "Automatically activate the main menu",
+        "tooltip": "Select if you want to automatically activate the main menu.",
+        "indent": true,
+        "dependency": "display-in-panel"
+    },
+    "activate-on-hover": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Open the menu when I move my mouse over it",
+        "tooltip": "Enable opening the menu when the mouse enters the applet."
+    },
+    "shortcut-modifier" : {
+        "type" : "keybinding",
+        "description" : "Modifier shortcut to open and close the menu of the items",
+        "default" : "Alt_L"
+    },
+    "underline-shortcut": {
+        "type": "checkbox",
+        "default": false,
+        "indent": true,
+        "description": "Underline the selected shortcut characters",
+        "tooltip": "Allow to underline the selected shortcut characters."
+    },
+    "allow-shortcut-colors": {
+        "type": "checkbox",
+        "default": false,
+        "indent": true,
+        "description": "Allow to set a color for the selected shortcut characters",
+        "tooltip": "Select if you want to allow set a color for the selected shortcut characters."
+    },
+    "shortcut-color": {
+        "type": "colorchooser",
+        "default": "rgb(0,0,0)",
+        "indent": true,
+        "dependency": "allow-shortcut-colors",
+        "description": "Set the shortcut color",
+        "tooltip": "Set a color to realce the character shortcut"
+    },
+    "separator-submenu-top" : {
+        "type": "separator"
+    },
+    "head-submenu" : {
+        "type" : "header",
+        "description" : "Submenu"
+    },
+    "separator-submenu-bottom" : {
+        "type": "separator"
+    },
+    "open-active-submenu" : {
+        "type" : "checkbox",
+        "default" : true,
+        "description": "Automatically open the submenu",
+        "tooltip": "Select if you want to automatically open the submenu when the mouse is inside of the launcher."
+    },
+    "close-active-submenu" : {
+        "type" : "checkbox",
+        "default" : true,
+        "description": "Automatically close the submenu",
+        "tooltip": "Select if you want to automatically close the submenu when the mouse is out of the launcher."
+    },
+    "show-boxpointer" : {
+        "type" : "checkbox",
+        "default" : true,
+        "description": "Show the boxpointers",
+        "tooltip": "Select if you want to show the boxpointer of all floating menus."
+    },
+    "align-menu-launcher" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Align all menus with his launcher",
+        "tooltip": "Select if you want to align all menus with his launcher."
+    },
+    "effect": {
+        "type": "combobox",
+        "description": "Effect on opening and closing:",
+        "default": "none",
+        "tooltip": "Select the effect on the menu opening and closing.",
+        "options": {
+            "None": "none",
+            "Dispel": "dispel",
+            "Hide Horizontal": "hideHorizontal",
+            "Hide Vertical": "hideVertical",
+            "Scale": "scale",
+            "Windows": "windows"
+        }
+    },
+    "effect-time": {
+        "type": "spinbutton",
+        "default": 0.4,
+        "min": 0,
+        "max": 1,
+        "step": 0.05,
+        "units": "seconds",
+        "description": "Duration of effect:",
+        "tooltip": "The time on seconds to perform the effect (more time is slower)."
+    },
+    "separator-menuitem-top" : {
+        "type": "separator"
+    },
+    "head-menuitem" : {
+        "type" : "header",
+        "description" : "Menu items"
+    },
+    "separator-menuitem-bottom" : {
+        "type": "separator"
+    },
+    "show-item-icon" : {
+        "type" : "checkbox",
+        "default" : true,
+        "description": "Show icons in the menu items",
+        "tooltip": "Select if you want to show icons in the menu items."
+    },
+    "desaturate-item-icon" : {
+        "type" : "checkbox",
+        "default" : false,
+        "description": "Desaturate icons in the menu items",
+        "tooltip": "Select if you want to desaturate icons in the menu items.",
+        "indent": true,
+        "dependency": "show-item-icon"
+    },
+    "dbusmenu-providers" : {
+        "type": "generic",
+        "default": ""
+    }
+}
