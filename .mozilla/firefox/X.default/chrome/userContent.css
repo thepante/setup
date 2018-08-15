@@ -69,6 +69,10 @@ input, select, textarea {
 	-moz-appearance: none !important;
 }
 
+* .OutlineContent {
+	background-color: #fff;
+}
+
 /*::selection, ::-moz-selection {
 	color: #FEFEFE !important;
 	background: #181818 !important;

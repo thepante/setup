@@ -1,4 +1,4 @@
-/* UBUNTU 06/08/2018 Limpio, Pante's Custom · t.me/fasito - u/thepante */
+﻿/* UBUNTU 06/08/2018 Limpio, Pante's Custom · t.me/fasito - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 @-moz-document url(chrome://browser/content/browser.xul) {
@@ -65,7 +65,7 @@
 	color: #03CB76 !important;
 }
 
-/* colores como el de color firefox */
+/* colores como el de color.firefox */
 :root:-moz-lwtheme-brighttext {
   --chrome-background-color: #141414 !important;
   --chrome-color: rgb(249, 249, 250);
@@ -111,6 +111,9 @@
 }
 /* quitar linea 1px top ventana */
 #titlebar {margin-bottom: -32px !important;}
+
+/* fix random oscuro en botones de ventana */
+#titlebar-buttonbox {background: #0F1419;}
 
 /* Botones de ventana en la izquierda */
 #titlebar-max {-moz-box-ordinal-group: 0;}
@@ -248,3 +251,4 @@ tooltip :nth-child(2) {
 }
 
 }
+
