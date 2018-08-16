@@ -1,3 +1,3 @@
 **pante's dotfiles**  
-wallpaper: can't find author. i remember it was from pexels.com  
-telegram systray icons [by aldomann](https://github.com/aldomann/telegram-systray-icons)
+Wallpaper author: [Lavinia Morgenstern](https://www.pexels.com/photo/backlit-dark-foggy-gloomy-558478/)  
+Telegram systray icons author: [aldomann](https://github.com/aldomann/telegram-systray-icons)  
