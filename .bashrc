@@ -129,6 +129,11 @@ else
 fi
 unset color_prompt force_color_prompt
 
+# Alias and fuctions
+function gitcommit () { 
+    git add . && git commit -m "$*"
+}
+
 alias rm='rm -i'
 alias neth='sudo nethogs wlxe8de27a32df0'
 alias streamv='acestream-launcher -e "acestreamplayer.engine --client-console" -p vlc'
@@ -136,4 +141,5 @@ alias stream='acestream-launcher -e "acestreamplayer.engine --client-console"'
 alias mp3='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
 alias download='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s'
 alias neo='neofetch'
+
 
