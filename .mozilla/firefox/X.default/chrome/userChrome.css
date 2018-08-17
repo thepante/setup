@@ -8,10 +8,6 @@
 #main-window:not([sizemode="normal"]) .titlebar-placeholder[type="post-tabs"]{display: none;}
 */
 
-#main-window {
-	--lwt-accent-color: #0F1419;
-}
-
 /* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
 #alltabs-button {
 	display: none;
@@ -59,15 +55,13 @@
 #urlbar[pageproxystate="valid"] > #identity-box.mixedActiveBlocked > #connection-icon {
   list-style-image: url(chrome://browser/skin/connection-secure.svg);
   -moz-context-properties: fill;
-  fill: #03CB76 !important;
-}
-#identity-icon-labels {
-	color: #03CB76 !important;
-}
+  fill: #03CB76 !important;}
+#identity-icon-labels {color: #03CB76 !important;}
 
 /* colores como el de color.firefox */
+#main-window {--lwt-accent-color: #0F1419;}
 :root:-moz-lwtheme-brighttext {
-  --chrome-background-color: #141414 !important;
+  --chrome-background-color: #0F1419 !important; /*era #141414*/
   --chrome-color: rgb(249, 249, 250);
   --chrome-secondary-background-color: #222424 !important;
   --toolbox-border-bottom-color: hsl(240, 5%, 5%);
@@ -109,11 +103,6 @@
   background-color: #257ABD !important;
   color: white !important;
 }
-/* quitar linea 1px top ventana */
-#titlebar {margin-bottom: -32px !important;}
-
-/* fix random oscuro en botones de ventana */
-#titlebar-buttonbox {background: #0F1419;}
 
 /* Botones de ventana en la izquierda */
 #titlebar-max {-moz-box-ordinal-group: 0;}
@@ -140,9 +129,11 @@ label.toolbarbutton-badge {
   font-weight: bold !important;
   box-shadow: -1px 1px 8px #444 !important;
 }
-.webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {
-  filter: saturate(40%);
-}
+ toolbarbutton .toolbarbutton-badge-stack, 
+ toolbarbutton .toolbarbutton-icon,
+.webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {opacity: 0.8 !important;}
+.webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {filter: saturate(40%);}
+
 
 /* Color bookmark y descargas */
 #star-button[starred],
@@ -187,9 +178,9 @@ label.toolbarbutton-badge {
 #tabbrowser-tabs .tabbrowser-tab:not([pinned=true])[fadein] {
 	min-width: 1px !important;}
 
-/* Fix 1px cuando muchas tabs y aparece flecha */
+/* Fix 1px cuando muchas tabs y aparece flecha + fix 2px sobre tabs */
 :root #TabsToolbar, :root #TabsToolbar + * {min-height: 31px !important;}
-:root #TabsToolbar {padding-top: 0px !important;}
+:root #TabsToolbar {padding-top: 0px !important;margin-top: -1px !important;}
 
 /* Tamaño pestañas max-min */
 .tabbrowser-tab:not([pinned]) {
