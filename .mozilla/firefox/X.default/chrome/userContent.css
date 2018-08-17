@@ -80,6 +80,6 @@ input, select, textarea {
 	/*body {--newtab-background-color: #0F1419 !important;} COMUN */
 	body {background: linear-gradient(178deg, #222424, #0F1419, #0F1419, #0F1419, #0F1419);}
 	.activity-stream .onboarding-watermark {opacity: 0.2;}
-	.activity-stream .sections-list {filter: saturate(85%);}
+	.activity-stream .sections-list .top-site-icon {filter: saturate(10%);}
 	.icon-settings {opacity: 0.1;}
 }
