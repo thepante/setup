@@ -76,7 +76,7 @@ input, select, textarea {
 	background: #181818 !important;
 }*/
 
-@-moz-document url("about:newtab") {
+@-moz-document url("about:home"), url("about:newtab") {
 	/*body {--newtab-background-color: #0F1419 !important;} COMUN */
 	body {background: linear-gradient(178deg, #222424, #0F1419, #0F1419, #0F1419, #0F1419);}
 	.activity-stream .onboarding-watermark {opacity: 0.2;}
