@@ -1,5 +1,5 @@
 // Modified for a real Spanish keyboard by Jon Tombs.
-// + pante : slash (/) en vez de ç y degree (°) en vez de Ç
+// + pante : slash (/) en vez de ç y degree (°) en vez de Ç - Orden: 890'¡ reordenado
 
 default  partial alphanumeric_keys
 xkb_symbols "basic" {
@@ -12,8 +12,13 @@ xkb_symbols "basic" {
     key <AE03>	{ [         3, periodcentered, numbersign,   sterling ]	};
     key <AE04>	{ [         4,     dollar,   asciitilde,       dollar ]	};
     key <AE06>	{ [         6,  ampersand,      notsign,  fiveeighths ]	};
-    key <AE11>	{ [apostrophe,   question,    backslash, questiondown ]	};
-    key <AE12>	{ [exclamdown, questiondown, dead_tilde,   asciitilde ]	};
+
+    key <AE08> { [            8,   questiondown                  ] };
+    key <AE09> { [            9,      parenleft                  ] };
+    key <AE10> { [            0,     parenright                  ] };
+    key <AE11> { [   apostrophe,       question                  ] };
+    key <AE12> { [   exclamdown,          equal                  ] };
+
 
     key <AD11>	{ [dead_grave, dead_circumflex, bracketleft, dead_abovering ] };
     key <AD12>	{ [      plus,   asterisk, bracketright,  dead_macron ]	};
@@ -22,7 +27,9 @@ xkb_symbols "basic" {
     key <AC11>	{ [dead_acute, dead_diaeresis, braceleft,   braceleft ]	};
     key <TLDE>	{ [ masculine, ordfeminine,    backslash,   backslash ]	};
 
-    key <BKSL>	{ [  slash,   degree,   braceright,   dead_breve ]	};
+    key <BKSL>  { [  slash,   degree,   braceright,   dead_breve      ] };
+    key <AB08>  { [        comma,      semicolon,      less,    less  ] };
+    key <AB09>  { [       period,       colon,      greater, greater  ] };
 
     include "level3(ralt_switch)"
 };
@@ -64,7 +71,11 @@ xkb_symbols "nodeadkeys" {
     key <AC10>	{ [    ntilde,     Ntilde,   asciitilde,  doubleacute ]	};
     key <AC11>	{ [     acute,  diaeresis,    braceleft,    braceleft ]	};
     key <BKSL>	{ [  slash,   degree,   braceright,        breve ]	};
-    key <AB10>	{ [     minus, underscore, dead_belowdot,    abovedot ]	};
+
+    key <AB08>  { [        comma,      semicolon,      less,    less  ] };
+    key <AB09>  { [       period,       colon,      greater, greater  ] };
+    key <AB10>  { [     minus, underscore, dead_belowdot,    abovedot ]	};
+
 };
 
 // Spanish mapping (note R-H exchange)
@@ -171,11 +182,11 @@ xkb_symbols "olpc" {
     key <AE05> { [            5,        percent,     asciicircum,   dead_circumflex ] };
     key <AE06> { [            6,      ampersand,         notsign ] };
     key <AE07> { [            7,          slash,       backslash ] };
-    key <AE08> { [            8,      parenleft                         ] };
-    key <AE09> { [            9,     parenright                         ] };
-    key <AE10> { [            0,          equal                  ] };
+    key <AE08> { [            8,   questiondown                  ] };
+    key <AE09> { [            9,      parenleft                  ] };
+    key <AE10> { [            0,     parenright                  ] };
     key <AE11> { [   apostrophe,       question                  ] };
-    key <AE12> { [   exclamdown,   questiondown                  ] };
+    key <AE12> { [   exclamdown,          equal                  ] };
 
     key <AD03> { [            e,              E,        EuroSign ] };
     key <AD11> { [   dead_acute, dead_diaeresis,           acute,   dead_abovering  ] };
@@ -185,8 +196,8 @@ xkb_symbols "olpc" {
     key <AC11> { [         plus,       asterisk,      dead_tilde ] };
     key <AC12> { [ bracketright,     braceright,      section    ] };
 
-    key <AB08> { [        comma,      semicolon                  ] };
-    key <AB09> { [       period,          colon                  ] };
+    key <AB08>  { [        comma,      semicolon,      less,    less  ] };
+    key <AB09>  { [       period,       colon,      greater, greater  ] };
     key <AB10> { [        minus,     underscore                  ] };
 
     key <I219> { [         less,        greater,  ISO_Next_Group ] };
@@ -211,10 +222,11 @@ xkb_symbols "olpcm" {
     key <AE05> { [            5,        percent,     asciicircum,   dead_circumflex ] };
     key <AE06> { [            6,      ampersand,         notsign ] };
     key <AE07> { [            7,          slash,       backslash ] };   // no '\' label on olpcm, leave for compatibility
-    key <AE08> { [            8,      parenleft,    masculine                ] };
-    key <AE09> { [            9,     parenright,    ordfeminine                 ] };
-    key <AE10> { [            0,          equal                  ] };
+    key <AE08> { [            8,   questiondown                  ] };
+    key <AE09> { [            9,      parenleft                  ] };
+    key <AE10> { [            0,     parenright                  ] };
     key <AE11> { [   apostrophe,       question                  ] };
+    key <AE12> { [   exclamdown,          equal                  ] };
 
     key <AD03> { [            e,              E,        EuroSign ] };
     key <AD11> { [   dead_acute, dead_diaeresis,     dead_abovering, acute  ] };
@@ -223,8 +235,8 @@ xkb_symbols "olpcm" {
     key <AC10> { [       ntilde,        Ntilde                  ] };
     // no AC11 or AC12 on olpcm
 
-    key <AB08> { [        comma,      semicolon                  ] };
-    key <AB09> { [       period,          colon                  ] };
+    key <AB08>  { [        comma,      semicolon,      less,    less  ] };
+    key <AB09>  { [       period,       colon,      greater, greater  ] };
     key <AB10> { [        minus,     underscore                  ] };
 
     key <AA02>  { [        less,        greater ] };
