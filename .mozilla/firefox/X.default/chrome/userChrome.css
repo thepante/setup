@@ -1,12 +1,8 @@
-﻿/* UBUNTU 06/08/2018 Limpio, Pante's Custom · t.me/fasito - u/thepante */
+﻿/* UBUNTU 18/08/2018 Limpio, Pante's Custom · t.me/fasito - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 @-moz-document url(chrome://browser/content/browser.xul) {
 
-/*
-#main-window[sizemode="maximized"] #titlebar {display: none;}
-#main-window:not([sizemode="normal"]) .titlebar-placeholder[type="post-tabs"]{display: none;}
-*/
 
 /* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
 #alltabs-button {
@@ -33,6 +29,7 @@
 }
 .tabs-newtab-button, #TabsToolbar > #new-tab-button, #TabsToolbar > toolbarpaletteitem > #new-tab-button {
 	list-style-image: url(chrome://browser/skin/tabbrowser/newtab.svg);
+	margin-top: 2px !important;
 	opacity: 0.3;
 }
 #tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, 
@@ -112,6 +109,13 @@
 #tabbrowser-tabs {direction: ltr;}
 .titlebar-placeholder[type="post-tabs"] {width: 20px !important;}
 .titlebar-placeholder[type="pre-tabs"] {width:20px !important;border: none 0px !important;}
+
+/* Hide cuando está maximizado - combinar con Unite gnome addon */
+#main-window[sizemode="maximized"] #titlebar-max,
+#main-window[sizemode="maximized"] #titlebar-min,
+#main-window[sizemode="maximized"] #titlebar-close {opacity: 0;}
+#main-window[sizemode="maximized"] #tabbrowser-tabs {margin-left: -70px;}
+/* Necesita fix desaparece al volver sin hover :s */
 
 /* Bordes de puntos en enlaces o menues · about:config : browser.display.focus_ring_width: 0; */
 :focus {outline:none;}
