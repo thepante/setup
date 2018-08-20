@@ -122,7 +122,7 @@ function parse_git_branch() {
     if [ ! "${BRANCH}" == "" ]
     then
         STAT=`parse_git_dirty`
-        echo "[${BRANCH}${STAT}]"
+        echo "[${BRANCH}]${STAT}"
     else
         echo ""
     fi
@@ -139,25 +139,25 @@ function parse_git_dirty {
     deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
     bits=''
     if [ "${renamed}" == "0" ]; then
-        bits=">${bits}"
+        bits=">${bits} "
     fi
     if [ "${ahead}" == "0" ]; then
-        bits="*${bits}"
+        bits="*${bits} " printf "\e[31m\$"
     fi
     if [ "${newfile}" == "0" ]; then
-        bits="+${bits}"
-    fi
+        bits="+${bits} "
+    fi 
     if [ "${untracked}" == "0" ]; then
-        bits="?${bits}"
+        bits="?${bits} "
     fi
     if [ "${deleted}" == "0" ]; then
-        bits="x${bits}"
+        bits="x${bits} "
     fi
     if [ "${dirty}" == "0" ]; then
-        bits="·${bits}"
+        bits="·${bits} " printf "\033[01;32m\$"
     fi
     if [ ! "${bits}" == "" ]; then
-        echo "${bits}"
+        echo "${bits} "
     else
         echo ""
     fi
