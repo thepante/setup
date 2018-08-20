@@ -1,0 +1,16 @@
+{
+	"bootstrapped": true,
+	"in_process_packages":
+	[
+	],
+	"installed_packages":
+	[
+		"ColorPicker",
+		"Git",
+		"GitGutter",
+		"Oceanic Next Color Scheme",
+		"Package Control",
+		"SideBarEnhancements",
+		"sublime-github"
+	]
+}
