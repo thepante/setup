@@ -166,10 +166,10 @@ function parse_git_dirty {
 export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\[\033[01;31m\]\`parse_git_branch\` \$ \[\e[0m\]"
 
 # Alias and fuctions
-function gitcommit () { 
+function commit () { 
     git add . && git commit -m "$*"
 }
-
+alias push='git push'
 alias rm='rm -i'
 alias neth='sudo nethogs wlxe8de27a32df0'
 alias streamv='acestream-launcher -e "acestreamplayer.engine --client-console" -p vlc'
