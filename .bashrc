@@ -122,7 +122,7 @@ function parse_git_branch() {
     if [ ! "${BRANCH}" == "" ]
     then
         STAT=`parse_git_dirty`
-        printf "[${BRANCH}]\e[01;00m${STAT}"
+        printf "[${BRANCH}]\e[01;00m\e[2m${STAT}"
     else
         printf "\e[1;00m"
     fi
