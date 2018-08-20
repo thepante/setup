@@ -122,9 +122,9 @@ function parse_git_branch() {
     if [ ! "${BRANCH}" == "" ]
     then
         STAT=`parse_git_dirty`
-        echo "[${BRANCH}]${STAT}"
+        printf "[${BRANCH}]\e[1;00m${STAT}"
     else
-        printf "\033[00m \e[01m"
+        printf "\e[1;00m"
     fi
 }
 
@@ -139,31 +139,31 @@ function parse_git_dirty {
     deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
     bits=''
     if [ "${renamed}" == "0" ]; then
-        bits=">${bits}" printf "\e[01;33m"
+        bits="${bits}>" printf "\e[1;33m"
     fi
     if [ "${ahead}" == "0" ]; then
-        bits="*${bits}" printf "\e[01;33m"
+        bits="${bits}*" printf "\e[1;33m"
     fi
     if [ "${newfile}" == "0" ]; then
-        bits="+${bits}" printf "\e[01;34m"
-    fi 
+        bits="${bits}+" printf "\e[1;34m"
+    fi
     if [ "${untracked}" == "0" ]; then
-        bits="?${bits}" printf "\e[01;35m"
+        bits="${bits}?" printf "\e[1;35m"
     fi
     if [ "${deleted}" == "0" ]; then
-        bits="x${bits}" printf "\e[01;31m"
+        bits="${bits}x" printf "\e[1;31m"
     fi
     if [ "${dirty}" == "0" ]; then
-        bits="·${bits}" printf "\e[01;33m"
+        bits="${bits}" printf "\e[1;33m"
     fi
     if [ ! "${bits}" == "" ]; then
         echo "${bits}"
     else
-        printf "\033[00m \e[01m"
+        echo ""
     fi
 }
 
-export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\[\033[01;31m\]\`parse_git_branch\`\$ \[\e[0m\]"
+export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\[\033[01;31m\]\`parse_git_branch\` \$ \[\e[0m\]"
 
 # Alias and fuctions
 function gitcommit () { 
