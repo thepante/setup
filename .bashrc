@@ -154,16 +154,16 @@ function parse_git_dirty {
         bits="x${bits}"
     fi
     if [ "${dirty}" == "0" ]; then
-        bits="!${bits}"
+        bits="·${bits}"
     fi
     if [ ! "${bits}" == "" ]; then
-        echo " ${bits}"
+        echo "${bits}"
     else
         echo ""
     fi
 }
 
-export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\[\033[01;31m\]\[\e[37;41m\]\`parse_git_branch\`\[\033[00m\] \$ "
+export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\[\033[01;31m\]\`parse_git_branch\`\[\033[00m\] \[\e[37m\]\$ "
 
 # Alias and fuctions
 function gitcommit () { 
