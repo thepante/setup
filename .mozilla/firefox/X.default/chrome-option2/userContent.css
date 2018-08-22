@@ -1,0 +1,64 @@
+﻿
+/*input {
+border: 2px inset white;
+background-color: white;
+color: black;
+-moz-appearance: none !important;
+}
+textarea {
+border: 2px inset white;
+background-color: white;
+color: black;
+-moz-appearance: none !important;
+}
+select {
+border: 2px inset white;
+background-color: white;
+color: black;
+-moz-appearance: none !important;
+}
+*/
+input[type="radio"],
+input[type="checkbox"] {
+border: 1px solid #e3e3e3 !important;
+background-color: white !important;
+/*color: ThreeDFace !important;*/
+-moz-appearance: none !important;
+width: 10px !important;
+height: 10px !important;
+border-radius: 3px !important;
+}
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+border: 1px solid #0085C8 !important;
+background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAACXBIWXMAAAsSAAALEgHS3X78AAAA+ElEQVQokYWSMU7DQBRE36wdoRSkiChocwyK1LmBT4Cw6GlduXDFAXyFXABR+yAuQ4FcmMKF7f0UsfGSCDHV15/Z/2d3VlyitBUbdgC01KTqQ1o/1dHWGsmckQLbqdt4UVpETqJuOXC0tRt4F+yvNgIGlY85kKhzABrJ/hAP09S9RrJzXdoquuUjsDHj08SrjGK2N35x76YLLmJjwBgRjxhPwYAtG3bxld+IZ3lOXjw4m14rgKOlBpq5IU+B6J3n5ULb0FI7UvVelAFxh/EG3IRqL0pS9W6ykRtUvzaHNqGyiHwhEnU+5uBFEdrjHFwxZwBh0jP++Rrf+5xX8HswnacAAAAASUVORK5CYII=') !important;
+background-repeat: no-repeat !important;
+background-position: -2px -2px !important;
+}
+*|*::-moz-radio {
+background-color: white;
+-moz-appearance: none !important;
+}
+button,
+input[type="reset"],
+input[type="button"],
+input[type="submit"] {
+border: 2px outset white;
+background-color: #eeeeee;
+color: black;
+-moz-appearance: none !important;
+}
+body {
+background-color: white;
+color: black;
+display: block;
+margin: 8px;
+-moz-appearance: none !important;
+}
+
+input, select, textarea {
+	border: 1px solid #e3e3e3;
+	background-color: white;
+	color: #4a4a4a;
+	-moz-appearance: none !important;
+}

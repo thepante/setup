@@ -1,0 +1,10 @@
+/* Hide when max - actual code - for use with Unite extension or similar
+   extensions.gnome.org */
+#main-window[sizemode="maximized"] #titlebar-max,
+#main-window[sizemode="maximized"] #titlebar-min,
+#main-window[sizemode="maximized"] #titlebar-close {opacity: 0;}
+#main-window[sizemode="maximized"] #tabbrowser-tabs {margin-left: -70px;}
+
+}
+
+
