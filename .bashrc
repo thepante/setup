@@ -53,12 +53,12 @@ esac
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
-	# We have color support; assume it's compliant with Ecma-48
-	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
-	# a case would tend to support setf rather than setaf.)
-	color_prompt=yes
+    # We have color support; assume it's compliant with Ecma-48
+    # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+    # a case would tend to support setf rather than setaf.)
+    color_prompt=yes
     else
-	color_prompt=
+    color_prompt=
     fi
 fi
 
@@ -122,15 +122,25 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# colores
+# DFLT='\e[01;00m\e[2m'               \[\033[00m\]
+# NCLR='\e[1;00m'
+cc0='\e[0m' # setear default
+cc1='\e[1;31m' # rojo
+cc2='\e[1;33m' # amarillo
+cc3='\e[1;34m' # azul
+cc4='\e[1;35m' # magenta
+cc5='\e[1;00m' # limpieza ?
+cc6='\033[01;31m' # color de branch
+
 # get current branch in git repo
 function parse_git_branch() {
     BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
     if [ ! "${BRANCH}" == "" ]
-    then
-        STAT=`parse_git_dirty`
-        printf "[${BRANCH}]\e[01;00m\e[2m${STAT}"
-    else
-        printf "\e[1;00m"
+    then 
+         STAT=`parse_git_dirty`
+         printf "${cc6}[${BRANCH}]${cc0}${STAT}"
+    else echo ""
     fi
 }
 
@@ -143,33 +153,24 @@ function parse_git_dirty {
     newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
     renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
     deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
-    bits=''
-    if [ "${renamed}" == "0" ]; then
-        bits="${bits}>" printf "\e[1;33m"
+    if [ "${renamed}" == "0" ]; then echo "${cc2}"
     fi
-    if [ "${ahead}" == "0" ]; then
-        bits="${bits}*" printf "\e[1;33m"
+    if [ "${ahead}" == "0" ]; then echo "${cc2}"
     fi
-    if [ "${newfile}" == "0" ]; then
-        bits="${bits}+" printf "\e[1;34m"
+    if [ "${newfile}" == "0" ]; then echo "${cc3}"
     fi
-    if [ "${untracked}" == "0" ]; then
-        bits="${bits}?" printf "\e[1;35m"
+    if [ "${untracked}" == "0" ]; then echo "${cc4}"
     fi
-    if [ "${deleted}" == "0" ]; then
-        bits="${bits}x" printf "\e[1;31m"
+    if [ "${deleted}" == "0" ]; then echo "${cc1}"
     fi
-    if [ "${dirty}" == "0" ]; then
-        bits="${bits}" printf "\e[1;33m"
+    if [ "${dirty}" == "0" ]; then echo "${cc2}"
     fi
-    if [ ! "${bits}" == "" ]; then
-        echo "${bits}"
-    else
-        echo ""
+    if [ ! "" == "" ]; then echo ""
+    else echo ""
     fi
 }
 
-export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\[\033[01;31m\]\`parse_git_branch\` \$ \[\e[0m\]"
+export PS1="\[\033[01;32m\]\u@\h \[\033[01;34m\]\w\[\e[01;00m\]\`parse_git_branch\` \$ \[\e[0m\]"
 
 # Alias and fuctions
 function commit () { 
