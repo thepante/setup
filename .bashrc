@@ -123,7 +123,7 @@ if ! shopt -oq posix; then
 fi
 
 # colores
-# DFLT='\e[01;00m\e[2m'               \[\033[00m\]
+# DFLT='\e[01;00m\e[2m'
 # NCLR='\e[1;00m'
 cc0='\e[0m' # setear default
 cc1='\e[1;31m' # rojo
@@ -131,18 +131,21 @@ cc2='\e[1;33m' # amarillo
 cc3='\e[1;34m' # azul
 cc4='\e[1;35m' # magenta
 cc5='\e[1;00m' # limpieza ?
-cc6='\033[01;31m' # color de branch
+cc6='\033[01;31m' # color azulado ese
+
 
 # get current branch in git repo
 function parse_git_branch() {
     BRANCH=`git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'`
     if [ ! "${BRANCH}" == "" ]
-    then 
-         STAT=`parse_git_dirty`
-         printf "${cc6}[${BRANCH}]${cc0}${STAT}"
-    else echo ""
+    then
+        STAT=`parse_git_dirty`
+        printf "${cc6}[${BRANCH}]${cc0}${STAT}"
+    else
+        printf ""
     fi
 }
+
 
 # get current status of git repo
 function parse_git_dirty {
@@ -153,24 +156,33 @@ function parse_git_dirty {
     newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
     renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
     deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
-    if [ "${renamed}" == "0" ]; then echo "${cc2}"
+    bits=''
+    if [ "${renamed}" == "0" ]; then
+        printf "${cc2}"
     fi
-    if [ "${ahead}" == "0" ]; then echo "${cc2}"
+    if [ "${ahead}" == "0" ]; then
+        printf "${cc2}"
     fi
-    if [ "${newfile}" == "0" ]; then echo "${cc3}"
+    if [ "${newfile}" == "0" ]; then
+        printf "${cc3}"
     fi
-    if [ "${untracked}" == "0" ]; then echo "${cc4}"
+    if [ "${untracked}" == "0" ]; then
+        printf "${cc4}"
     fi
-    if [ "${deleted}" == "0" ]; then echo "${cc1}"
+    if [ "${deleted}" == "0" ]; then
+        printf "${cc1}"
     fi
-    if [ "${dirty}" == "0" ]; then echo "${cc2}"
+    if [ "${dirty}" == "0" ]; then
+        printf "${cc2}"
     fi
-    if [ ! "" == "" ]; then echo ""
-    else echo ""
+    if [ ! "${bits}" == "" ]; then
+        echo "${bits}"
+    else
+        echo ""
     fi
 }
 
-export PS1="\[\033[01;32m\]\u@\h \[\033[01;34m\]\w\[\e[01;00m\]\`parse_git_branch\` \$ \[\e[0m\]"
+export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\[\e[01;00m\e[2m\]\`parse_git_branch\` \$ \[\e[0m\]"
 
 # Alias and fuctions
 function commit () { 
@@ -184,5 +196,6 @@ alias stream='acestream-launcher -e "acestreamplayer.engine --client-console"'
 alias mp3='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
 alias download='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s'
 alias neo='neofetch'
+
 
 
