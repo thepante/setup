@@ -1,5 +1,5 @@
 // Modified for a real Spanish keyboard by Jon Tombs.
-// + pante : slash (/) en vez de ç y degree (°) en vez de Ç - Orden: 890'¡ reordenado
+// + pante : slash (/) en vez de ç y degree (°) en vez de Ç · Orden: 890'¡ reordenado · grave (`) en guión/menos
 
 default  partial alphanumeric_keys
 xkb_symbols "basic" {
@@ -27,9 +27,10 @@ xkb_symbols "basic" {
     key <AC11>	{ [dead_acute, dead_diaeresis, braceleft,   braceleft ]	};
     key <TLDE>	{ [ masculine, ordfeminine,    backslash,   backslash ]	};
 
-    key <BKSL>  { [  slash,   degree,   braceright,   dead_breve      ] };
+    key <BKSL>  { [  slash,   degree,   braceright,   grave      ] };
     key <AB08>  { [        comma,      semicolon,      less,    less  ] };
     key <AB09>  { [       period,       colon,      greater, greater  ] };
+    key <AB10>  { [        minus,     underscore,     grave           ] };
 
     include "level3(ralt_switch)"
 };
@@ -70,11 +71,11 @@ xkb_symbols "nodeadkeys" {
     key <AD12>	{ [      plus,   asterisk, bracketright,       macron ]	};
     key <AC10>	{ [    ntilde,     Ntilde,   asciitilde,  doubleacute ]	};
     key <AC11>	{ [     acute,  diaeresis,    braceleft,    braceleft ]	};
-    key <BKSL>	{ [  slash,   degree,   braceright,        breve ]	};
+    key <BKSL>	{ [  slash,   degree,   braceright,        grave ]	};
 
     key <AB08>  { [        comma,      semicolon,      less,    less  ] };
     key <AB09>  { [       period,       colon,      greater, greater  ] };
-    key <AB10>  { [     minus, underscore, dead_belowdot,    abovedot ]	};
+    key <AB10>  { [     minus, underscore, grave,    abovedot ]	};
 
 };
 
@@ -122,7 +123,7 @@ xkb_symbols "dvorak" {
     key <AC09> {[          n, N, eng, ENG				]};
     key <AC10> {[          s, S, ssharp, section			]};
     key <AC11> {[ dead_acute, dead_diaeresis, braceleft, dead_tilde	]};
-    key <BKSL> {[   slash, degree, braceright, dead_cedilla	]};
+    key <BKSL> {[   slash, degree, braceright, grave	]};
 
     key <LSGT> {[       less, greater, guillemotleft, guillemotright	]};
     key <AB01> {[      minus, underscore, hyphen, macron		]};
@@ -198,7 +199,7 @@ xkb_symbols "olpc" {
 
     key <AB08>  { [        comma,      semicolon,      less,    less  ] };
     key <AB09>  { [       period,       colon,      greater, greater  ] };
-    key <AB10> { [        minus,     underscore                  ] };
+    key <AB10> { [        minus,     underscore,     grave             ] };
 
     key <I219> { [         less,        greater,  ISO_Next_Group ] };
 
@@ -237,7 +238,7 @@ xkb_symbols "olpcm" {
 
     key <AB08>  { [        comma,      semicolon,      less,    less  ] };
     key <AB09>  { [       period,       colon,      greater, greater  ] };
-    key <AB10> { [        minus,     underscore                  ] };
+    key <AB10> { [        minus,     underscore,    grave              ] };
 
     key <AA02>  { [        less,        greater ] };
     key <AA06>  { [  bracketleft,      braceleft,   slash,         degree  ] };
