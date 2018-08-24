@@ -46,7 +46,7 @@
 #tabbrowser-tabs .tab-label[selected]{opacity: 1;}
 
 
-/* Color conexión segura*/
+/* Iconos de conexión del dominio */
 #urlbar[pageproxystate="valid"] > #identity-box.verifiedDomain > #connection-icon, 
 #urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity > #connection-icon, 
 #urlbar[pageproxystate="valid"] > #identity-box.mixedActiveBlocked > #connection-icon {
@@ -54,6 +54,35 @@
   -moz-context-properties: fill;
   fill: #03CB76 !important;}
 #identity-icon-labels {color: #03CB76 !important;}
+
+#identity-icon-country-label {
+  opacity: 0; 
+  -moz-margin-end: -25px !important;
+  transition: opacity 0.3s, -moz-margin-end 0.3s;
+}
+
+#identity-box:hover #identity-icon-country-label {
+  opacity: 1;
+  -moz-margin-end: 5px !important;
+  transition: opacity 0.5s, -moz-margin-end 0.3s;
+}
+
+#identity-box #identity-icon-labels {
+	-moz-margin-end: -10px !important;
+    padding-right: 3px !important;
+}
+#urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity {
+	--urlbar-separator-color: rgba(18, 188, 0, 0) !important;
+}
+#identity-box:hover:not(.no-hover):not([open="true"]) {
+	background-color: hsla(0,0%,70%,.2);
+	fill-opacity: .8;
+  	-moz-transition: background-color 0.35s;
+}
+#identity-box {
+	-moz-transition: background-color 0.35s;
+}
+
 
 /* colores como el de color.firefox */
 #main-window {--lwt-accent-color: #0F1419;}
