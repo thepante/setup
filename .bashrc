@@ -1,9 +1,3 @@
-################################
-##############################
-#### BUGGED - NEED FIX #####
-##########################
-########################
-
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -131,7 +125,7 @@ cc2='\e[1;33m' # amarillo
 cc3='\e[1;34m' # azul
 cc4='\e[1;35m' # magenta
 cc5='\e[1;00m' # limpieza ?
-cc6='\033[01;31m' # color azulado ese
+cc6='\033[01;31m' # color branch -- ex \[\e[01;00m\e[2m\]
 
 
 # get current branch in git repo
@@ -182,7 +176,7 @@ function parse_git_dirty {
     fi
 }
 
-export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\[\e[01;00m\e[2m\]\`parse_git_branch\` \$ \[\e[0m\]"
+export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\`parse_git_branch\` \$ \[\e[0m\]"
 
 # Alias and fuctions
 function commit () { 
@@ -196,6 +190,5 @@ alias stream='acestream-launcher -e "acestreamplayer.engine --client-console"'
 alias mp3='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
 alias download='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s'
 alias neo='neofetch'
-
 
 
