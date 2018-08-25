@@ -1,4 +1,4 @@
-﻿/* UBUNTU 18/08/2018 Limpio, Pante's Custom · t.me/fasito - u/thepante */
+﻿/* Gnome 25/08/2018 · t.me/fasito - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 @-moz-document url(chrome://browser/content/browser.xul) {
@@ -189,9 +189,12 @@ label.toolbarbutton-badge {
 /* FIX close cuando hover pestaña no seleccionada*/
 #tabbrowser-tabs[closebuttons="activetab"] > .tabbrowser-tab > .tab-stack > .tab-content > .tab-close-button:not([selected="true"]):not([pinned="true"]) {display: inherit !important;}
 
-
 /* Icono media blocked */
  .tab-icon-sound[activemedia-blocked] {display: none !important;}
+ .tab-icon-sound {-moz-transition: 0.25s;}
+
+/* Icono media tab pineada */
+ .tab-icon-overlay[soundplaying] {opacity: 0.4;}
 
 /* Esconder tabs-arrows buttons cuando overflow */
 #tabbrowser-tabs toolbarbutton.scrollbutton-up,
