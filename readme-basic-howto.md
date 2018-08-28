@@ -28,5 +28,3 @@ It will be updated with info about extensions
 + **Albert** - Have its own theme (`Sierranegra.qss`) - [Copy this file](https://github.com/thepante/setup/blob/master/.local/share/albert/org.albert.extension.externalextensions/themes/Sierranegra.qss) under that same path showed there. Remember it have to be a `.qss` file.
 
 ---
-  
-**I'm new on this and learning on the run. But if you need some help with something about the files up here in this setup repo, feel free to contact me via Telegram 👍 [@fasito](https://t.me/fasito)**
