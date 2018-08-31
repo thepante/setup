@@ -17,7 +17,7 @@ xkb_symbols "basic" {
     key <AE09> { [            9,      parenleft                  ] };
     key <AE10> { [            0,     parenright                  ] };
     key <AE11> { [   apostrophe,       question                  ] };
-    key <AE12> { [   exclamdown,          equal                  ] };
+    key <AE12> { [   equal,          exclamdown                  ] };
 
 
     key <AD11>	{ [dead_grave, dead_circumflex, bracketleft, dead_abovering ] };
@@ -187,7 +187,7 @@ xkb_symbols "olpc" {
     key <AE09> { [            9,      parenleft                  ] };
     key <AE10> { [            0,     parenright                  ] };
     key <AE11> { [   apostrophe,       question                  ] };
-    key <AE12> { [   exclamdown,          equal                  ] };
+    key <AE12> { [   equal,          exclamdown                  ] };
 
     key <AD03> { [            e,              E,        EuroSign ] };
     key <AD11> { [   dead_acute, dead_diaeresis,           acute,   dead_abovering  ] };
@@ -227,7 +227,7 @@ xkb_symbols "olpcm" {
     key <AE09> { [            9,      parenleft                  ] };
     key <AE10> { [            0,     parenright                  ] };
     key <AE11> { [   apostrophe,       question                  ] };
-    key <AE12> { [   exclamdown,          equal                  ] };
+    key <AE12> { [   equal,          exclamdown                  ] };
 
     key <AD03> { [            e,              E,        EuroSign ] };
     key <AD11> { [   dead_acute, dead_diaeresis,     dead_abovering, acute  ] };
