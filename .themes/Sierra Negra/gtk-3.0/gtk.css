@@ -4798,7 +4798,7 @@ stackswitcher button.text-button.nautilus-circular-button.image-button {
   box-shadow: inset 0 0 0 1px #F08437;
 }
 
- /* bordes sombras ventanas */
+ /* bordes sombras ventanas - la esencia sierra negra xD */
 decoration {
   transition: box-shadow 0.2s cubic-bezier(0, 0, 0.2, 1);
   border-radius: 6px;
@@ -4806,7 +4806,7 @@ decoration {
   margin: 4px;
 }
 
- decoration {
+ decoration, .popup decoration {
   box-shadow: 
   0 3px 8px rgba(0, 0, 0, 0.5), 
   0 0 6px rgba(0, 0, 0, 0.22),
@@ -4821,35 +4821,17 @@ decoration {
   0 0 0 1px rgba(0, 0, 0, 0.2);
   outline-width: 0;
 }
-
-/*--*/
-
-.fullscreen decoration,
-.tiled decoration {
-  border-radius: 0;
-  box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.12);
-}
-
-.popup decoration {
-  border-radius: 6px;
-}
-
-.ssd decoration {
-  margin: -5px;
-  border-radius: 6px 6px 0 0;
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.12);
-}
-
-.ssd decoration.maximized {
-  border-radius: 0;
-}
-
+/* aplicar correciones a elementos */
+.fullscreen decoration, 
+.tiled decoration { border-radius: 0;}
+.ssd decoration { margin: -5px; border-radius: 6px 6px 0 0;}
+.ssd decoration.maximized {border-radius: 0;}
 .csd.popup decoration {
-  border-radius: 6px;
   box-shadow: 
-  0 3px 5px rgba(0, 0, 0, 0.12), 
-  0 5px 5px rgba(0, 0, 0, 0.06), 
-  0 0 0 1px rgba(255, 255, 255, 0.12);
+  0 3px 8px rgba(0, 0, 0, 0.5), 
+  0 0 6px rgba(0, 0, 0, 0.22),
+  0 0 0 1px rgba(0, 0, 0, 0.4);
+  outline-width: 0;
 }
 
 tooltip.csd decoration {
@@ -4857,9 +4839,9 @@ tooltip.csd decoration {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.15);
 }
 
-messagedialog.csd decoration {
-  border-radius: 6px;
-}
+/* ufff al fin. RECORDÁ: tengo seguir corrijiendo los colores ... */
+
+messagedialog.csd decoration { border-radius: 6px;}
 
 .solid-csd decoration {
   border: 1px solid #4B4B4B;
