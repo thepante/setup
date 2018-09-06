@@ -9,7 +9,7 @@ It will be updated with info about extensions
 + **1.c.** Monoscpace font: `Ubuntu Mono Regular` size `13`
   
     
-+ **2.** Download [*Sierra Negra*](https://github.com/thepante/setup/releases/download/0.3/Sierranegra.zip), put it on `~/.themes` folder
++ **2.** Download [*Sierra Negra*](https://github.com/thepante/setup/releases), put it on `~/.themes` folder
 + **2.a.** In `Gnome-Tweaks > Appearance` select `Sierra Negra` on `Applications` and `Shell` themes  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *If Shell is disabled, you need [User Themes](https://extensions.gnome.org/extension/19/user-themes/) extension*
 + **3.** Download [*Cupertino-macOS iCons*](https://github.com/USBA/Cupertino-macOS-iCons/releases) - put the extracted folder on `~/.icons`
