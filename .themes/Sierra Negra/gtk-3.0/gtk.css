@@ -4798,17 +4798,31 @@ stackswitcher button.text-button.nautilus-circular-button.image-button {
   box-shadow: inset 0 0 0 1px #F08437;
 }
 
+ /* bordes sombras ventanas */
 decoration {
   transition: box-shadow 0.2s cubic-bezier(0, 0, 0.2, 1);
   border-radius: 6px;
   border-width: 0;
-  box-shadow: 0 5px 5px 0 rgba(0, 0, 0, 0.3), 0 8px 15px 0 rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.12);
   margin: 4px;
 }
 
-decoration:backdrop {
-  box-shadow: 0 5px 5px 0 transparent, 0 8px 15px 0 transparent, 0 3px 3px 0 rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.12);
+ decoration {
+  box-shadow: 
+  0 3px 8px rgba(0, 0, 0, 0.5), 
+  0 0 6px rgba(0, 0, 0, 0.22),
+  0 0 0 1px rgba(0, 0, 0, 0.4);
+  outline-width: 0;
 }
+
+ decoration:backdrop { /* necesita idem sino bug cuando animado*/
+  box-shadow: 
+  0 3px 8px rgba(0, 0, 0, 0.2), 
+  0 0 6px rgba(0, 0, 0, 0.10),
+  0 0 0 1px rgba(0, 0, 0, 0.2);
+  outline-width: 0;
+}
+
+/*--*/
 
 .fullscreen decoration,
 .tiled decoration {
@@ -8499,27 +8513,7 @@ window.budgie-switcher-window flowboxchild {
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-
-/*###### otros ######*/
-
-window {
-  box-shadow: 
-  0 3px 8px rgba(0, 0, 0, 0.5), 
-  0 0 6px rgba(0, 0, 0, 0.22), /* 0 3px 6px*/
-  0 0 0 1px rgba(0, 0, 0, 0.4);
-  outline-width: 0;
-}
-window headerbar.titlebar {
-  /*background-color: #0F1419;*/
-  box-shadow: 
-  0 0 6px rgba(0, 0, 0, 0.3), 
-  0 0 6px rgba(0, 0, 0, 0.22), /* 0 3px 6px*/
-  0 0 0 1px rgba(0, 0, 0, 0.4);
-  margin-bottom: -1px;/*
-  padding:0 8px 0 8px;
-  */
-}
-
+/*###### otros temp acá ######*/
 button {background-color: #262C30;}
 button:hover, headerbar widget {background-color: #1C2327;}
 window notebook stack overlay scrolledwindow view {background-color:#262A2C;}
