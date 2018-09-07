@@ -1,4 +1,4 @@
-﻿/* Gnome 25/08/2018 · t.me/fasito - u/thepante */
+/* Gnome 25/08/2018 · t.me/fasito - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 @-moz-document url(chrome://browser/content/browser.xul) {
@@ -140,10 +140,13 @@
 .titlebar-placeholder[type="pre-tabs"] {width:20px !important;border: none 0px !important;}
 
 /* Hide cuando está maximizado - combinar con Unite gnome addon */
-#main-window[sizemode="maximized"] #titlebar-max,
-#main-window[sizemode="maximized"] #titlebar-min,
-#main-window[sizemode="maximized"] #titlebar-close {opacity: 0;}
-#main-window[sizemode="maximized"] #tabbrowser-tabs {margin-left: -70px;}
+#main-window[sizemode="maximized"] #titlebar-buttonbox {margin-left: 0px;}
+#main-window[sizemode="maximized"] #tabbrowser-tabs {margin-left: -80px;}
+#main-window:not([sizemode="maximized"]) #titlebar-buttonbox {margin-left: 80px;}
+#titlebar-buttonbox, #tabbrowser-tabs {transition: margin-left 0.05s;}
+  
+/*#main-window:not([sizemode="maximized"]) #tabbrowser-tabs {margin-left: 0px;}*/
+  
 /* Necesita fix desaparece al volver sin hover :s */
 
 /* Bordes de puntos en enlaces o menues · about:config : browser.display.focus_ring_width: 0; */
