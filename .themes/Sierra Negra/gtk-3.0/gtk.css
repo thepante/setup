@@ -4806,19 +4806,19 @@ decoration {
   margin: 4px;
 }
 
- decoration, .popup decoration {
+ decoration, .popup decoration, .csd.popup decoration {
   box-shadow: 
   0 3px 8px rgba(0, 0, 0, 0.5), 
-  0 0 6px rgba(0, 0, 0, 0.22),
-  0 0 0 1px rgba(0, 0, 0, 0.4);
+  0 8px 15px rgba(0, 0, 0, 0.22),
+  0 0 0 0 rgba(0, 0, 0, 0);
   outline-width: 0;
 }
 
  decoration:backdrop { /* necesita idem sino bug cuando animado*/
   box-shadow: 
-  0 3px 8px rgba(0, 0, 0, 0.2), 
-  0 0 6px rgba(0, 0, 0, 0.10),
-  0 0 0 1px rgba(0, 0, 0, 0.2);
+  0 3px 8px rgba(0, 0, 0, 0.4), 
+  0 8px 15px rgba(0, 0, 0, 0.10),
+  0 0 0 0 rgba(0, 0, 0, 0);
   outline-width: 0;
 }
 /* aplicar correciones a elementos */
@@ -4826,13 +4826,6 @@ decoration {
 .tiled decoration { border-radius: 0;}
 .ssd decoration { margin: -5px; border-radius: 6px 6px 0 0;}
 .ssd decoration.maximized {border-radius: 0;}
-.csd.popup decoration {
-  box-shadow: 
-  0 3px 8px rgba(0, 0, 0, 0.5), 
-  0 0 6px rgba(0, 0, 0, 0.22),
-  0 0 0 1px rgba(0, 0, 0, 0.4);
-  outline-width: 0;
-}
 
 tooltip.csd decoration {
   border-radius: 6px;
@@ -8501,4 +8494,3 @@ button:hover, headerbar widget {background-color: #1C2327;}
 window notebook stack overlay scrolledwindow view {background-color:#262A2C;}
 placessidebar viewport {background:#15191B;}
 viewport .sidebar-label, viewport .sidebar-icon {opacity:0.5;}
-
