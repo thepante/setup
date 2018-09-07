@@ -137,9 +137,9 @@
 .titlebar-placeholder[type="pre-tabs"] {width:20px !important;border: none 0px !important;}
 
 /* Hide cuando está maximizado - combinar con Unite gnome addon */
-#main-window[sizemode="maximized"] #titlebar-buttonbox {margin-left: 0px;}
+#main-window[sizemode="maximized"] #titlebar-buttonbox {margin-left: -80px;}
 #main-window[sizemode="maximized"] #tabbrowser-tabs {margin-left: -80px;}
-#main-window:not([sizemode="maximized"]) #titlebar-buttonbox {margin-left: 80px;}
+#main-window:not([sizemode="maximized"]) #titlebar-buttonbox {margin-left: 0px;}
 #titlebar-buttonbox, #tabbrowser-tabs {transition: margin-left 0.05s;}
 
 /* Bordes de puntos en enlaces o menues · about:config : browser.display.focus_ring_width: 0; */
