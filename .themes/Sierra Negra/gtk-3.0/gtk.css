@@ -2344,7 +2344,7 @@ treeview.view header button:active:hover {
 }
 
 treeview.view header button:disabled {
-  border-color: #333333;
+  border-color: #15191B;
   background-image: none;
 }
 
@@ -2405,7 +2405,7 @@ menu,
 .menu {
   padding: 6px 0;
   border-radius: 6px;
-  background-color: #333333;
+  background-color: #15191B;
 }
 /** Menues desplegables - right click - lista **/
 .csd menu, .csd
@@ -2500,7 +2500,7 @@ menu > arrow,
   min-width: 16px;
   min-height: 16px;
   padding: 2px;
-  background-color: #333333;
+  background-color: #15191B;
   border-radius: 0;
   border: none;
   background-image: none;
@@ -2540,7 +2540,7 @@ popover.background {
   padding: 0;
   border-radius: 6px;
   background-clip: border-box;
-  background-color: #333333;
+  background-color: #15191B;
   box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.15);
 }
 /** Bordes menu desplegable opcion app **/
@@ -4127,8 +4127,8 @@ row.activatable:selected.has-open-popup, .budgie-menu button:selected.has-open-p
   padding: 16px;
   margin: 0 8px 8px 8px;
   color: #dedede;
-  background-color: #BDBDBD;
-  background-image: linear-gradient(0deg, #333333 0%, #333333 85%, #262626 95%, #0d0d0d 100%);
+  background-color: #15191B;
+  background-image: linear-gradient(0deg, #15191B 0%, #15191B 85%, #1F2528 95%, #0D1011 100%);
   border-radius: 0;
   border: none;
   box-shadow: 0px 1px 2px 0px rgba(16, 16, 16, 0.15), 0px 2px 3px 0px rgba(16, 16, 16, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.12);
@@ -4295,7 +4295,7 @@ filechooserbutton:drop(active) {
 
 .sidebar {
   border-style: none;
-  background-color: #333333;
+  background-color: #15191B;
 }
 
 stacksidebar.sidebar:dir(ltr) list,
@@ -4443,7 +4443,7 @@ paned > separator:selected {
 paned > separator.wide {
   min-width: 5px;
   min-height: 5px;
-  background-color: #333333;
+  background-color: #15191B;
   background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)), linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
   background-size: 1px 1px, 1px 1px;
 }
@@ -4803,29 +4803,29 @@ decoration {
   transition: box-shadow 0.2s cubic-bezier(0, 0, 0.2, 1);
   border-radius: 6px;
   border-width: 0;
-  margin: 4px;
+  margin: 10px;
+  outline-width: 0;
 }
 
  decoration, .popup decoration, .csd.popup decoration {
   box-shadow: 
-  0 3px 8px rgba(0, 0, 0, 0.5), 
-  0 8px 15px rgba(0, 0, 0, 0.22),
-  0 0 0 0 rgba(0, 0, 0, 0);
-  outline-width: 0;
+  1px 6px 12px rgba(0, 0, 0, 0.5), 
+  0 6px 10px rgba(0, 0, 0, 0.22),
+  0 0 0 1px rgba(0, 0, 0, 0.15);
 }
 
  decoration:backdrop { /* necesita idem sino bug cuando animado*/
   box-shadow: 
-  0 3px 8px rgba(0, 0, 0, 0.4), 
-  0 8px 15px rgba(0, 0, 0, 0.10),
-  0 0 0 0 rgba(0, 0, 0, 0);
+  1px 6px 12px rgba(0, 0, 0, 0.35), 
+  0 6px 10px rgba(0, 0, 0, 0.10),
+  0 0 0 1px rgba(0, 0, 0, 0.15);
   outline-width: 0;
 }
 /* aplicar correciones a elementos */
 .fullscreen decoration, 
 .tiled decoration { border-radius: 0;}
 .ssd decoration { margin: -5px; border-radius: 6px 6px 0 0;}
-.ssd decoration.maximized {border-radius: 0;}
+.ssd decoration.maximized { border-radius: 0;}
 
 tooltip.csd decoration {
   border-radius: 6px;
@@ -5392,10 +5392,13 @@ popover.background label.nautilus-canvas-item.separator, headerbar .nautilus-can
 }
 
 .gedit-side-panel-paned statusbar {
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  background-color: #333333;
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  background-color: #15191B;
   border-radius: 0 0 6px 6px;
 }
+
+.gedit-side-panel-paned statusbar .horizontal, 
+.gedit-side-panel-paned statusbar label {color: #646E73;}
 
 .gedit-search-slider {
   background-color: #383838;
@@ -5500,7 +5503,7 @@ pillbox:disabled label {
 
 docktabstrip {
   padding: 0 6px;
-  background-color: #333333;
+  background-color: #15191B;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -5533,7 +5536,7 @@ dockpaned {
 }
 
 dockoverlayedge {
-  background-color: #333333;
+  background-color: #15191B;
 }
 
 dockoverlayedge docktabstrip {
@@ -6139,7 +6142,7 @@ popover.background:not(.emoji-picker) > box.vertical > stack > box.vertical scro
 }
 
 flowboxchild.bookmark-tag-widget {
-  color: #333333;
+  color: #15191B;
   font-weight: 500;
 }
 
@@ -6516,14 +6519,14 @@ window.background:not(.csd) > menu > menuitem > check {
 }
 
 #MozillaGtkWidget.background {
-  background-color: #333333;
+  background-color: #15191B;
 }
 
 #MozillaGtkWidget.background .background,
 #MozillaGtkWidget.background frame,
 #MozillaGtkWidget.background separator,
 #MozillaGtkWidget.background scrolledwindow {
-  background-color: #333333;
+  background-color: #15191B;
 }
 
 #MozillaGtkWidget.background scrollbar {
@@ -6937,7 +6940,7 @@ toolbar.bottom-toolbar, .bottom-toolbar.inline-toolbar {
   border-width: 1px 0 0 0;
   border-style: solid;
   border-color: rgba(255, 255, 255, 0.12);
-  background-color: #333333;
+  background-color: #15191B;
 }
 
 toolbar.bottom-toolbar button, .bottom-toolbar.inline-toolbar button {
@@ -6952,7 +6955,7 @@ toolbar.bottom-toolbar button, .bottom-toolbar.inline-toolbar button {
 .source-list,
 .source-list.view,
 iconview.source-list {
-  background-color: #333333;
+  background-color: #15191B;
   color: #dedede;
   -gtk-icon-style: regular;
 }
@@ -6979,7 +6982,7 @@ iconview.source-list:selected:focus,
 .source-list junction {
   border-image: none;
   border-color: transparent;
-  background-color: #333333;
+  background-color: #15191B;
   background-image: none;
 }
 
@@ -7130,7 +7133,7 @@ GtkListBox .h4 {
 
 #content_frame {
   padding-bottom: 14px;
-  background-color: #333333;
+  background-color: #15191B;
   border-top-left-radius: 2px;
   border-top-right-radius: 2px;
   border: solid rgba(0, 0, 0, 0.1);
@@ -7726,7 +7729,7 @@ filechooser placessidebar.sidebar scrollbar trough, .nautilus-window placessideb
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3), 0 2px 3px 0 rgba(0, 0, 0, 0.3);
-  background-color: #333333;
+  background-color: #15191B;
 }
 
 .budgie-popover .container {
@@ -8411,7 +8414,7 @@ window.budgie-switcher-window flowboxchild {
 
 .budgie-session-dialog, .budgie-polkit-dialog, .budgie-run-dialog {
   border-radius: 6px;
-  background-color: #333333;
+  background-color: #15191B;
 }
 
 .background.budgie-session-dialog, .background.budgie-polkit-dialog, .background.budgie-run-dialog {
@@ -8494,3 +8497,6 @@ button:hover, headerbar widget {background-color: #1C2327;}
 window notebook stack overlay scrolledwindow view {background-color:#262A2C;}
 placessidebar viewport {background:#15191B;}
 viewport .sidebar-label, viewport .sidebar-icon {opacity:0.5;}
+
+.titlebar-theme-round-corners {background: rgba(0, 0, 0, 0);}
+
