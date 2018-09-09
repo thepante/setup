@@ -79,7 +79,7 @@ menupopup#contentAreaContextMenu {max-width: 260px !important;}
 
 /* colores como el de color.firefox */
 #main-window {--lwt-accent-color: #0F1419;}
-:root:-moz-lwtheme-brighttext {
+:root:-moz-lwtheme-brighttext, :root {
   --chrome-background-color: #0F1419 !important; /*era #141414*/
   --chrome-color: rgb(249, 249, 250);
   --chrome-secondary-background-color: #222424 !important;
@@ -93,6 +93,7 @@ menupopup#contentAreaContextMenu {max-width: 260px !important;}
   --autocomplete-popup-background: #2A2A2E !important;
   --autocomplete-popup-highlight-background: #0060DF;
 }
+
 #urlbar:not([focused="true"]):-moz-lwtheme, 
 #urlbar:not([focused="true"]):-moz-lwtheme:hover,
 #navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme,
@@ -226,21 +227,34 @@ PanelUI-popup * {transition: none !important;}
 findbar {transition: none !important;}
 
 /* Menu general desplegable boton toolbar */
-photonpanelmultiview .panel-subview-body{margin:0!important}
-#appMenu-edit-controls,#appMenu-edit-controls+toolbarseparator{display:none}
-#appMenu-popup .panel-arrowcontent{margin:4px 4px 0!important;padding:0!important}
-#appMenu-popup .panel-subview-body{margin:-6px 0}
-#appMenu-mainView{padding:0!important}
-photonpanelmultiview .PanelUI-subView .toolbaritem-combined-buttons>.subviewbutton:not(#appMenu-zoomReset-button):not(#appMenu-fxa-icon){padding:10px!important}
-#appMenu-zoom-controls{margin:-6px 0;margin-inline-end:0!important}
-#appMenu-zoomReset-button{border-radius:0!important;border-width:0 1px 0 1px!important;border-color:var(--arrowpanel-dimmed)!important;padding:10px 10px 9px!important;margin-inline-start:0!important}
-#appMenu-zoomEnlarge-button{margin-inline-start:0!important}
-#appMenu-quit-button{padding:10px!important;margin-top:-6px!important}
-#appMenu-fxa-container{margin-bottom:-6px;margin-inline-end:0!important}
-#appMenu-fxa-container toolbarseparator[orient='vertical'],#appMenu-zoom-controls toolbarseparator[orient='vertical']{margin-inline-start:0!important;margin-inline-end:0!important}
-#appMenu-fxa-label{padding:10px 28px!important}
-#appMenu-fxa-avatar{border-radius:50%}
-#appMenu-fxa-icon{padding:11px 11px 10px 10px!important}
+photonpanelmultiview .panel-subview-body {margin:0!important;}
+#appMenu-edit-controls,#appMenu-edit-controls+toolbarseparator {display:none;}
+#appMenu-popup .panel-arrowcontent {margin:4px 4px 0!important;padding:0!important;}
+#appMenu-popup .panel-subview-body {margin:-6px 0;}
+#appMenu-mainView {padding:0!important;}
+photonpanelmultiview .PanelUI-subView .toolbaritem-combined-buttons>.subviewbutton:not(#appMenu-zoomReset-button):not(#appMenu-fxa-icon) {padding:10px!important;}
+#appMenu-zoom-controls {margin:-6px 0;margin-inline-end:0!important;}
+#appMenu-zoomReset-button {border-radius:0!important;border-width:0 1px 0 1px!important;border-color:var(--arrowpanel-dimmed)!important;padding:10px 10px 9px!important;}
+#appMenu-zoomEnlarge-button {margin-inline-start:0!important;}
+#appMenu-quit-button {padding:10px!important;margin-top:-5px!important;}
+#appMenu-fxa-container {margin-bottom:-6px;margin-inline-end:0!important;}
+#appMenu-fxa-container toolbarseparator[orient='vertical'],#appMenu-zoom-controls toolbarseparator[orient='vertical'] {margin-inline-start:0!important;margin-inline-end:0!important;}
+#appMenu-fxa-label {padding:10px 32px !important;}
+#appMenu-fxa-avatar {border-radius:50%; width: 24px !important; height: 24px !important;}
+#appMenu-fxa-icon {padding: 10px !important;}
+#appMenu-fxa-status {margin-left: -8px;}
+
+#appMenu-multiView {
+  color: var(--arrowpanel-color);
+  border: 0px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 6px hsla(0,0%,0%,.2);
+  background: #0F1419 !important;
+  --arrowpanel-background: #0F1419 !important;}
+  #appMenu-popup .panel-arrow {fill:#0F1419 !important;}
+  #appMenu-mainView .subviewbutton, 
+  #appMenu-mainView .toolbaritem-combined-buttons {opacity: 0.7 !important;}
+  #appMenu-zoomReduce-button, #appMenu-zoomEnlarge-button, #appMenu-fullscreen-button {padding: 6px !important; margin: 2px !important; border-radius:50%;}
+  #appMenu-zoomReduce-button {margin-right: -7px !important;}
 
 /* Tooltip general */
 tooltip {-moz-appearance: none !important; background: none !important;border: 1px solid transparent !important;}
