@@ -1,21 +1,15 @@
-/* Gnome 25/08/2018 · t.me/fasito - u/thepante */
+/* Gnome 09/09/2018 · u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 @-moz-document url(chrome://browser/content/browser.xul) {
 
-
 /* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
-#alltabs-button {
-	display: none;
-	opacity: 0;
-}
-.tab-stack {
-	min-height: 31px !important;
-}
-/* Sacar botones grandes en menu contextual */
-#context-navigation, #context-sep-navigation { 
-    display: none !important;
-}
+#alltabs-button {display: none; opacity: 0;}
+.tab-stack {min-height: 31px !important;}
+
+/* Sacar botones grandes en menu contextual + width */
+#context-navigation, #context-sep-navigation {display: none !important;}
+menupopup#contentAreaContextMenu {max-width: 260px !important;}
 
 /* Colores barra url y tabs */
 #urlbar:-moz-lwtheme, 
@@ -24,7 +18,7 @@
 #navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {
 	background-color: #111 !important;
 }
-:root[uidensity="compact"] #urlbar, :root[uidensity="compact"] .searchbar-textbox {
+:root #urlbar, :root .searchbar-textbox {
 	opacity: 0.7 !important;
 }
 .tabs-newtab-button, #TabsToolbar > #new-tab-button, #TabsToolbar > toolbarpaletteitem > #new-tab-button {
@@ -77,12 +71,11 @@
 #identity-box:hover:not(.no-hover):not([open="true"]) {
 	background-color: hsla(0,0%,70%,.2);
 	fill-opacity: .8;
-  	-moz-transition: background-color 0.35s;
+  -moz-transition: background-color 0.35s;
 }
 #identity-box {
 	-moz-transition: background-color 0.35s;
 }
-
 
 /* colores como el de color.firefox */
 #main-window {--lwt-accent-color: #0F1419;}
@@ -122,6 +115,8 @@
 #alltabs-button {
     -moz-binding: url(data:text/xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+DQo8IS0tIENvcHlyaWdodCAoYykgMjAxNyBIYWdnYWkgTnVjaGkNCkF2YWlsYWJsZSBmb3IgdXNlIHVuZGVyIHRoZSBNSVQgTGljZW5zZToNCmh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlUDQogLS0+DQoNCjwhLS0gUnVuIHVzZXJDaHJvbWUuanMvdXNlckNocm9tZS54dWwgYW5kIC51Yy5qcy8udWMueHVsLy5jc3MgZmlsZXMgIC0tPg0KPGJpbmRpbmdzIHhtbG5zPSJodHRwOi8vd3d3Lm1vemlsbGEub3JnL3hibCI+DQogICAgPGJpbmRpbmcgaWQ9ImpzIiBleHRlbmRzPSJjaHJvbWU6Ly9nbG9iYWwvY29udGVudC9iaW5kaW5ncy90b29sYmFyYnV0dG9uLnhtbCNtZW51Ij4NCiAgICAgICAgPGltcGxlbWVudGF0aW9uPg0KICAgICAgICAgICAgPGNvbnN0cnVjdG9yPjwhW0NEQVRBWw0KICAgICAgICAgICAgICAgIGlmKHdpbmRvdy51c2VyQ2hyb21lSnNNb2QpIHJldHVybjsNCiAgICAgICAgICAgICAgICB3aW5kb3cudXNlckNocm9tZUpzTW9kID0gdHJ1ZTsNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICB2YXIgY2hyb21lRmlsZXMgPSBGaWxlVXRpbHMuZ2V0RGlyKCJVQ2hybSIsIFtdKS5kaXJlY3RvcnlFbnRyaWVzOw0KICAgICAgICAgICAgICAgIHZhciB4dWxGaWxlcyA9IFtdOw0KICAgICAgICAgICAgICAgIHZhciBzc3MgPSBDY1snQG1vemlsbGEub3JnL2NvbnRlbnQvc3R5bGUtc2hlZXQtc2VydmljZTsxJ10uZ2V0U2VydmljZShDaS5uc0lTdHlsZVNoZWV0U2VydmljZSk7DQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgd2hpbGUoY2hyb21lRmlsZXMuaGFzTW9yZUVsZW1lbnRzKCkpIHsNCiAgICAgICAgICAgICAgICAgICAgdmFyIGZpbGUgPSBjaHJvbWVGaWxlcy5nZXROZXh0KCkuUXVlcnlJbnRlcmZhY2UoQ2kubnNJRmlsZSk7DQogICAgICAgICAgICAgICAgICAgIHZhciBmaWxlVVJJID0gU2VydmljZXMuaW8ubmV3RmlsZVVSSShmaWxlKTsNCiAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgIGlmKGZpbGUuaXNGaWxlKCkpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgIGlmKC8oXnVzZXJDaHJvbWV8XC51YylcLmpzJC9pLnRlc3QoZmlsZS5sZWFmTmFtZSkpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBTZXJ2aWNlcy5zY3JpcHRsb2FkZXIubG9hZFN1YlNjcmlwdFdpdGhPcHRpb25zKGZpbGVVUkkuc3BlYywge3RhcmdldDogd2luZG93LCBpZ25vcmVDYWNoZTogdHJ1ZX0pOw0KICAgICAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgICAgICAgICAgZWxzZSBpZigvKF51c2VyQ2hyb21lfFwudWMpXC54dWwkL2kudGVzdChmaWxlLmxlYWZOYW1lKSkgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIHh1bEZpbGVzLnB1c2goZmlsZVVSSS5zcGVjKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgICAgIGVsc2UgaWYoL1wuYXNcLmNzcyQvaS50ZXN0KGZpbGUubGVhZk5hbWUpKSB7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYoIXNzcy5zaGVldFJlZ2lzdGVyZWQoZmlsZVVSSSwgc3NzLkFHRU5UX1NIRUVUKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3NzLmxvYWRBbmRSZWdpc3RlclNoZWV0KGZpbGVVUkksIHNzcy5BR0VOVF9TSEVFVCk7DQogICAgICAgICAgICAgICAgICAgICAgICB9DQogICAgICAgICAgICAgICAgICAgICAgICBlbHNlIGlmKC9eKD8hKHVzZXJDaHJvbWV8dXNlckNvbnRlbnQpXC5jc3MkKS4rXC5jc3MkL2kudGVzdChmaWxlLmxlYWZOYW1lKSkgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlmKCFzc3Muc2hlZXRSZWdpc3RlcmVkKGZpbGVVUkksIHNzcy5VU0VSX1NIRUVUKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3NzLmxvYWRBbmRSZWdpc3RlclNoZWV0KGZpbGVVUkksIHNzcy5VU0VSX1NIRUVUKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICBzZXRUaW1lb3V0KGZ1bmN0aW9uIGxvYWRYVUwoKSB7DQogICAgICAgICAgICAgICAgICAgIGlmKHh1bEZpbGVzLmxlbmd0aCA+IDApIHsNCiAgICAgICAgICAgICAgICAgICAgICAgIGRvY3VtZW50LmxvYWRPdmVybGF5KHh1bEZpbGVzLnNoaWZ0KCksIG51bGwpOw0KICAgICAgICAgICAgICAgICAgICAgICAgc2V0VGltZW91dChsb2FkWFVMLCA1KTsNCiAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIH0sIDApOw0KICAgICAgICAgICAgXV0+PC9jb25zdHJ1Y3Rvcj4NCiAgICAgICAgPC9pbXBsZW1lbnRhdGlvbj4NCiAgICA8L2JpbmRpbmc+DQo8L2JpbmRpbmdzPg==);
 }
+
+/* Texto seleccionado en barra URL */
 #urlbar html|input.textbox-input::-moz-selection {
   background-color: #257ABD !important;
   color: white !important;
@@ -143,11 +138,8 @@
 #titlebar-buttonbox, #tabbrowser-tabs {transition: margin-left 0.05s;}
 
 /* Bordes de puntos en enlaces o menues · about:config : browser.display.focus_ring_width: 0; */
-:focus {outline:none;}
-::-moz-focus-inner {border:0;}
-input[type=range]::-moz-focus-outer {border: 0;}
-*:focus, *:visited, *:active, *:hover { outline:0 !important;}
-*::-moz-focus-inner {border:0;}
+::-moz-focus-inner, input[type=range]::-moz-focus-outer, *::-moz-focus-inner {border: 0;}
+*:focus, :focus, *:visited, *:active, *:hover {outline:0 !important;}
 
 /* Badges */ 
 label.toolbarbutton-badge {
@@ -196,8 +188,7 @@ label.toolbarbutton-badge {
 #tabbrowser-tabs toolbarbutton.scrollbutton-up,
 #tabbrowser-tabs toolbarbutton.scrollbutton-down,
 #tabbrowser-tabs spacer.arrowscrollbox-overflow-end-indicator {
-	display: none !important;
-}
+  display: none !important;}
 .tabbrowser-arrowscrollbox > .scrollbutton-up, 
 .tabbrowser-arrowscrollbox > .scrollbutton-down {
 	-moz-context-properties: fill, fill-opacity;
@@ -218,7 +209,6 @@ label.toolbarbutton-badge {
 .tabbrowser-tab:not([pinned]) {
 	max-width:160px !important;min-width:80px !important;}
 
-
 /* Contenido texto tab */
 .tab-label-container {font-size: 12px !important;}
 .tab-content {padding-inline-end: 8px;padding-inline-start: 8px;color: #B2B2B2 !important;}
@@ -227,7 +217,6 @@ label.toolbarbutton-badge {
 /* Desaturar tabs no seleccionadas */
 .tab-icon-image {border-radius: 2px !important; filter: saturate(30%);transition-duration: 0.2s;}
 #tabbrowser-tabs .tab-icon-image[selected]{filter: none !important;}
-/*
 
 /* No animar paneles */
 .panel-arrowcontainer {  opacity: 1;  transform: none;  transition: none !important;  pointer-events: all !important;}
@@ -253,9 +242,6 @@ photonpanelmultiview .PanelUI-subView .toolbaritem-combined-buttons>.subviewbutt
 #appMenu-fxa-avatar{border-radius:50%}
 #appMenu-fxa-icon{padding:11px 11px 10px 10px!important}
 
-/* Menu contextual */
-menupopup#contentAreaContextMenu {max-width: 260px !important;}
-
 /* Tooltip general */
 tooltip {-moz-appearance: none !important; background: none !important;border: 1px solid transparent !important;}
 tooltip label {
@@ -273,5 +259,10 @@ tooltip :nth-child(2) {
 	box-shadow: 0px 7px 5px rgba(0,0,0,.18) !important;
 }
 
+/* gnome csd ff64 argb option*/
+window:not([sizemode="maximized"]) {
+  background: transparent !important;
+  border-radius: 6px 6px 0 0 !important;
 }
 
+}
