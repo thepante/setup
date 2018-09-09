@@ -1,10 +1,13 @@
-/* Hide when max - actual code - for use with Unite extension or similar
-   extensions.gnome.org */
-#main-window[sizemode="maximized"] #titlebar-max,
-#main-window[sizemode="maximized"] #titlebar-min,
-#main-window[sizemode="maximized"] #titlebar-close {opacity: 0;}
-#main-window[sizemode="maximized"] #tabbrowser-tabs {margin-left: -70px;}
+/* 	
+	Hide window buttons when maximized - Actual code, for use in userChrome.css 
+	Use with Unite extension or similar
+   	extensions.gnome.org 
+*/
+#main-window[sizemode="maximized"] #titlebar-buttonbox {margin-left: -80px;}
+#main-window[sizemode="maximized"] #tabbrowser-tabs {margin-left: -80px;}
+#main-window:not([sizemode="maximized"]) #titlebar-buttonbox {margin-left: 0px;}
+#titlebar-buttonbox, #tabbrowser-tabs {transition: margin-left 0.05s;}
 
-}
+
 
 
