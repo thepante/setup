@@ -11,7 +11,8 @@ It will be updated with info about extensions
     
 + **2.** Download [*Sierra Negra*](https://github.com/thepante/setup/releases), put it on `~/.themes` folder
 + **2.a.** In `Gnome-Tweaks > Appearance` select `Sierra Negra` on `Applications` and `Shell` themes  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *If Shell is disabled, you need [User Themes](https://extensions.gnome.org/extension/19/user-themes/) extension*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; *If Shell is disabled, you need [User Themes](https://extensions.gnome.org/extension/19/user-themes/) extension* 
++ **2.c.** The **shell theme uses Roboto font family** - If you don't have it, [download it here](https://fonts.google.com/specimen/Roboto?selection.family=Roboto); open "1 Family Selected" then Download icon.
 + **3.** Download [*Cupertino-macOS iCons*](https://github.com/USBA/Cupertino-macOS-iCons/releases) - put the extracted folder on `~/.icons`
 + **3.a.** In `Gnome-Tweaks > Appearence` select the icon theme on `Icons`
 
