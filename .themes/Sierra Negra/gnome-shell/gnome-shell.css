@@ -2,7 +2,7 @@
 * {transition-duration: 150ms;}
 
 stage {
-  font-family: "M+ 1c", Roboto, Cantarell, Sans-Serif;
+  font-family: Roboto, "M+ 1c", Cantarell, Sans-Serif;
   font-size: 9.75pt;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.9);
