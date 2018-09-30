@@ -224,7 +224,7 @@ label.toolbarbutton-badge {
 .tabbrowser-tab > .tab-stack > .tab-content[selected="true"] {color: #D3D3D3 !important;}
 
 /* Desaturar tabs no seleccionadas */
-.tab-icon-image {border-radius: 2px !important; filter: saturate(30%);transition-duration: 0.2s;}
+.tab-icon-image {border-radius: 2px !important; filter: saturate(15%);transition-duration: 0.2s;}
 #tabbrowser-tabs .tab-icon-image[selected]{filter: none !important;}
 
 /* No animar paneles */
