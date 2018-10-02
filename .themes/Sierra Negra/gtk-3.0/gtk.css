@@ -1391,7 +1391,7 @@ toolbar:not(.inline-toolbar) .linked > entry,
   box-shadow: none;
   border-width: 0 0 1px 0;
   border-style: solid;
-  border-image: linear-gradient(to bottom, #4B4B4B, #4B4B4B) 1 0 1 0;
+  border-image: linear-gradient(to bottom, #151C23, #151C23) 1 0 1 0; /* Borde top reproductor / otros */
 }
 
 .inline-toolbar {
@@ -1421,9 +1421,13 @@ searchbar button.flat, searchbar button.budgie-menu-launcher, searchbar .budgie-
 
 actionbar {
   padding: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   background-color: #2b2b2b;
   border-radius: 0 0 6px 6px;
+}
+
+actionbar label {
+  color: #9E9E9E;
 }
 
 headerbar,
@@ -4432,7 +4436,9 @@ paned > separator {
   -gtk-icon-source: none;
   border-style: none;
   background-color: transparent;
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12));
+  background-image: linear-gradient(to bottom, 
+    rgba(255, 255, 255, 0.04), 
+    rgba(255, 255, 255, 0.04));
   background-size: 1px 1px;
 }
 
@@ -7470,13 +7476,13 @@ filechooser.maximized placessidebar.sidebar,
 }
 
 filechooser actionbar {
-  color: #dedede;
+  color: #9E9E9E;
   background-color: #0F1419;
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 filechooser actionbar label, filechooser actionbar combobox {
-  color: #dedede;
+  color: #9E9E9E;
 }
 
 .gedit-bottom-panel-paned {
@@ -8499,4 +8505,10 @@ placessidebar viewport {background:#15191B;}
 viewport .sidebar-label, viewport .sidebar-icon {opacity:0.5;}
 
 .titlebar-theme-round-corners {background: rgba(0, 0, 0, 0);}
+
+paned scrolledwindow, box toolbar {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+menubar label {opacity:0.7;}
 
