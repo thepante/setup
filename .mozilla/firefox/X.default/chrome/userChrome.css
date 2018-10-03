@@ -165,14 +165,15 @@ label.toolbarbutton-badge {
 .webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {filter: saturate(40%);}
 
 
-/* Color bookmark y descargas */
-#star-button[starred],
-#downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-icon,
-#downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-progress-outer {
-  -moz-context-properties: fill, fill-opacity;
-  fill: #3a98cb !important;
-  fill-opacity: 1;
-}
+/* Color bookmark y descargas & Hide botón de screenshot */
+#downloads-button {direction: ltr; opacity: 0.3; transition-duration: 1s !important; transition-property: opacity;}
+#downloads-button[attention="success"] {opacity: 1;transition-duration: 1s; }
+#downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-progress-outer {fill: #448a4c !important;}
+#downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-icon {fill: rgb(249, 249, 250) !important;}
+
+#star-button[starred] {-moz-context-properties: fill, fill-opacity; fill: #fff !important; fill-opacity: 1;}
+#pageAction-urlbar-screenshots_mozilla_org {display: none;}
+.urlbar-icon {opacity: 0.4;}
 
 /* Esconder close / autohide */
 .close-icon {border-radius: 2px !important;}
@@ -258,7 +259,6 @@ photonpanelmultiview .PanelUI-subView .toolbaritem-combined-buttons>.subviewbutt
   box-shadow: 0 0 6px hsla(0,0%,0%,.2);
   background: #0F1419 !important;
   --arrowpanel-background: #0F1419 !important;}
-  #appMenu-popup .panel-arrow {fill:#0F1419 !important;}
   #appMenu-mainView .subviewbutton, 
   #appMenu-mainView .toolbaritem-combined-buttons {opacity: 0.7 !important;}
   #appMenu-zoomReduce-button, #appMenu-zoomEnlarge-button, #appMenu-fullscreen-button {padding: 6px !important; margin: 2px !important; border-radius:50%;}
@@ -280,5 +280,9 @@ tooltip :nth-child(2) {
 	border-top: 0px solid transparent !important;
 	box-shadow: 0px 7px 5px rgba(0,0,0,.18) !important;
 }
+
+/* General */
+* {--arrowpanel-background: #181C20;}
+.panel-arrowcontent {box-shadow: 0 0 4px hsla(0,0%,0%,.7) !important; border: 0px !important;}
 
 }
