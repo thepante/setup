@@ -116,17 +116,17 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# colores
-# DFLT='\e[01;00m\e[2m'
-# NCLR='\e[1;00m'
-cc0='\e[0m' # setear default
-cc1='\e[1;31m' # rojo
-cc2='\e[1;33m' # amarillo
-cc3='\e[1;34m' # azul
-cc4='\e[1;35m' # magenta
-cc5='\e[1;00m' # limpieza ?
-cc6='\033[01;31m' # color branch -- ex \[\e[01;00m\e[2m\]
-
+# colorsitos :v
+export COLOR_NADA='\e[0m'
+export COLOR_ROJO='\e[1;31m'
+export COLOR_AMARILLO='\e[1;33m'
+export COLOR_AZUL='\e[1;34m'
+export COLOR_MAGENTA='\e[1;35m'
+export COLOR_LIMPIEZA='\e[1;00m'
+export COLOR_CBRANCH='\033[01;31m'
+export COLOR_ELUSER='\033[01;32m'
+export COLOR_EMM1='\033[00m'
+export COLOR_EMM2='\033[01;34m'
 
 # get current branch in git repo
 function parse_git_branch() {
@@ -134,40 +134,39 @@ function parse_git_branch() {
     if [ ! "${BRANCH}" == "" ]
     then
         STAT=`parse_git_dirty`
-        printf "${cc6}[${BRANCH}]${cc0}${STAT}"
+        printf "${COLOR_CBRANCH}[${BRANCH}]${COLOR_NADA}${STAT}"
     else
-        printf "${cc0}"
+        printf ""
     fi
 }
 
-
 # get current status of git repo
 function parse_git_dirty {
-    status=`git status 2>&1 | tee`
-    dirty=`echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
-    untracked=`echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
-    ahead=`echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
+    statuss=`git statuss 2>&1 | tee`
+    dirtyyy=`echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
+    untrack=`echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
+    isahead=`echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
     newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
     renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
     deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
     bits=''
     if [ "${renamed}" == "0" ]; then
-        printf "${cc2}"
+        printf "\[${COLOR_AMARILLO}\]"
     fi
-    if [ "${ahead}" == "0" ]; then
-        printf "${cc2}"
+    if [ "${isahead}" == "0" ]; then
+        printf "\[${COLOR_AMARILLO}\]"
     fi
     if [ "${newfile}" == "0" ]; then
-        printf "${cc3}"
+        printf "\[${COLOR_AZUL}\]"
     fi
-    if [ "${untracked}" == "0" ]; then
-        printf "${cc4}"
+    if [ "${untrack}" == "0" ]; then
+        printf "\[${COLOR_MAGENTA}\]"
     fi
     if [ "${deleted}" == "0" ]; then
-        printf "${cc1}"
+        printf "\[${COLOR_ROJO}\]"
     fi
-    if [ "${dirty}" == "0" ]; then
-        printf "${cc2}"
+    if [ "${dirtyyy}" == "0" ]; then
+        printf "\[${COLOR_AMARILLO}\]"
     fi
     if [ ! "${bits}" == "" ]; then
         echo "${bits}"
@@ -176,7 +175,7 @@ function parse_git_dirty {
     fi
 }
 
-export PS1="\[\033[01;32m\]\u@\h \[\033[00m\]\[\033[01;34m\]\w\`parse_git_branch\` \$ \[\e[0m\]"
+export PS1="\[${COLOR_ELUSER}\]\u@\h \[${COLOR_EMM2}\]\w\`parse_git_branch\` \$ \[${COLOR_LIMPIEZA}\]"
 
 # Alias and fuctions
 function commit () { 
