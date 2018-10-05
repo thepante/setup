@@ -1,0 +1,84 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-02-03 18:48+0100\n"
+"PO-Revision-Date: 2017-02-05 16:47+0100\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.11\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Last-Translator: \n"
+"Language: fr\n"
+
+msgid "Enter a name"
+msgstr "Entrez un nom"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Add to"
+msgstr "Ajouter à"
+
+msgid "New AppFolder"
+msgstr "Nouvel AppFolder"
+
+msgid "Remove from"
+msgstr "Retirer de"
+
+msgid "Delete AppFolder"
+msgstr "Supprimer un AppFolder"
+
+msgid "Modifications will be effective after reloading the extension."
+msgstr "Les modifications prendront effet après avoir rechargé l'extension"
+
+msgid "Maximum number of columns :"
+msgstr "Nombre maximal de colonnes :"
+
+msgid "Delete all related settings when an appfolder is deleted"
+msgstr "Supprimer tous les réglages relatifs à un appfolder lors de sa suppression"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Rename"
+msgstr "Renommer"
+
+msgid "This appfolder already exists."
+msgstr "Cet appfolder existe déjà"
+
+msgid "Create"
+msgstr "Créer"
+
+msgid "Remove a category"
+msgstr "Retirer une catégorie"
+
+msgid "Additional categories"
+msgstr "Catégories supplémentaires"
+
+msgid "Add a category"
+msgstr "Ajouter une catégorie"
+
+msgid "Add"
+msgstr "Ajouter"
+
+msgid "Enter the name of a category"
+msgstr "Entrez le nom d'une catégorie"
+
+msgid "More informations about \"additional categories\""
+msgstr "Plus d'informations à propos des \"catégories supplémentaires\""
+
+msgid "Standard specification"
+msgstr "Spécification standard"
+
+msgid "Report bugs or ideas"
+msgstr "Reporter un bug ou une idée"
+
+msgid "This extension can be deactivated once your applications are organized as wished."
+msgstr "Cette extension peut être désactivée une fois que vos applications sont organisées comme souhaité."
+
+
+
+
