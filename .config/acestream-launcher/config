@@ -1,0 +1,4 @@
+
+[tty]
+engine = acestreamplayer.engine --client-console
+
