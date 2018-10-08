@@ -134,7 +134,7 @@ function parse_git_branch() {
     if [ ! "${BRANCH}" == "" ]
     then
         STAT=`parse_git_dirty`
-        printf "${COLOR_CBRANCH}[${BRANCH}]${COLOR_NADA}${STAT}"
+        printf "${COLOR_CBRANCH}[${BRANCH}]${STAT}"
     else
         printf ""
     fi
@@ -143,27 +143,27 @@ function parse_git_branch() {
 # get current status of git repo
 function parse_git_dirty {
     statuss=`git statuss 2>&1 | tee`
-    dirtyyy=`echo -n "${status}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
-    untrack=`echo -n "${status}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
-    isahead=`echo -n "${status}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
-    newfile=`echo -n "${status}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
-    renamed=`echo -n "${status}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
-    deleted=`echo -n "${status}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
-    bits=''
+    dirtyyy=`echo -n "${statuss}" 2> /dev/null | grep "modified:" &> /dev/null; echo "$?"`
+    untrack=`echo -n "${statuss}" 2> /dev/null | grep "Untracked files" &> /dev/null; echo "$?"`
+    isahead=`echo -n "${statuss}" 2> /dev/null | grep "Your branch is ahead of" &> /dev/null; echo "$?"`
+    newfile=`echo -n "${statuss}" 2> /dev/null | grep "new file:" &> /dev/null; echo "$?"`
+    renamed=`echo -n "${statuss}" 2> /dev/null | grep "renamed:" &> /dev/null; echo "$?"`
+    deleted=`echo -n "${statuss}" 2> /dev/null | grep "deleted:" &> /dev/null; echo "$?"`
+    bits=""
     if [ "${renamed}" == "0" ]; then
-        printf "\[${COLOR_AMARILLO}\]"
+        printf "${COLOR_AMARILLO}"
     fi
     if [ "${isahead}" == "0" ]; then
         printf "\[${COLOR_AMARILLO}\]"
     fi
     if [ "${newfile}" == "0" ]; then
-        printf "\[${COLOR_AZUL}\]"
+        printf "${COLOR_AZUL}"
     fi
     if [ "${untrack}" == "0" ]; then
-        printf "\[${COLOR_MAGENTA}\]"
+        printf "${COLOR_MAGENTA}"
     fi
     if [ "${deleted}" == "0" ]; then
-        printf "\[${COLOR_ROJO}\]"
+        printf "\[${COLOR_ROJO}"
     fi
     if [ "${dirtyyy}" == "0" ]; then
         printf "\[${COLOR_AMARILLO}\]"
@@ -177,21 +177,6 @@ function parse_git_dirty {
 
 export PS1="\[${COLOR_ELUSER}\]\u@\h \[${COLOR_EMM2}\]\w\`parse_git_branch\` \$ \[${COLOR_LIMPIEZA}\]"
 
-# Alias and fuctions
-function commit () { 
-    git add . && git commit -m "$*"
-}
-alias push='git push'
-alias rmi='rm -i'
-alias neth='sudo nethogs wlxe8de27a32df0'
-alias streamv='acestream-launcher -e "acestreamplayer.engine --client-console" -p vlc'
-alias stream='acestream-launcher -e "acestreamplayer.engine --client-console"'
-alias mp3='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
-alias download='youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s'
-alias neo='neofetch'
-alias ..='cd ..'
-alias ..2='cd ../..'
-alias ..3='cd ../../..'
-alias ..4='cd ../../../..'
-alias ~='cd ~'
-alias dl='cd ~/Downloads'
+if [ -f ~/.aliases ]; then
+    . ~/.aliases
+fi
