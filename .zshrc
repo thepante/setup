@@ -4,6 +4,8 @@ fpath=($fpath "/home/pante/.zfunctions")
 autoload -U promptinit; promptinit
 prompt spaceship
 
+# SPACESHIP_TIME_SHOW=true
+
 HISTFILE=~/.zsh_history
 HISTSIZE=100
 SAVEHIST=500

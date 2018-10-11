@@ -6,7 +6,7 @@ function commit () {
 
 alias -g apt='apt-fast'
 alias ls='colorls -A --group-directories-first'
-alias lsl='colorls -l'
+alias lsl='colorls -l --group-directories-first'
 
 alias push='git push'
 alias rmi='rm -i'
