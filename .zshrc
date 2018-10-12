@@ -23,6 +23,9 @@ source ~/.zsh/shf.zsh
 # source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # source ~/.zsh/auto_expand.zsh
 
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+
 # colored man - https://github.com/ael-code/zsh-colored-man-pages
 function man() {
 	env \
