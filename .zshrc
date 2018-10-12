@@ -19,6 +19,7 @@ source $(dirname $(gem which colorls))/tab_complete.sh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/zsh-interactive-cd.plugin.zsh
 source ~/.zsh/shf.zsh
+
 # source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # source ~/.zsh/auto_expand.zsh
 
@@ -38,3 +39,6 @@ function man() {
 
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
+        source /etc/profile.d/vte.sh
+fi
