@@ -25,6 +25,8 @@ source ~/.zsh/shf.zsh
 
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
+bindkey '^d' autosuggest-accept 	# ctrl+d
+bindkey '^M' autosuggest-execute	# ctrl+enter
 
 # colored man - https://github.com/ael-code/zsh-colored-man-pages
 function man() {
