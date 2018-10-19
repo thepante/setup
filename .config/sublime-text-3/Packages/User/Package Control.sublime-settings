@@ -5,9 +5,13 @@
 	],
 	"installed_packages":
 	[
+		"A File Icon",
+		"All Autocomplete",
+		"Brackets Color Scheme",
 		"ColorPicker",
 		"Git",
 		"GitGutter",
+		"MarkdownPreview",
 		"Oceanic Next Color Scheme",
 		"Package Control",
 		"SideBarEnhancements",
