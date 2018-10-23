@@ -1,4 +1,4 @@
-# 07/10/2018
+# 22/10/2018
 
 function commit () { 
     git add . && noglob git commit -m "$*"
@@ -10,7 +10,7 @@ alias lsl='colorls -l --group-directories-first'
 
 alias push='git push'
 alias rmi='rm -i'
-alias neth='sudo nethogs wlxe8de27a32df0'
+alias neth='sudo nethogs'
 alias streamv='acestream-launcher -e "acestreamplayer.engine --client-console" -p vlc'
 alias stream='acestream-launcher -e "acestreamplayer.engine --client-console"'
 alias mp3='noglob youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
