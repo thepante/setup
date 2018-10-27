@@ -4127,15 +4127,16 @@ row.activatable:selected.has-open-popup, .budgie-menu button:selected.has-open-p
   background-color: #427fe6;
 }
 
-.app-notification {
-  padding: 16px;
+.app-notification { /* popup aviso undo notificación */
+  opacity: 0.5;
+  padding: 6px;
   margin: 0 8px 8px 8px;
   color: #dedede;
-  background-color: #15191B;
-  background-image: linear-gradient(0deg, #15191B 0%, #15191B 85%, #1F2528 95%, #0D1011 100%);
-  border-radius: 0;
+  background-color: #0F1419;
+  /*background-image: linear-gradient(0deg, #15191B 0%, #15191B 85%, #1F2528 95%, #0D1011 100%);*/
+  border-radius: 3;
   border: none;
-  box-shadow: 0px 1px 2px 0px rgba(16, 16, 16, 0.15), 0px 2px 3px 0px rgba(16, 16, 16, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.12);
+  box-shadow: 0px 1px 6px 0px rgba(16, 16, 16, 0.15), 0px 2px 6px 0px rgba(16, 16, 16, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .app-notification border {
