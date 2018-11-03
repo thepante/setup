@@ -1,298 +1,529 @@
 /* Gnome 09/09/2018 · u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
+
 @-moz-document url(chrome://browser/content/browser.xul) {
 
-/* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
-#alltabs-button {display: none; opacity: 0;}
-.tab-stack {min-height: 31px !important;}
+  /* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
+  #alltabs-button {
+    display: none;
+    opacity: 0;
+  }
 
-/* Sacar botones grandes en menu contextual + width */
-#context-navigation, #context-sep-navigation {display: none !important;}
-menupopup#contentAreaContextMenu {max-width: 260px !important;}
+  .tab-stack {
+    min-height: 31px !important;
+  }
 
-/* Colores barra url y tabs */
-#urlbar:-moz-lwtheme, 
-#urlbar:-moz-lwtheme:hover, 
-#navigator-toolbox .searchbar-textbox:-moz-lwtheme, 
-#navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {
-	background-color: #111 !important;
-}
-:root #urlbar, :root .searchbar-textbox {
-	opacity: 0.7 !important;
-}
-.tabs-newtab-button, #TabsToolbar > #new-tab-button, #TabsToolbar > toolbarpaletteitem > #new-tab-button {
-	list-style-image: url(chrome://browser/skin/tabbrowser/newtab.svg);
-	margin-top: 2px !important;
-	opacity: 0.3;
-}
-#tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, 
-#tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before, 
-.tabbrowser-tab[visuallyselected]::after {
-	border-color: red;
-}
-.tabbrowser-tab:not([selected])::after, .tabbrowser-tab:not([selected])::before {
-	border-left: 1px solid #474747 !important;
-	margin-right: -1px !important;
-}
-.tab-icon-image, .tab-label {opacity: 0.8}
-#tabbrowser-tabs .tab-icon-image[selected], 
-#tabbrowser-tabs .tab-label[selected]{opacity: 1;}
+  /* Sacar botones grandes en menu contextual + width */
+  #context-navigation, #context-sep-navigation {
+    display: none !important;
+  }
 
-#tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, 
-#tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before, 
-.tabbrowser-tab[visuallyselected]::after {
-  margin-top: 0;
-  margin-bottom: 1px;
-  opacity: 1;
-  border-right: 0 transparent;
-}
+  menupopup#contentAreaContextMenu {
+    max-width: 260px !important;
+  }
 
-/* Iconos de conexión del dominio */
-#urlbar[pageproxystate="valid"] > #identity-box.verifiedDomain > #connection-icon, 
-#urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity > #connection-icon, 
-#urlbar[pageproxystate="valid"] > #identity-box.mixedActiveBlocked > #connection-icon {
-  list-style-image: url(chrome://browser/skin/connection-secure.svg);
-  -moz-context-properties: fill;
-  fill: #03CB76 !important;}
-#identity-icon-labels {color: #03CB76 !important;}
+  /* Colores barra url y tabs */
+  #urlbar:-moz-lwtheme, #urlbar:-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:-moz-lwtheme, #navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {
+    background-color: #111 !important;
+  }
 
-#identity-icon-country-label {
-  opacity: 0; 
-  -moz-margin-end: -25px !important;
-  transition: opacity 0.3s, -moz-margin-end 0.3s;
-}
+  :root #urlbar, :root .searchbar-textbox {
+    opacity: 0.7 !important;
+  }
 
-#identity-box:hover #identity-icon-country-label {
-  opacity: 1;
-  -moz-margin-end: 5px !important;
-  transition: opacity 0.5s, -moz-margin-end 0.3s;
-}
+  .tabs-newtab-button, #TabsToolbar > #new-tab-button, #TabsToolbar > toolbarpaletteitem > #new-tab-button {
+    list-style-image: url(chrome://browser/skin/tabbrowser/newtab.svg);
+    margin-top: 2px !important;
+    opacity: 0.3;
+  }
 
-#identity-box #identity-icon-labels {
-	-moz-margin-end: -10px !important;
+  #tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, #tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before, .tabbrowser-tab[visuallyselected]::after {
+    border-color: red;
+  }
+
+  .tabbrowser-tab:not([selected])::after, .tabbrowser-tab:not([selected])::before {
+    border-left: 1px solid #474747 !important;
+    margin-right: -1px !important;
+  }
+
+  .tab-icon-image, .tab-label {
+    opacity: 0.8;
+  }
+
+  #tabbrowser-tabs .tab-icon-image[selected], #tabbrowser-tabs .tab-label[selected] {
+    opacity: 1;
+  }
+
+  #tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, #tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before, .tabbrowser-tab[visuallyselected]::after {
+    margin-top: 0;
+    margin-bottom: 1px;
+    opacity: 1;
+    border-right: 0 transparent;
+  }
+
+  /* Iconos de conexión del dominio */
+  #urlbar[pageproxystate="valid"] > #identity-box.verifiedDomain > #connection-icon, #urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity > #connection-icon, #urlbar[pageproxystate="valid"] > #identity-box.mixedActiveBlocked > #connection-icon {
+    list-style-image: url(chrome://browser/skin/connection-secure.svg);
+    -moz-context-properties: fill;
+    fill: #03CB76 !important;
+  }
+
+  #identity-icon-labels {
+    color: #03CB76 !important;
+  }
+
+  #identity-icon-country-label {
+    opacity: 0;
+    -moz-margin-end: -25px !important;
+    transition: opacity 0.3s, -moz-margin-end 0.3s;
+  }
+
+  #identity-box:hover #identity-icon-country-label {
+    opacity: 1;
+    -moz-margin-end: 5px !important;
+    transition: opacity 0.5s, -moz-margin-end 0.3s;
+  }
+
+  #identity-box #identity-icon-labels {
+    -moz-margin-end: -10px !important;
     padding-right: 3px !important;
-}
-#urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity {
-	--urlbar-separator-color: rgba(18, 188, 0, 0) !important;
-}
-#identity-box:hover:not(.no-hover):not([open="true"]) {
-	background-color: hsla(0,0%,70%,.2);
-	fill-opacity: .8;
-  -moz-transition: background-color 0.35s;
-}
-#identity-box {
-	-moz-transition: background-color 0.35s;
-}
+  }
 
-/* colores como el de color.firefox */
-#main-window {--lwt-accent-color: #0F1419;}
-:root:-moz-lwtheme-brighttext, :root {
-  --chrome-background-color: #0F1419 !important; /*era #141414*/
-  --chrome-color: rgb(249, 249, 250);
-  --chrome-secondary-background-color: #222424 !important;
-  --toolbox-border-bottom-color: hsl(240, 5%, 5%);
-  --chrome-nav-bar-controls-border-color: hsla(240, 5%, 5%, .3);
-  --chrome-selection-color: #fff;
-  --chrome-selection-background-color: #5675B9;
-  --lwt-toolbar-field-background-color: rgb(71, 71, 73);
-  --lwt-toolbar-field-color: var(--chrome-color);
-  --urlbar-separator-color: #5F6670;
-  --autocomplete-popup-background: #2A2A2E !important;
-  --autocomplete-popup-highlight-background: #0060DF;
-}
+  #urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity {
+    --urlbar-separator-color: rgba(18, 188, 0, 0) !important;
+  }
 
-#urlbar:not([focused="true"]):-moz-lwtheme, 
-#urlbar:not([focused="true"]):-moz-lwtheme:hover,
-#navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme,
-#navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme:hover {
-  border-color: #1C1E1E;
-}
-#urlbar:-moz-lwtheme, #urlbar:-moz-lwtheme:hover, 
-#navigator-toolbox .searchbar-textbox:-moz-lwtheme, 
-#navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {
-  background-color: #353535;
-}
-#urlbar, .searchbar-textbox {
-  -moz-appearance: none;
-  border: 1px solid hsla(0, 0%, 9.4%, 0.3) !important;
-  border-radius: var(--toolbarbutton-border-radius);
-  box-shadow: 0 1px 4px rgba(0,0,0,.05);
-}
+  #identity-box:hover:not(.no-hover):not([open="true"]) {
+    background-color: hsla(0, 0%, 70%, .2);
+    fill-opacity: .8;
+    -moz-transition: background-color 0.35s;
+  }
 
-/* Scrollbar */
-#alltabs-button {
+  #identity-box {
+    -moz-transition: background-color 0.35s;
+  }
+
+  /* colores como el de color.firefox */
+  #main-window {
+    --lwt-accent-color: #0F1419;
+  }
+
+  :root:-moz-lwtheme-brighttext, :root {
+    --chrome-background-color: #0F1419 !important; /*era #141414*/
+    --chrome-color: rgb(249, 249, 250);
+    --chrome-secondary-background-color: #222424 !important;
+    --toolbox-border-bottom-color: hsl(240, 5%, 5%);
+    --chrome-nav-bar-controls-border-color: hsla(240, 5%, 5%, .3);
+    --chrome-selection-color: #fff;
+    --chrome-selection-background-color: #5675B9;
+    --lwt-toolbar-field-background-color: rgb(71, 71, 73);
+    --lwt-toolbar-field-color: var(--chrome-color);
+    --urlbar-separator-color: #5F6670;
+    --autocomplete-popup-background: #2A2A2E !important;
+    --autocomplete-popup-highlight-background: #0060DF;
+    --toolbar-bgcolor: #222424 !important;
+  }
+
+  .browser-toolbar:not(.titlebar-color) {
+    background-color: var(--toolbar-bgcolor);
+  }
+
+  #urlbar:not([focused="true"]):-moz-lwtheme, #urlbar:not([focused="true"]):-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme, #navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme:hover {
+    border-color: #1C1E1E;
+  }
+
+  #urlbar:-moz-lwtheme, #urlbar:-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:-moz-lwtheme, #navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {
+    background-color: #353535;
+  }
+
+  #urlbar, .searchbar-textbox {
+    -moz-appearance: none;
+    border: 1px solid hsla(0, 0%, 9.4%, 0.3) !important;
+    border-radius: var(--toolbarbutton-border-radius);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
+  }
+
+  /* Scrollbar */
+  #alltabs-button {
     -moz-binding: url(data:text/xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+DQo8IS0tIENvcHlyaWdodCAoYykgMjAxNyBIYWdnYWkgTnVjaGkNCkF2YWlsYWJsZSBmb3IgdXNlIHVuZGVyIHRoZSBNSVQgTGljZW5zZToNCmh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlUDQogLS0+DQoNCjwhLS0gUnVuIHVzZXJDaHJvbWUuanMvdXNlckNocm9tZS54dWwgYW5kIC51Yy5qcy8udWMueHVsLy5jc3MgZmlsZXMgIC0tPg0KPGJpbmRpbmdzIHhtbG5zPSJodHRwOi8vd3d3Lm1vemlsbGEub3JnL3hibCI+DQogICAgPGJpbmRpbmcgaWQ9ImpzIiBleHRlbmRzPSJjaHJvbWU6Ly9nbG9iYWwvY29udGVudC9iaW5kaW5ncy90b29sYmFyYnV0dG9uLnhtbCNtZW51Ij4NCiAgICAgICAgPGltcGxlbWVudGF0aW9uPg0KICAgICAgICAgICAgPGNvbnN0cnVjdG9yPjwhW0NEQVRBWw0KICAgICAgICAgICAgICAgIGlmKHdpbmRvdy51c2VyQ2hyb21lSnNNb2QpIHJldHVybjsNCiAgICAgICAgICAgICAgICB3aW5kb3cudXNlckNocm9tZUpzTW9kID0gdHJ1ZTsNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICB2YXIgY2hyb21lRmlsZXMgPSBGaWxlVXRpbHMuZ2V0RGlyKCJVQ2hybSIsIFtdKS5kaXJlY3RvcnlFbnRyaWVzOw0KICAgICAgICAgICAgICAgIHZhciB4dWxGaWxlcyA9IFtdOw0KICAgICAgICAgICAgICAgIHZhciBzc3MgPSBDY1snQG1vemlsbGEub3JnL2NvbnRlbnQvc3R5bGUtc2hlZXQtc2VydmljZTsxJ10uZ2V0U2VydmljZShDaS5uc0lTdHlsZVNoZWV0U2VydmljZSk7DQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgd2hpbGUoY2hyb21lRmlsZXMuaGFzTW9yZUVsZW1lbnRzKCkpIHsNCiAgICAgICAgICAgICAgICAgICAgdmFyIGZpbGUgPSBjaHJvbWVGaWxlcy5nZXROZXh0KCkuUXVlcnlJbnRlcmZhY2UoQ2kubnNJRmlsZSk7DQogICAgICAgICAgICAgICAgICAgIHZhciBmaWxlVVJJID0gU2VydmljZXMuaW8ubmV3RmlsZVVSSShmaWxlKTsNCiAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgIGlmKGZpbGUuaXNGaWxlKCkpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgIGlmKC8oXnVzZXJDaHJvbWV8XC51YylcLmpzJC9pLnRlc3QoZmlsZS5sZWFmTmFtZSkpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBTZXJ2aWNlcy5zY3JpcHRsb2FkZXIubG9hZFN1YlNjcmlwdFdpdGhPcHRpb25zKGZpbGVVUkkuc3BlYywge3RhcmdldDogd2luZG93LCBpZ25vcmVDYWNoZTogdHJ1ZX0pOw0KICAgICAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgICAgICAgICAgZWxzZSBpZigvKF51c2VyQ2hyb21lfFwudWMpXC54dWwkL2kudGVzdChmaWxlLmxlYWZOYW1lKSkgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIHh1bEZpbGVzLnB1c2goZmlsZVVSSS5zcGVjKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgICAgIGVsc2UgaWYoL1wuYXNcLmNzcyQvaS50ZXN0KGZpbGUubGVhZk5hbWUpKSB7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYoIXNzcy5zaGVldFJlZ2lzdGVyZWQoZmlsZVVSSSwgc3NzLkFHRU5UX1NIRUVUKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3NzLmxvYWRBbmRSZWdpc3RlclNoZWV0KGZpbGVVUkksIHNzcy5BR0VOVF9TSEVFVCk7DQogICAgICAgICAgICAgICAgICAgICAgICB9DQogICAgICAgICAgICAgICAgICAgICAgICBlbHNlIGlmKC9eKD8hKHVzZXJDaHJvbWV8dXNlckNvbnRlbnQpXC5jc3MkKS4rXC5jc3MkL2kudGVzdChmaWxlLmxlYWZOYW1lKSkgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlmKCFzc3Muc2hlZXRSZWdpc3RlcmVkKGZpbGVVUkksIHNzcy5VU0VSX1NIRUVUKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3NzLmxvYWRBbmRSZWdpc3RlclNoZWV0KGZpbGVVUkksIHNzcy5VU0VSX1NIRUVUKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICBzZXRUaW1lb3V0KGZ1bmN0aW9uIGxvYWRYVUwoKSB7DQogICAgICAgICAgICAgICAgICAgIGlmKHh1bEZpbGVzLmxlbmd0aCA+IDApIHsNCiAgICAgICAgICAgICAgICAgICAgICAgIGRvY3VtZW50LmxvYWRPdmVybGF5KHh1bEZpbGVzLnNoaWZ0KCksIG51bGwpOw0KICAgICAgICAgICAgICAgICAgICAgICAgc2V0VGltZW91dChsb2FkWFVMLCA1KTsNCiAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIH0sIDApOw0KICAgICAgICAgICAgXV0+PC9jb25zdHJ1Y3Rvcj4NCiAgICAgICAgPC9pbXBsZW1lbnRhdGlvbj4NCiAgICA8L2JpbmRpbmc+DQo8L2JpbmRpbmdzPg==);
-}
+  }
 
-/* Texto seleccionado en barra URL */
-#urlbar html|input.textbox-input::-moz-selection {
-  background-color: #257ABD !important;
-  color: white !important;
-}
+  /* Texto seleccionado en barra URL */
+  #urlbar html|input.textbox-input::-moz-selection {
+    background-color: #257ABD !important;
+    color: white !important;
+  }
 
-/* Botones de ventana en la izquierda */
-#titlebar-max {-moz-box-ordinal-group: 0;}
-#titlebar-content {direction: rtl;}
-#titlebar-close {margin-right: 5px !important;}
-#TabsToolbar {direction: rtl;}
-#tabbrowser-tabs {direction: ltr;}
-.titlebar-placeholder[type="post-tabs"] {width: 20px !important;}
-.titlebar-placeholder[type="pre-tabs"] {width:20px !important;border: none 0px !important;}
+  /* Botones de ventana en la izquierda */
+  #titlebar-max {
+    -moz-box-ordinal-group: 0;
+  }
 
-/* Hide cuando está maximizado - combinar con Unite gnome addon */
-#main-window[sizemode="maximized"] #titlebar-buttonbox {margin-left: -80px;}
-#main-window[sizemode="maximized"] #tabbrowser-tabs {margin-left: -80px;}
-#main-window:not([sizemode="maximized"]) #titlebar-buttonbox {margin-left: 0px;}
-#titlebar-buttonbox, #tabbrowser-tabs {transition: margin-left 0.05s;}
+  #titlebar-content {
+    direction: rtl;
+  }
 
-/* Bordes de puntos en enlaces o menues · about:config : browser.display.focus_ring_width: 0; */
-::-moz-focus-inner, input[type=range]::-moz-focus-outer, *::-moz-focus-inner {border: 0;}
-*:focus, :focus, *:visited, *:active, *:hover {outline:0 !important;}
+  #titlebar-close {
+    margin-right: 5px !important;
+  }
 
-/* Badges */ 
-label.toolbarbutton-badge {
-  background: #323232 !important; /* Azul bueno #0e5be1 */
-  font-size: 9px !important;
-  padding: 0px 3px !important;
-  border-radius: 20px !important;
-  font-weight: bold !important;
-  box-shadow: -1px 1px 8px #444 !important;
-}
- toolbarbutton .toolbarbutton-badge-stack, 
- toolbarbutton .toolbarbutton-icon,
-.webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {opacity: 0.8 !important;}
-.webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {filter: saturate(40%);}
+  #TabsToolbar {
+    direction: rtl;
+  }
 
+  #tabbrowser-tabs {
+    direction: ltr;
+  }
 
-/* Color bookmark y descargas & Hide botón de screenshot */
-#downloads-button {direction: ltr; opacity: 0.3; transition-duration: 1s !important; transition-property: opacity;}
-#downloads-button[attention="success"] {opacity: 1;transition-duration: 1s; transition-property: opacity fill;}
-#downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-progress-outer {fill: #448a4c !important;}
-#downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-icon {fill: rgb(249, 249, 250) !important;}
+  .titlebar-placeholder[type="post-tabs"] {
+    width: 20px !important;
+  }
 
-#star-button[starred] {-moz-context-properties: fill, fill-opacity; fill: #fff !important; fill-opacity: 1;}
-#pageAction-urlbar-screenshots_mozilla_org {display: none;}
-.urlbar-icon {opacity: 0.4;}
+  .titlebar-placeholder[type="pre-tabs"] {
+    width: 20px !important;
+    border: none 0px !important;
+  }
 
-/* Esconder close / autohide */
-.close-icon {border-radius: 2px !important;}
-.close-icon:hover {fill-opacity: 0.07;}
-.close-icon:hover:active {fill-opacity: 0.15;}
-.tab-close-button {stroke-opacity: .5;visibility: hidden;opacity: 0;height: 0px;width: 0px;transition: visibility 0.5s, opacity 0.5s linear !important;}
-.tabbrowser-tab[selected="true"] .tab-close-button,
-.tabbrowser-tab:hover .tab-close-button {stroke-opacity: .5;visibility: visible;opacity: 1;height: 22px;width: 22px;}
-.tabbrowser-tab {transition: visibility 0.5s, opacity 0.5s linear !important;}
+  /* Hide cuando está maximizado - combinar con Unite gnome addon */
+  #main-window[sizemode="maximized"] #titlebar-buttonbox {
+    margin-left: -80px;
+  }
 
-/* FIX close cuando hover pestaña no seleccionada*/
-#tabbrowser-tabs[closebuttons="activetab"] > .tabbrowser-tab > .tab-stack > .tab-content > .tab-close-button:not([selected="true"]):not([pinned="true"]) {display: inherit !important;}
+  #main-window[sizemode="maximized"] #tabbrowser-tabs {
+    margin-left: -80px;
+  }
 
-/* Icono media blocked */
- .tab-icon-sound[activemedia-blocked] {display: none !important;}
- .tab-icon-sound {-moz-transition: 0.25s;}
+  #main-window:not([sizemode="maximized"]) #titlebar-buttonbox {
+    margin-left: 0px;
+  }
 
-/* Icono media tab pineada */
- .tab-icon-overlay[soundplaying] {opacity: 0.4;}
+  #titlebar-buttonbox, #tabbrowser-tabs {
+    transition: margin-left 0.05s;
+  }
 
-/* Esconder tabs-arrows buttons cuando overflow */
-#tabbrowser-tabs toolbarbutton.scrollbutton-up,
-#tabbrowser-tabs toolbarbutton.scrollbutton-down,
-#tabbrowser-tabs spacer.arrowscrollbox-overflow-end-indicator {
-  display: none !important;}
-.tabbrowser-arrowscrollbox > .scrollbutton-up, 
-.tabbrowser-arrowscrollbox > .scrollbutton-down {
-	-moz-context-properties: fill, fill-opacity;
-	fill: transparent;
-	fill-opacity: 0;
-	opacity: 0 !important;
-	display: none !important;}
+  /* Bordes de puntos en enlaces o menues · about:config : browser.display.focus_ring_width: 0; */
+  ::-moz-focus-inner, input[type=range]::-moz-focus-outer, *::-moz-focus-inner {
+    border: 0;
+  }
 
-/* Ver todas las tabs de una, no-scroll */
-#tabbrowser-tabs .tabbrowser-tab:not([pinned=true])[fadein] {
-	min-width: 1px !important;}
+  *:focus, :focus, *:visited, *:active, *:hover {
+    outline: 0 !important;
+  }
 
-/* Fix 1px cuando muchas tabs y aparece flecha + fix 2px sobre tabs */
-:root #TabsToolbar, :root #TabsToolbar + * {min-height: 31px !important;}
-:root #TabsToolbar {padding-top: 0px !important;margin-top: -1px !important;}
+  /* Badges */
+  label.toolbarbutton-badge {
+    background: #323232 !important; /* Azul bueno #0e5be1 */
+    font-size: 9px !important;
+    padding: 0px 3px !important;
+    border-radius: 20px !important;
+    font-weight: bold !important;
+    box-shadow: -1px 1px 8px #444 !important;
+  }
 
-/* Tamaño pestañas max-min */
-.tabbrowser-tab:not([pinned]) {
-	max-width:160px !important;min-width:80px !important;}
+  toolbarbutton .toolbarbutton-badge-stack, toolbarbutton .toolbarbutton-icon, .webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {
+    opacity: 0.8 !important;
+  }
 
-/* Contenido texto tab */
-.tab-label-container {font-size: 12px !important;}
-.tab-content {padding-inline-end: 8px;padding-inline-start: 8px;color: #B2B2B2 !important;}
-.tabbrowser-tab > .tab-stack > .tab-content[selected="true"] {color: #D3D3D3 !important;}
+  .webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {
+    filter: saturate(40%);
+  }
 
-/* Desaturar tabs no seleccionadas */
-.tab-icon-image {border-radius: 2px !important; filter: saturate(15%);transition-duration: 0.2s;}
-#tabbrowser-tabs .tab-icon-image[selected]{filter: none !important;}
+  /* Color bookmark y descargas & Hide botón de screenshot */
+  #downloads-button {
+    direction: ltr;
+    opacity: 0.3;
+    transition-duration: 1s !important;
+    transition-property: opacity;
+  }
 
-/* No animar paneles */
-.panel-arrowcontainer {  opacity: 1;  transform: none;  transition: none !important;  pointer-events: all !important;}
-*#BMB_bookmarksPopup {transform: none !important;transition-duration: 0.5ms !important;}
-panel[type="arrow"]:not([animate="false"]) {transform: none !important;transition-duration: 0.5ms !important;}
-PanelUI-popup * {transition: none !important;}
-findbar {transition: none !important;}
+  #downloads-button[attention="success"] {
+    opacity: 1;
+    transition-duration: 1s;
+    transition-property: opacity fill;
+  }
 
-/* Menu general desplegable boton toolbar */
-photonpanelmultiview .panel-subview-body {margin:0!important;}
-#appMenu-edit-controls,#appMenu-edit-controls+toolbarseparator {display:none;}
-#appMenu-popup .panel-arrowcontent {margin:4px 4px 0!important;padding:0!important;}
-#appMenu-popup .panel-subview-body {margin:-6px 0;}
-#appMenu-mainView {padding:0!important;}
-photonpanelmultiview .PanelUI-subView .toolbaritem-combined-buttons>.subviewbutton:not(#appMenu-zoomReset-button):not(#appMenu-fxa-icon) {padding:10px!important;}
-#appMenu-zoom-controls {margin:-6px 0;margin-inline-end:0!important;}
-#appMenu-zoomReset-button {border-radius:0!important;border-width:0 1px 0 1px!important;border-color:var(--arrowpanel-dimmed)!important;padding:10px 10px 9px!important;}
-#appMenu-zoomEnlarge-button {margin-inline-start:0!important;}
-#appMenu-quit-button {padding:10px!important;margin-top:-5px!important;}
-#appMenu-fxa-container {margin-bottom:-6px;margin-inline-end:0!important;}
-#appMenu-fxa-container toolbarseparator[orient='vertical'],#appMenu-zoom-controls toolbarseparator[orient='vertical'] {margin-inline-start:0!important;margin-inline-end:0!important;}
-#appMenu-fxa-label {padding:10px 32px !important;}
-#appMenu-fxa-avatar {border-radius:50%; width: 24px !important; height: 24px !important;}
-#appMenu-fxa-icon {padding: 10px !important;}
-#appMenu-fxa-status {margin-left: -8px;}
+  #downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-progress-outer {
+    fill: #448a4c !important;
+  }
 
-#appMenu-multiView {
-  color: var(--arrowpanel-color);
-  border: 0px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 6px hsla(0,0%,0%,.2);
-  background: #0F1419 !important;
-  --arrowpanel-background: #0F1419 !important;}
-  #appMenu-mainView .subviewbutton, 
-  #appMenu-mainView .toolbaritem-combined-buttons {opacity: 0.7 !important;}
-  #appMenu-zoomReduce-button, #appMenu-zoomEnlarge-button, #appMenu-fullscreen-button {padding: 6px !important; margin: 2px !important; border-radius:50%;}
-  #appMenu-zoomReduce-button {margin-right: -7px !important;}
+  #downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-icon {
+    fill: rgb(249, 249, 250) !important;
+  }
 
-/* Tooltip general */
-tooltip {-moz-appearance: none !important; background: none !important;border: 1px solid transparent !important;}
-tooltip label {
-   -moz-appearance: none !important;
-   background-color: #ffffff !important; /* #F9F9F9 */
-   padding: 4px 8px !important;
-   color: #545454 !important;
-   border: 1px solid #DBDBDB !important;
-   border-radius: 2px !important;
-   box-shadow: 0 1px 5px rgba(0,0,0,.18) !important;
-}
-tooltip :nth-child(2) {
-	margin-top: -5px !important;
-	border-top: 0px solid transparent !important;
-	box-shadow: 0px 7px 5px rgba(0,0,0,.18) !important;
-}
+  #star-button[starred] {
+    -moz-context-properties: fill, fill-opacity;
+    fill: #fff !important;
+    fill-opacity: 1;
+  }
 
-/* General */
-* {--arrowpanel-background: #181C20;}
-.panel-arrowcontent {box-shadow: 0 0 4px hsla(0,0%,0%,.7) !important; border: 0px !important;}
+  #pageAction-urlbar-screenshots_mozilla_org, #pageAction-urlbar-webcompat-reporter_mozilla_org {
+    display: none;
+  }
 
-/* Favicon de Github color invertido */
-.tabbrowser-tab[image$="image/x-icon;base64,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AAAAAAAAKysrBhYWGUcWFhiVFRUYvxUVGNkWFhfzFhYX8xUVGNkVFRi/FhYYlRYWGUcrKysGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="] .tab-icon-image 
-{
-filter: invert(1.0) !important;
-}
+  .urlbar-icon {
+    opacity: 0.4;
+  }
 
-/* color aviso banner de permisos actualizar */
-:root[lwt-popup-brighttext] .addon-banner-item::after {fill: #CED77E !important;}
+  /* Esconder close / autohide */
+  .close-icon {
+    border-radius: 2px !important;
+  }
 
+  .close-icon:hover {
+    fill-opacity: 0.07;
+  }
+
+  .close-icon:hover:active {
+    fill-opacity: 0.15;
+  }
+
+  .tab-close-button {
+    stroke-opacity: .5;
+    visibility: hidden;
+    opacity: 0;
+    height: 0px;
+    width: 0px;
+    transition: visibility 0.5s, opacity 0.5s linear !important;
+  }
+
+  .tabbrowser-tab[selected="true"] .tab-close-button, .tabbrowser-tab:hover .tab-close-button {
+    stroke-opacity: .5;
+    visibility: visible;
+    opacity: 1;
+    height: 22px;
+    width: 22px;
+  }
+
+  .tabbrowser-tab {
+    transition: visibility 0.5s, opacity 0.5s linear !important;
+  }
+
+  /* FIX close cuando hover pestaña no seleccionada*/
+  #tabbrowser-tabs[closebuttons="activetab"] > .tabbrowser-tab > .tab-stack > .tab-content > .tab-close-button:not([selected="true"]):not([pinned="true"]) {
+    display: inherit !important;
+  }
+
+  /* Icono media blocked */
+  .tab-icon-sound[activemedia-blocked] {
+    display: none !important;
+  }
+
+  .tab-icon-sound {
+    -moz-transition: 0.25s;
+  }
+
+  /* Icono media tab pineada */
+  .tab-icon-overlay[soundplaying] {
+    opacity: 0.4;
+  }
+
+  /* Esconder tabs-arrows buttons cuando overflow */
+  #tabbrowser-tabs toolbarbutton.scrollbutton-up, #tabbrowser-tabs toolbarbutton.scrollbutton-down, #tabbrowser-tabs spacer.arrowscrollbox-overflow-end-indicator {
+    display: none !important;
+  }
+
+  .tabbrowser-arrowscrollbox > .scrollbutton-up, .tabbrowser-arrowscrollbox > .scrollbutton-down {
+    -moz-context-properties: fill, fill-opacity;
+    fill: transparent;
+    fill-opacity: 0;
+    opacity: 0 !important;
+    display: none !important;
+  }
+
+  /* Ver todas las tabs de una, no-scroll */
+  #tabbrowser-tabs .tabbrowser-tab:not([pinned=true])[fadein] {
+    min-width: 1px !important;
+  }
+
+  /* Fix 1px cuando muchas tabs y aparece flecha + fix 2px sobre tabs */
+  :root #TabsToolbar, :root #TabsToolbar + * {
+    min-height: 31px !important;
+  }
+
+  :root #TabsToolbar {
+    padding-top: 0px !important;
+    margin-top: -1px !important;
+  }
+
+  /* Tamaño pestañas max-min */
+  .tabbrowser-tab:not([pinned]) {
+    max-width: 160px !important;
+    min-width: 80px !important;
+  }
+
+  /* Contenido texto tab */
+  .tab-label-container {
+    font-size: 12px !important;
+  }
+
+  .tab-content {
+    padding-inline-end: 8px;
+    padding-inline-start: 8px;
+    color: #B2B2B2 !important;
+  }
+
+  .tabbrowser-tab > .tab-stack > .tab-content[selected="true"] {
+    color: #D3D3D3 !important;
+  }
+
+  /* Desaturar tabs no seleccionadas */
+  .tab-icon-image {
+    border-radius: 2px !important;
+    filter: saturate(15%);
+    transition-duration: 0.2s;
+  }
+
+  #tabbrowser-tabs .tab-icon-image[selected] {
+    filter: none !important;
+  }
+
+  /* No animar paneles */
+  .panel-arrowcontainer {
+    opacity: 1;
+    transform: none;
+    transition: none !important;
+    pointer-events: all !important;
+  }
+
+  *#BMB_bookmarksPopup {
+    transform: none !important;
+    transition-duration: 0.5ms !important;
+  }
+
+  panel[type="arrow"]:not([animate="false"]) {
+    transform: none !important;
+    transition-duration: 0.5ms !important;
+  }
+
+  PanelUI-popup * {
+    transition: none !important;
+  }
+
+  findbar {
+    transition: none !important;
+  }
+
+  /* Menu general desplegable boton toolbar */
+  photonpanelmultiview .panel-subview-body {
+    margin: 0 !important;
+  }
+
+  #appMenu-edit-controls, #appMenu-edit-controls+toolbarseparator {
+    display: none;
+  }
+
+  #appMenu-popup .panel-arrowcontent {
+    margin: 4px 4px 0 !important;
+    padding: 0 !important;
+  }
+
+  #appMenu-popup .panel-subview-body {
+    margin: -6px 0;
+  }
+
+  #appMenu-mainView {
+    padding: 0 !important;
+  }
+
+  photonpanelmultiview .PanelUI-subView .toolbaritem-combined-buttons>.subviewbutton:not(#appMenu-zoomReset-button):not(#appMenu-fxa-icon) {
+    padding: 10px !important;
+  }
+
+  #appMenu-zoom-controls {
+    margin: -6px 0;
+    margin-inline-end: 0 !important;
+  }
+
+  #appMenu-zoomReset-button {
+    border-radius: 0 !important;
+    border-width: 0 1px 0 1px !important;
+    border-color: var(--arrowpanel-dimmed) !important;
+    padding: 10px 10px 9px !important;
+  }
+
+  #appMenu-zoomEnlarge-button {
+    margin-inline-start: 0 !important;
+  }
+
+  #appMenu-quit-button {
+    padding: 10px !important;
+    margin-top: -5px !important;
+  }
+
+  #appMenu-fxa-container {
+    margin-bottom: -6px;
+    margin-inline-end: 0 !important;
+  }
+
+  #appMenu-fxa-container toolbarseparator[orient='vertical'], #appMenu-zoom-controls toolbarseparator[orient='vertical'] {
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+  }
+
+  #appMenu-fxa-label {
+    padding: 10px 32px !important;
+  }
+
+  #appMenu-fxa-avatar {
+    border-radius: 50%;
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  #appMenu-fxa-icon {
+    padding: 10px !important;
+  }
+
+  #appMenu-fxa-status {
+    margin-left: -8px;
+  }
+
+  #appMenu-multiView {
+    color: var(--arrowpanel-color);
+    border: 0px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 6px hsla(0, 0%, 0%, .2);
+    background: #0F1419 !important;
+    --arrowpanel-background: #0F1419 !important;
+  }
+
+  #appMenu-mainView .subviewbutton, #appMenu-mainView .toolbaritem-combined-buttons {
+    opacity: 0.7 !important;
+  }
+
+  #appMenu-zoomReduce-button, #appMenu-zoomEnlarge-button, #appMenu-fullscreen-button {
+    padding: 6px !important;
+    margin: 2px !important;
+    border-radius: 50%;
+  }
+
+  #appMenu-zoomReduce-button {
+    margin-right: -7px !important;
+  }
+
+  /* General */
+  * {
+    --arrowpanel-background: #181C20;
+  }
+
+  .panel-arrowcontent {
+    box-shadow: 0 0 4px hsla(0, 0%, 0%, .7) !important;
+    border: 0px !important;
+  }
+
+  /* Favicon de Github color invertido */
+  .tabbrowser-tab[image$="image/x-icon;base64,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AAAAAAAAKysrBhYWGUcWFhiVFRUYvxUVGNkWFhfzFhYX8xUVGNkVFRi/FhYYlRYWGUcrKysGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="] .tab-icon-image {
+    filter: invert(1.0) !important;
+  }
+
+  /* color aviso banner de permisos actualizar */
+  :root[lwt-popup-brighttext] .addon-banner-item::after {
+    fill: #CED77E !important;
+  }
+
+  #main-window {
+    border-radius: 3px 3px 0px 0px !important;
+    background: transparent !important;
+  }
 
 }
