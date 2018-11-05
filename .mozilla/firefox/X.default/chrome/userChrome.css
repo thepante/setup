@@ -3,6 +3,10 @@
 @namespace svg url("http://www.w3.org/2000/svg");
 
 @-moz-document url(chrome://browser/content/browser.xul) {
+  
+  #TabsToolbar {
+    background: #0F1419;
+  }
 
   /* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
   #alltabs-button {
