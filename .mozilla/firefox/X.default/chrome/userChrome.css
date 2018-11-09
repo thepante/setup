@@ -160,15 +160,15 @@
   }
 
   /* Botones de ventana en la izquierda */
-  #titlebar-max {
+  .titlebar-max {
     -moz-box-ordinal-group: 0;
   }
 
-  #titlebar-content {
+  .titlebar-content {
     direction: rtl;
   }
 
-  #titlebar-close {
+  .titlebar-close {
     margin-right: 5px !important;
   }
 
@@ -176,33 +176,33 @@
     direction: rtl;
   }
 
-  #tabbrowser-tabs {
+  #tabbrowser-tabs, .tabbrowser-tabs {
     direction: ltr;
   }
 
-  .titlebar-placeholder[type="post-tabs"] {
-    width: 20px !important;
+  .titlebar-spacer[type="post-tabs"] {
+    width: 10px !important;
   }
 
-  .titlebar-placeholder[type="pre-tabs"] {
+  .titlebar-spacer[type="pre-tabs"] {
     width: 20px !important;
     border: none 0px !important;
   }
 
   /* Hide cuando está maximizado - combinar con Unite gnome addon */
-  #main-window[sizemode="maximized"] #titlebar-buttonbox {
+  #main-window[sizemode="maximized"] .titlebar-buttonbox {
     margin-left: -80px;
   }
 
-  #main-window[sizemode="maximized"] #tabbrowser-tabs {
+  #main-window[sizemode="maximized"] .tabbrowser-tabs {
     margin-left: -80px;
   }
 
-  #main-window:not([sizemode="maximized"]) #titlebar-buttonbox {
+  #main-window:not([sizemode="maximized"]) .titlebar-buttonbox {
     margin-left: 0px;
   }
 
-  #titlebar-buttonbox, #tabbrowser-tabs {
+  .titlebar-buttonbox, .tabbrowser-tabs {
     transition: margin-left 0.05s;
   }
 
