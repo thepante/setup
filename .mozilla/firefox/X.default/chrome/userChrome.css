@@ -188,7 +188,9 @@
     width: 20px !important;
     border: none 0px !important;
   }
-
+  .titlebar-buttonbox {
+    margin-top: 5px !important;;
+  }
   /* Hide cuando está maximizado - combinar con Unite gnome addon */
   #main-window[sizemode="maximized"] .titlebar-buttonbox {
     margin-left: -80px;
