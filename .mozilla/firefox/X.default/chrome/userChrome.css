@@ -205,7 +205,7 @@
   }
 
   #main-window:not([sizemode="maximized"]) .titlebar-buttonbox {
-    margin-left: 0px;
+    margin-left: 4px;
   }
 
   .titlebar-buttonbox, .tabbrowser-tabs {
