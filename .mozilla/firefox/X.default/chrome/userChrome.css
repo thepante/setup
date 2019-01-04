@@ -534,6 +534,7 @@
   .toolbarbutton-animatable-box, .toolbarbutton-1,
   html|*.textbox-input, html|*.textbox-textarea,
   #navigator-toolbox *, #pageActionButton, #star-button[starred] {
-    fill: #a7a592 !important;
+    fill:  #a7a592 !important;
+    color: #a7a592 !important;
   }
 }
