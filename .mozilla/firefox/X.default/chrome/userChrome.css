@@ -531,4 +531,8 @@
     background: transparent !important;
   }
 
+  .toolbarbutton-animatable-box, .toolbarbutton-1,
+  html|*.textbox-input, html|*.textbox-textarea {
+    fill: #a7a592 !important;
+  }
 }
