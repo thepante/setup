@@ -272,7 +272,7 @@
   }
 
   .urlbar-icon {
-    opacity: 0.4;
+    opacity: 0.8;
   }
 
   /* Esconder close / autohide */
@@ -532,7 +532,8 @@
   }
 
   .toolbarbutton-animatable-box, .toolbarbutton-1,
-  html|*.textbox-input, html|*.textbox-textarea {
+  html|*.textbox-input, html|*.textbox-textarea,
+  #navigator-toolbox *, #pageActionButton, #star-button[starred] {
     fill: #a7a592 !important;
   }
 }
