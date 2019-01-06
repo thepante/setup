@@ -9395,3 +9395,7 @@ paned scrolledwindow, box toolbar {
 menubar label {
   opacity: 0.7;
 }
+
+notebook widget:selected {
+  text-shadow: 1px 1px 2px black;
+}
