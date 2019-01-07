@@ -5319,9 +5319,9 @@ decoration {
 }
 
 decoration, .popup decoration {
-  box-shadow: 1px 6px 22px 1px rgba(0, 0, 0, 0.5),
-                0 6px 22px 1px rgba(0, 0, 0, 0.22),
-                0 0 0px rgba(0, 0, 0, 0.15);
+  box-shadow: 1px 6px 12px 1px rgba(0, 0, 0, 0.5),
+                0 6px 10px 1px rgba(0, 0, 0, 0.22),
+                0 0 1px rgba(0, 0, 0, 0.15);
 }
 
 .csd.popup decoration {
@@ -5331,9 +5331,9 @@ decoration, .popup decoration {
 }
 
 decoration:backdrop {/* necesita idem sino bug cuando animado*/
-  box-shadow: 1px 6px 22px 1px rgba(0, 0, 0, 0.45),
-                0 6px 20px 1px rgba(0, 0, 0, 0.10),
-                0 0 0px rgba(0, 0, 0, 0.15);
+  box-shadow: 1px 6px 12px 1px rgba(0, 0, 0, 0.35),
+                0 6px 10px 1px rgba(0, 0, 0, 0.10),
+                0 0 1px rgba(0, 0, 0, 0.15);
   outline-width: 0;
 }
 
