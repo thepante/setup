@@ -1,5 +1,5 @@
 **Basic alternative to Firefox matching Sierra Negra theme**  
-`userContent.css` is a must have, in my opinion. The file is ready to paste on your profile  
+Along with this I recommend have Sierra-light theme in your `.themes`, and then in `about:config` create a `string` named `widget.content.gtk-theme-override` with value `Sierra-light`.  
 `CODE-*.css` Files are CSS codes only - optional. Just for copy those and paste & use on `userChrome.css`  
 
 
