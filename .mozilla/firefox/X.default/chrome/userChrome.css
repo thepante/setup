@@ -1,8 +1,37 @@
-/* Gnome 09/09/2018 · u/thepante */
+/* Gnome 13/01/2019 · u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 
-@-moz-document url(chrome://browser/content/browser.xul) {
+@-moz-document url(chrome://browser/content/browser.xul), 
+               url(chrome://browser/content/places/bookmarksSidebar.xul), 
+               url(chrome://browser/content/places/historySidebar.xul) {
+
+:root:-moz-lwtheme-brighttext, :root, * {
+    --chrome-background-color: #0F1419 !important; /*era #141414*/
+    --chrome-color: #a7a592 !important;
+    --chrome-secondary-background-color: #222424 !important;
+    --toolbox-border-bottom-color: hsl(240, 5%, 5%);
+    --chrome-nav-bar-controls-border-color: hsla(240, 5%, 5%, .3);
+    --chrome-selection-color: #fff;
+    --chrome-selection-background-color: #5675B9;
+    --lwt-toolbar-field-background-color: rgb(71, 71, 73);
+    --lwt-toolbar-field-color: var(--chrome-color);
+    --urlbar-separator-color: #5F6670;
+    --autocomplete-popup-background: #2A2A2E !important;
+    --autocomplete-popup-highlight-background: #284163;
+    --toolbar-bgcolor: #222424 !important;
+    --arrowpanel-background: #181C20 !important;
+
+    --panel-disabled-color: var(--chrome-color) !important;
+    --arrow-panel-color: var(--chrome-color) !important;
+    --lwt-toolbarbutton-icon-fill: var(--chrome-color) !important;
+    --toolbarbutton-icon-fill-attention: var(--chrome-color) !important;
+    --lwt-accent-color: var(--chrome-color) !important;
+    --lwt-text-color: var(--chrome-color) !important;
+    --toolbar-color: var(--chrome-color) !important;
+
+    color: var(--chrome-color);
+}
   
   #TabsToolbar {
     background: #0F1419;
@@ -70,7 +99,10 @@
   #urlbar[pageproxystate="valid"] > #identity-box.verifiedDomain > #connection-icon, #urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity > #connection-icon, #urlbar[pageproxystate="valid"] > #identity-box.mixedActiveBlocked > #connection-icon {
     list-style-image: url(chrome://browser/skin/connection-secure.svg);
     -moz-context-properties: fill;
-    fill: #03CB76 !important;
+    fill: #55AA7F !important; /*#03CB76*/
+  }
+  :root[lwt-popup-brighttext] .identity-popup-connection-secure {
+    color: #55AA7F !important;
   }
 
   #identity-icon-labels {
@@ -113,21 +145,6 @@
     --lwt-accent-color: #0F1419;
   }
 
-  :root:-moz-lwtheme-brighttext, :root {
-    --chrome-background-color: #0F1419 !important; /*era #141414*/
-    --chrome-color: rgb(249, 249, 250);
-    --chrome-secondary-background-color: #222424 !important;
-    --toolbox-border-bottom-color: hsl(240, 5%, 5%);
-    --chrome-nav-bar-controls-border-color: hsla(240, 5%, 5%, .3);
-    --chrome-selection-color: #fff;
-    --chrome-selection-background-color: #5675B9;
-    --lwt-toolbar-field-background-color: rgb(71, 71, 73);
-    --lwt-toolbar-field-color: var(--chrome-color);
-    --urlbar-separator-color: #5F6670;
-    --autocomplete-popup-background: #2A2A2E !important;
-    --autocomplete-popup-highlight-background: #0060DF;
-    --toolbar-bgcolor: #222424 !important;
-  }
   :root[extradragspace][tabsintitlebar]:not([inFullscreen]) {
     --space-above-tabbar: 0px !important;
   }
@@ -263,7 +280,7 @@
 
   #star-button[starred] {
     -moz-context-properties: fill, fill-opacity;
-    fill: #fff !important;
+    fill: var(--chrome-color);
     fill-opacity: 1;
   }
 
@@ -394,6 +411,7 @@
     transform: none;
     transition: none !important;
     pointer-events: all !important;
+    color: #a7a592 !important;
   }
 
   *#BMB_bookmarksPopup {
@@ -490,7 +508,7 @@
   }
 
   #appMenu-multiView {
-    color: var(--arrowpanel-color);
+    color: var(--chrome-color);
     border: 0px solid rgba(255, 255, 255, 0.05);
     box-shadow: 0 0 6px hsla(0, 0%, 0%, .2);
     background: #0F1419 !important;
@@ -512,19 +530,21 @@
   }
 
   /* General */
-  * {
-    --arrowpanel-background: #181C20;
-  }
-
   .panel-arrowcontent {
     box-shadow: 0 0 4px hsla(0, 0%, 0%, .7) !important;
     border: 0px !important;
   }
 
-  /* color aviso banner de permisos actualizar */
-  :root[lwt-popup-brighttext] .addon-banner-item::after {
-    fill: #CED77E !important;
+  .identity-popup-security-content,
+  #identity-popup-permissions-content,
+  #identity-popup-content-blocking-content {
+    fill: var(--chrome-color) !important;
   }
+  #pageActionSeparator {display: none !important;}
+
+  /* color aviso banner de permisos actualizar */
+  :root[lwt-popup-brighttext] .addon-banner-item::after {fill: #829315 !important;}
+  :root[lwt-popup-brighttext] .addon-banner-item {}
 
   #main-window[sizemode="normal"] {
     border-radius: 3px 3px 0px 0px !important;
@@ -534,7 +554,82 @@
   .toolbarbutton-animatable-box, .toolbarbutton-1,
   html|*.textbox-input, html|*.textbox-textarea,
   #navigator-toolbox *, #pageActionButton, #star-button[starred] {
-    fill:  #a7a592 !important;
-    color: #a7a592 !important;
+    fill:  var(--chrome-color) !important;
+    color: var(--chrome-color) !important;
   }
+
+  .panel-footer > button:not([disabled])[default] {
+    background-color: #a7a592 !important;
+  }
+                 
+ .popup-notification-primary-button .button-text, 
+  #editBookmarkPanelBottomButtons .button-text {
+    color: white !important;
+    font-weight: bold !important;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5) !important;
+  }
+  
+  /* Colores de containers */
+  .tabbrowser-tab[usercontextid] > .tab-stack > .tab-background > .tab-bottom-line {
+    background: linear-gradient(to right, transparent 10%, var(--identity-tab-color) 10%, var(--identity-tab-color) 90%, transparent 90%);
+    height: 2px;
+    filter: saturate(0.3);
+  }
+  
+  #userContext-indicator, #userContext-label, 
+  #navigator-toolbox .menu-iconic-text, 
+  #navigator-toolbox .menu-iconic-icon {
+    fill: var(--identity-tab-color) !important;
+    color: var(--identity-tab-color) !important;
+    filter: saturate(0.3) !important;
+  } 
+  
+  /* Despliegue de url, richbox, listresults */
+  .ac-url {opacity: 0.5 !important;}
+  .ac-action {filter: contrast(0.3) grayscale(100%) !important;}
+  .ac-type-icon {opacity: 0.4 !important;}
+  .ac-site-icon {filter: saturate(0.6) !important;}
+
+  /* Sidebar flotante */
+  #browser {
+    --sidebar-size: 60%;
+    position: absolute;
+  }
+  #appcontent {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    position: absolute;
+  }
+  #tabbrowser-tabbox {
+    height: 100%;
+    width: 100%;
+  }
+  #sidebar-header {
+    width: 100%;
+  }
+  #sidebar-box {
+    position: absolute;
+    right: 0;
+    height: calc(var(--sidebar-size) - 42px);
+    z-index: 9999;
+    box-shadow: 12px 26px 36px 16px #00000066;
+  }
+  #sidebar {
+    min-width: 32em !important;
+    min-height: 100%;
+    position: absolute;
+    border-radius: 0 0 0 3px;
+  }
+  .sidebar-splitter, 
+  #sidebar-reverse-position, 
+  #sidebar-extensions-separator {display: none;}
+  
+  .sidebar-placesTreechildren {
+    color: var(--chrome-color) !important;
+    filter: saturate(0.5) !important;
+  }
+
+
 }
