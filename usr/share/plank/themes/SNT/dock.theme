@@ -11,8 +11,9 @@ InnerStrokeColor=0;;0;;0;;0
 [PlankDockTheme]
 TopPadding=2
 BottomPadding=2
-IconShadowSize=1
+IconShadowSize=1.350
 LaunchBounceHeight=0.525
 LaunchBounceTime=600
 ActiveTime=600
 SlideTime=800
+IndicatorSize=9
