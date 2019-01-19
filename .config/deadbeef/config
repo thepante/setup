@@ -28,7 +28,7 @@ filebrowser.coverart_scale 1
 filebrowser.coverart_size 24
 filebrowser.defaultpath 
 filebrowser.enabled 1
-filebrowser.expanded_rows 
+filebrowser.expanded_rows file:///home/pante/Music/musiks file:///home/pante/Music/musiks/plenas file:///home/pante/Music/M%C3%BAsica file:///home/pante/Music/M%C3%BAsica/Plena
 filebrowser.extra_bookmarks $HOME/.config/deadbeef/bookmarks
 filebrowser.fgcolor 
 filebrowser.fgcolor_selected 
@@ -55,17 +55,28 @@ filechooser.playlist.lastdir file:///home/pante/.local/share/rhythmbox
 gtkui.action_separators 0
 gtkui.color.bar_background 11822 13364 13878
 gtkui.color.bar_foreground 35607 24687 24687
-gtkui.color.tabstrip_text 11822 13364 13878
+gtkui.color.listview_column_text 15728 15468 13002
+gtkui.color.listview_cursor 7609 9812 12014
+gtkui.color.listview_playing_text 29298 40863 53199
+gtkui.color.listview_selected_text 22718 21507 21507
+gtkui.color.listview_selection 5895 7753 9611
+gtkui.color.listview_text 42919 42405 37522
+gtkui.color.tabstrip_playing_text 25121 24730 21018
+gtkui.color.tabstrip_selected_text 7609 9812 12014
+gtkui.color.tabstrip_text 15728 15468 13002
 gtkui.columns.playlist [{"title":"♫","id":"1","format":"%playstatus%","size":"50","align":"0","color_override":"0","color":"#ff000000"},{"title":"Title","id":"-1","format":"%title%","size":"275","align":"0","color_override":"0","color":"#ff000000"},{"title":"Artist","id":"-1","format":"$if(%artist%,%artist%,Unknown Artist)","size":"186","align":"0","color_override":"0","color":"#ff000000"},{"title":"Duration","id":"-1","format":"%length%","size":"50","align":"0","color_override":"0","color":"#ff000000"}]
 gtkui.custom_tray_icon deadbeef_tray_icon
 gtkui.delete_files_ask 1
 gtkui.disable_seekbar_overlay 0
+gtkui.embolden_current_track 1
+gtkui.embolden_selected_tracks 0
 gtkui.eq.visible 0
 gtkui.hide_tray_icon 1
-gtkui.layout.0.6.2 vsplitter pos=97 locked=1 {waveform_seekbar {} hsplitter pos=183 locked=0 {pltbrowser {} playlist hideheaders=0 width=589 {} } } 
+gtkui.layout.0.6.2 vsplitter pos=97 locked=1 {waveform_seekbar {} tabs active=0 num_tabs=2 tab000="hsplitter" tab001="spectrum" {hsplitter pos=151 locked=0 {pltbrowser {} playlist hideheaders=0 width=693 {} } spectrum {} } } 
 gtkui.mmb_delete_playlist 1
 gtkui.name_playlist_from_folder 1
 gtkui.override_bar_colors 1
+gtkui.override_listview_colors 1
 gtkui.override_tabstrip_colors 1
 gtkui.pltbrowser.highlight_curr_plt 1
 gtkui.pltbrowser.mmb_delete_playlist 0
@@ -75,7 +86,7 @@ gtkui.selection_properties.show_headers 0
 gtkui.statusbar.visible 1
 gtkui.sync 0
 gtkui.tabscroll 0
-gtkui.tabstrip_embolden_playing 0
+gtkui.tabstrip_embolden_playing 1
 gtkui.titlebar_playing_tf %title% - %artist%
 gtkui.titlebar_stopped_tf DeaDBeeF-%_deadbeef_version%
 gtkui.tray_volume_sensitivity 1
@@ -87,8 +98,8 @@ headerbarui.disable 0
 headerbarui.embed_menubar 0
 headerbarui.hide_seekbar_on_streaming 1
 headerbarui.show_designmode_button 0
-headerbarui.show_preferences_button 1
-headerbarui.show_seek_bar 0
+headerbarui.show_preferences_button 0
+headerbarui.show_seek_bar 1
 headerbarui.show_stop_button 0
 headerbarui.show_volume_button 1
 hotkey.key01 "Ctrl f" 0 0 find
@@ -124,11 +135,11 @@ hotkey.key32 "Ctrl k" 0 0 toggle_stop_after_album
 hotkeys_created 1
 ignore_archives 1
 junk.enable_cp1251_detection 1
-mainwin.geometry.h 520
+mainwin.geometry.h 898
 mainwin.geometry.maximized 0
-mainwin.geometry.w 773
-mainwin.geometry.x 157
-mainwin.geometry.y 221
+mainwin.geometry.w 847
+mainwin.geometry.x 201
+mainwin.geometry.y 73
 mp3.id3v1_encoding iso8859-1
 mp3.id3v2_version 3
 mp3.write_id3v1 1
@@ -145,35 +156,37 @@ output_plugin PulseAudio output plugin
 playback.loop 0
 playback.order 0
 playback.volume 0.0000000
-playlist.current 0
-playlist.cursor.0 2028
-playlist.cursor.1 0
+playlist.current 1
+playlist.cursor.0 0
+playlist.cursor.1 1013
 playlist.cursor.2 0
+playlist.cursor.3 0
 playlist.pin.groups 0
-playlist.scroll.0 40359
-playlist.scroll.1 0
+playlist.scroll.0 0
+playlist.scroll.1 19949
 playlist.scroll.2 0
+playlist.scroll.3 0
 playlist.scroll.cursorfollowplayback 1
-playlist.tab.00000 Music
-playlist.tab.00001 New Playlist
+playlist.tab.00000 New Playlist
+playlist.tab.00001 Music
 playlist.tab.00002 Default
 prefwin.geometry.h 473
-prefwin.geometry.w 585
-prefwin.geometry.x 201
-prefwin.geometry.y 258
+prefwin.geometry.w 542
+prefwin.geometry.x 205
+prefwin.geometry.y 280
 quick_search.append_search_string 1
 quick_search.history_size 10.000000
 replaygain_mode 0
 replaygain_scale 1
 resume.paused 0
-resume.playlist 0
-resume.position 5.8050056
-resume.track 2028
+resume.playlist 1
+resume.position 2913.7968
+resume.track 1013
 resume_last_session 1
 searchwin.geometry.h 150
 searchwin.geometry.w 450
-searchwin.geometry.x 0
-searchwin.geometry.y 28
+searchwin.geometry.x 226
+searchwin.geometry.y 441
 streamer.8_to_16 1
 trkproperties.geometry.h 400
 trkproperties.geometry.w 400
@@ -183,32 +196,32 @@ waveform.bg_alpha 65535
 waveform.bg_color_b 6425
 waveform.bg_color_g 5140
 waveform.bg_color_r 3855
-waveform.border_width 1
+waveform.border_width 0
 waveform.cache_enabled 1
-waveform.cursor_width 3
+waveform.cursor_width 1
 waveform.display_rms 1
 waveform.display_ruler 0
 waveform.fg_alpha 65535
-waveform.fg_color_b 20000
-waveform.fg_color_g 20000
-waveform.fg_color_r 20000
+waveform.fg_color_b 10485
+waveform.fg_color_g 8615
+waveform.fg_color_r 6745
 waveform.fg_rms_alpha 65535
-waveform.fg_rms_color_b 4401
-waveform.fg_rms_color_g 4401
-waveform.fg_rms_color_r 8519
+waveform.fg_rms_color_b 9174
+waveform.fg_rms_color_g 7477
+waveform.fg_rms_color_r 5780
 waveform.fill_waveform 1
-waveform.font_size 18
+waveform.font_size 10
 waveform.log_enabled 0
 waveform.max_file_length 180
 waveform.mix_to_mono 1
 waveform.num_samples 2048
-waveform.pb_alpha 19985
-waveform.pb_color_b 34181
-waveform.pb_color_g 35466
-waveform.pb_color_r 34952
-waveform.refresh_interval 33
+waveform.pb_alpha 65535
+waveform.pb_color_b 16383
+waveform.pb_color_g 13571
+waveform.pb_color_r 10758
+waveform.refresh_interval 30
 waveform.render_method 2
 waveform.scroll_enabled 1
-waveform.shade_waveform 0
-waveform.soundcloud_style 1
+waveform.shade_waveform 1
+waveform.soundcloud_style 0
 wv.write_apev2 1
