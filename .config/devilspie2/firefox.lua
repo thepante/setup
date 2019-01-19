@@ -8,7 +8,9 @@ if (get_application_name()=="Firefox") then
 			end
 	end
 	if (get_window_class()=="Firefox") then
-		set_window_geometry(30, 50, 1600, 970); 
+			if (get_window_role()=="browser") then
+			set_window_geometry(30, 50, 1600, 970);
+			end 
 	end
 	--else set_window_position(30, 50); end
 end
