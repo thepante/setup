@@ -1,3 +1,6 @@
 [submodule ".icons/Malvin"]
 	path = .icons/Malvin
 	url = git@github.com:thepante/Malvin.git
+[submodule ".zsh/k"]
+	path = .zsh/k
+	url = git@github.com:supercrabtree/k.git
