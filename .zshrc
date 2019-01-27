@@ -28,6 +28,7 @@ source $(dirname $(gem which colorls))/tab_complete.sh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/zsh-interactive-cd.plugin.zsh
 source ~/.zsh/shf.zsh
+source ~/.zsh/k/k.sh
 
 # source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # source ~/.zsh/auto_expand.zsh
