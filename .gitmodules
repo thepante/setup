@@ -1,0 +1,3 @@
+[submodule ".icons/Malvin"]
+	path = .icons/Malvin
+	url = git@github.com:thepante/Malvin.git
