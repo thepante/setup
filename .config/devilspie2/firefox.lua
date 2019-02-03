@@ -4,7 +4,10 @@ if (get_application_name()=="Firefox") then
 			set_window_geometry(400, 240, 1100, 700);
 			end
 			if (get_window_role()=="browser") then
-			set_window_geometry(15, 50, 1170, 990); 
+			set_window_geometry(15, 50, 1165, 990); 
+			end
+			if (get_window_role()=="webconsole") then
+			set_window_geometry(400, 240, 1000, 400);
 			end
 	end
 	if (get_window_class()=="Firefox") then
