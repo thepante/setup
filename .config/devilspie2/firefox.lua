@@ -1,7 +1,7 @@
 if (get_application_name()=="Firefox") then
 	if (get_window_class()=="Nightly") then
 			if (get_window_role()=="toolbox") then
-			set_window_geometry(400, 240, 1100, 700);
+			set_window_geometry(500, 300, 1100, 600);
 			end
 			if (get_window_role()=="browser") then
 			set_window_geometry(15, 50, 1165, 990); 

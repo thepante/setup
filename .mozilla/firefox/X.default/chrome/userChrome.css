@@ -1,7 +1,5 @@
-/* Gnome 13/01/2019 · u/thepante */
-@namespace html url("http://www.w3.org/1999/xhtml");
-@namespace svg url("http://www.w3.org/2000/svg");
-
+/* Gnome 02/2019 - u/thepante */
+@namespace html url("http://www.w3.org/1999/xhtml"); @namespace svg url("http://www.w3.org/2000/svg");
 @-moz-document url(chrome://browser/content/browser.xul), 
                url(chrome://browser/content/places/bookmarksSidebar.xul), 
                url(chrome://browser/content/places/historySidebar.xul) {
@@ -21,7 +19,6 @@
     --autocomplete-popup-highlight-background: #284163;
     --toolbar-bgcolor: #222424 !important;
     --arrowpanel-background: #181C20 !important;
-
     --panel-disabled-color: var(--chrome-color) !important;
     --arrow-panel-color: var(--chrome-color) !important;
     --lwt-toolbarbutton-icon-fill: var(--chrome-color) !important;
@@ -33,210 +30,82 @@
     color: var(--chrome-color);
 }
   
-  #TabsToolbar {
-    background: #0F1419;
-  }
+  /* Llamar a los .js */
+  #alltabs-button {-moz-binding: url(data:text/xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+DQo8IS0tIENvcHlyaWdodCAoYykgMjAxNyBIYWdnYWkgTnVjaGkNCkF2YWlsYWJsZSBmb3IgdXNlIHVuZGVyIHRoZSBNSVQgTGljZW5zZToNCmh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlUDQogLS0+DQoNCjwhLS0gUnVuIHVzZXJDaHJvbWUuanMvdXNlckNocm9tZS54dWwgYW5kIC51Yy5qcy8udWMueHVsLy5jc3MgZmlsZXMgIC0tPg0KPGJpbmRpbmdzIHhtbG5zPSJodHRwOi8vd3d3Lm1vemlsbGEub3JnL3hibCI+DQogICAgPGJpbmRpbmcgaWQ9ImpzIiBleHRlbmRzPSJjaHJvbWU6Ly9nbG9iYWwvY29udGVudC9iaW5kaW5ncy90b29sYmFyYnV0dG9uLnhtbCNtZW51Ij4NCiAgICAgICAgPGltcGxlbWVudGF0aW9uPg0KICAgICAgICAgICAgPGNvbnN0cnVjdG9yPjwhW0NEQVRBWw0KICAgICAgICAgICAgICAgIGlmKHdpbmRvdy51c2VyQ2hyb21lSnNNb2QpIHJldHVybjsNCiAgICAgICAgICAgICAgICB3aW5kb3cudXNlckNocm9tZUpzTW9kID0gdHJ1ZTsNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICB2YXIgY2hyb21lRmlsZXMgPSBGaWxlVXRpbHMuZ2V0RGlyKCJVQ2hybSIsIFtdKS5kaXJlY3RvcnlFbnRyaWVzOw0KICAgICAgICAgICAgICAgIHZhciB4dWxGaWxlcyA9IFtdOw0KICAgICAgICAgICAgICAgIHZhciBzc3MgPSBDY1snQG1vemlsbGEub3JnL2NvbnRlbnQvc3R5bGUtc2hlZXQtc2VydmljZTsxJ10uZ2V0U2VydmljZShDaS5uc0lTdHlsZVNoZWV0U2VydmljZSk7DQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgd2hpbGUoY2hyb21lRmlsZXMuaGFzTW9yZUVsZW1lbnRzKCkpIHsNCiAgICAgICAgICAgICAgICAgICAgdmFyIGZpbGUgPSBjaHJvbWVGaWxlcy5nZXROZXh0KCkuUXVlcnlJbnRlcmZhY2UoQ2kubnNJRmlsZSk7DQogICAgICAgICAgICAgICAgICAgIHZhciBmaWxlVVJJID0gU2VydmljZXMuaW8ubmV3RmlsZVVSSShmaWxlKTsNCiAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgIGlmKGZpbGUuaXNGaWxlKCkpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgIGlmKC8oXnVzZXJDaHJvbWV8XC51YylcLmpzJC9pLnRlc3QoZmlsZS5sZWFmTmFtZSkpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBTZXJ2aWNlcy5zY3JpcHRsb2FkZXIubG9hZFN1YlNjcmlwdFdpdGhPcHRpb25zKGZpbGVVUkkuc3BlYywge3RhcmdldDogd2luZG93LCBpZ25vcmVDYWNoZTogdHJ1ZX0pOw0KICAgICAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgICAgICAgICAgZWxzZSBpZigvKF51c2VyQ2hyb21lfFwudWMpXC54dWwkL2kudGVzdChmaWxlLmxlYWZOYW1lKSkgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIHh1bEZpbGVzLnB1c2goZmlsZVVSSS5zcGVjKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgICAgIGVsc2UgaWYoL1wuYXNcLmNzcyQvaS50ZXN0KGZpbGUubGVhZk5hbWUpKSB7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYoIXNzcy5zaGVldFJlZ2lzdGVyZWQoZmlsZVVSSSwgc3NzLkFHRU5UX1NIRUVUKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3NzLmxvYWRBbmRSZWdpc3RlclNoZWV0KGZpbGVVUkksIHNzcy5BR0VOVF9TSEVFVCk7DQogICAgICAgICAgICAgICAgICAgICAgICB9DQogICAgICAgICAgICAgICAgICAgICAgICBlbHNlIGlmKC9eKD8hKHVzZXJDaHJvbWV8dXNlckNvbnRlbnQpXC5jc3MkKS4rXC5jc3MkL2kudGVzdChmaWxlLmxlYWZOYW1lKSkgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlmKCFzc3Muc2hlZXRSZWdpc3RlcmVkKGZpbGVVUkksIHNzcy5VU0VSX1NIRUVUKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3NzLmxvYWRBbmRSZWdpc3RlclNoZWV0KGZpbGVVUkksIHNzcy5VU0VSX1NIRUVUKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICBzZXRUaW1lb3V0KGZ1bmN0aW9uIGxvYWRYVUwoKSB7DQogICAgICAgICAgICAgICAgICAgIGlmKHh1bEZpbGVzLmxlbmd0aCA+IDApIHsNCiAgICAgICAgICAgICAgICAgICAgICAgIGRvY3VtZW50LmxvYWRPdmVybGF5KHh1bEZpbGVzLnNoaWZ0KCksIG51bGwpOw0KICAgICAgICAgICAgICAgICAgICAgICAgc2V0VGltZW91dChsb2FkWFVMLCA1KTsNCiAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIH0sIDApOw0KICAgICAgICAgICAgXV0+PC9jb25zdHJ1Y3Rvcj4NCiAgICAgICAgPC9pbXBsZW1lbnRhdGlvbj4NCiAgICA8L2JpbmRpbmc+DQo8L2JpbmRpbmdzPg==);
+  }  
+
+  #TabsToolbar {background: #var(--chrome-background-color);}
 
   /* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
-  #alltabs-button {
-    display: none;
-    opacity: 0;
-  }
-
-  .tab-stack {
-    min-height: 31px !important;
-  }
+  #alltabs-button {display: none; opacity: 0;}
+  .tab-stack {min-height: 31px !important;}
 
   /* Sacar botones grandes en menu contextual + width */
-  #context-navigation, #context-sep-navigation {
-    display: none !important;
-  }
-
-  menupopup#contentAreaContextMenu {
-    max-width: 260px !important;
-  }
+  #context-navigation, #context-sep-navigation {display: none !important;}
+  menupopup#contentAreaContextMenu {max-width: 260px !important;}
 
   /* Colores barra url y tabs */
-  #urlbar:-moz-lwtheme, #urlbar:-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:-moz-lwtheme, #navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {
-    background-color: #111 !important;
-  }
-
-  :root #urlbar, :root .searchbar-textbox {
-    opacity: 0.7 !important;
-  }
+  #urlbar:-moz-lwtheme, #urlbar:-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:-moz-lwtheme, 
+  #navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {background-color: #111 !important;}
+  :root #urlbar, :root .searchbar-textbox {opacity: 0.7 !important;}
 
   .tabs-newtab-button, #TabsToolbar > #new-tab-button, #TabsToolbar > toolbarpaletteitem > #new-tab-button {
-    list-style-image: url(chrome://browser/skin/tabbrowser/newtab.svg);
-    margin-top: 2px !important;
-    opacity: 0.3;
-  }
+    list-style-image: url(chrome://browser/skin/tabbrowser/newtab.svg); margin-top: 2px !important; opacity: 0.3;}
 
-  #tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, #tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before, .tabbrowser-tab[visuallyselected]::after {
-    border-color: red;
-  }
+  #tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, 
+  #tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before, 
+  .tabbrowser-tab[visuallyselected]::after { border-color: red;}
 
   .tabbrowser-tab:not([selected])::after, .tabbrowser-tab:not([selected])::before {
-    border-left: 1px solid #474747 !important;
-    margin-right: -1px !important;
-  }
-
-  .tab-icon-image, .tab-label {
-    opacity: 0.8;
-  }
-
-  #tabbrowser-tabs .tab-icon-image[selected], #tabbrowser-tabs .tab-label[selected] {
-    opacity: 1;
-  }
-
-  #tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, #tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before, .tabbrowser-tab[visuallyselected]::after {
-    margin-top: 0;
-    margin-bottom: 1px;
-    opacity: 1;
-    border-right: 0 transparent;
-  }
+    border-left: 1px solid #474747 !important; margin-right: -1px !important;}
+  .tab-icon-image, .tab-label {opacity: 0.8;}
+  #tabbrowser-tabs .tab-icon-image[selected], #tabbrowser-tabs .tab-label[selected] {opacity: 1;}
+  #tabbrowser-tabs:not([movingtab]) > .tabbrowser-tab[beforeselected-visible]::after, 
+  #tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before, 
+  .tabbrowser-tab[visuallyselected]::after { margin-top: 0; margin-bottom: 1px; opacity: 1; border-right: 0 transparent;}
 
   /* Iconos de conexión del dominio */
   #urlbar[pageproxystate="valid"] > #identity-box.verifiedDomain > #connection-icon, #urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity > #connection-icon, #urlbar[pageproxystate="valid"] > #identity-box.mixedActiveBlocked > #connection-icon {
-    list-style-image: url(chrome://browser/skin/connection-secure.svg);
-    -moz-context-properties: fill;
-    fill: #55AA7F !important; /*#03CB76*/
-  }
-  :root[lwt-popup-brighttext] .identity-popup-connection-secure {
-    color: #55AA7F !important;
-  }
-
-  #identity-icon-labels {
-    color: #03CB76 !important;
-  }
-
-  #identity-icon-country-label {
-    opacity: 0;
-    -moz-margin-end: -25px !important;
-    transition: opacity 0.3s, -moz-margin-end 0.3s;
-  }
-
-  #identity-box:hover #identity-icon-country-label {
-    opacity: 1;
-    -moz-margin-end: 5px !important;
-    transition: opacity 0.5s, -moz-margin-end 0.3s;
-  }
-
-  #identity-box #identity-icon-labels {
-    -moz-margin-end: -10px !important;
-    padding-right: 3px !important;
-  }
-
-  #urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity {
-    --urlbar-separator-color: rgba(18, 188, 0, 0) !important;
-  }
-
-  #identity-box:hover:not(.no-hover):not([open="true"]) {
-    background-color: hsla(0, 0%, 70%, .2);
-    fill-opacity: .8;
-    -moz-transition: background-color 0.35s;
-  }
-
-  #identity-box {
-    -moz-transition: background-color 0.35s;
-  }
+    list-style-image: url(chrome://browser/skin/connection-secure.svg);-moz-context-properties: fill; fill: #55AA7F !important; /*#03CB76*/}
+  :root[lwt-popup-brighttext] .identity-popup-connection-secure {color: #55AA7F !important;}
+  #identity-icon-labels {color: #03CB76 !important;}
+  #identity-icon-country-label { opacity: 0; -moz-margin-end: -25px !important; transition: opacity 0.3s, -moz-margin-end 0.3s;}
+  #identity-box:hover #identity-icon-country-label {opacity: 1; -moz-margin-end: 5px !important;transition: opacity 0.5s, -moz-margin-end 0.3s;}
+  #identity-box #identity-icon-labels {-moz-margin-end: -10px !important; padding-right: 3px !important;}
+  #urlbar[pageproxystate="valid"] > #identity-box.verifiedIdentity {--urlbar-separator-color: rgba(18, 188, 0, 0) !important;}
+  #identity-box:hover:not(.no-hover):not([open="true"]) { background-color: hsla(0, 0%, 70%, .2); fill-opacity: .8; -moz-transition: background-color 0.35s;}
+  #identity-box {-moz-transition: background-color 0.35s;}
 
   /* colores como el de color.firefox */
-  #main-window {
-    --lwt-accent-color: #0F1419;
-  }
-
-  :root[extradragspace][tabsintitlebar]:not([inFullscreen]) {
-    --space-above-tabbar: 0px !important;
-  }
-  .browser-toolbar:not(.titlebar-color) {
-    background-color: var(--toolbar-bgcolor);
-  }
-
-  #navigator-toolbox {
-    background: var(--chrome-background-color) !important;
-  }
-
-  #urlbar:not([focused="true"]):-moz-lwtheme, #urlbar:not([focused="true"]):-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme, #navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme:hover {
-    border-color: #1C1E1E;
-  }
-
-  #urlbar:-moz-lwtheme, #urlbar:-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:-moz-lwtheme, #navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {
-    background-color: #353535;
-  }
-
-  #urlbar, .searchbar-textbox {
-    -moz-appearance: none;
-    border: 1px solid hsla(0, 0%, 9.4%, 0.3) !important;
-    border-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, .05);
-  }
-
-  /* Scrollbar */
-  #alltabs-button {
-    -moz-binding: url(data:text/xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+DQo8IS0tIENvcHlyaWdodCAoYykgMjAxNyBIYWdnYWkgTnVjaGkNCkF2YWlsYWJsZSBmb3IgdXNlIHVuZGVyIHRoZSBNSVQgTGljZW5zZToNCmh0dHBzOi8vb3BlbnNvdXJjZS5vcmcvbGljZW5zZXMvTUlUDQogLS0+DQoNCjwhLS0gUnVuIHVzZXJDaHJvbWUuanMvdXNlckNocm9tZS54dWwgYW5kIC51Yy5qcy8udWMueHVsLy5jc3MgZmlsZXMgIC0tPg0KPGJpbmRpbmdzIHhtbG5zPSJodHRwOi8vd3d3Lm1vemlsbGEub3JnL3hibCI+DQogICAgPGJpbmRpbmcgaWQ9ImpzIiBleHRlbmRzPSJjaHJvbWU6Ly9nbG9iYWwvY29udGVudC9iaW5kaW5ncy90b29sYmFyYnV0dG9uLnhtbCNtZW51Ij4NCiAgICAgICAgPGltcGxlbWVudGF0aW9uPg0KICAgICAgICAgICAgPGNvbnN0cnVjdG9yPjwhW0NEQVRBWw0KICAgICAgICAgICAgICAgIGlmKHdpbmRvdy51c2VyQ2hyb21lSnNNb2QpIHJldHVybjsNCiAgICAgICAgICAgICAgICB3aW5kb3cudXNlckNocm9tZUpzTW9kID0gdHJ1ZTsNCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICB2YXIgY2hyb21lRmlsZXMgPSBGaWxlVXRpbHMuZ2V0RGlyKCJVQ2hybSIsIFtdKS5kaXJlY3RvcnlFbnRyaWVzOw0KICAgICAgICAgICAgICAgIHZhciB4dWxGaWxlcyA9IFtdOw0KICAgICAgICAgICAgICAgIHZhciBzc3MgPSBDY1snQG1vemlsbGEub3JnL2NvbnRlbnQvc3R5bGUtc2hlZXQtc2VydmljZTsxJ10uZ2V0U2VydmljZShDaS5uc0lTdHlsZVNoZWV0U2VydmljZSk7DQogICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgd2hpbGUoY2hyb21lRmlsZXMuaGFzTW9yZUVsZW1lbnRzKCkpIHsNCiAgICAgICAgICAgICAgICAgICAgdmFyIGZpbGUgPSBjaHJvbWVGaWxlcy5nZXROZXh0KCkuUXVlcnlJbnRlcmZhY2UoQ2kubnNJRmlsZSk7DQogICAgICAgICAgICAgICAgICAgIHZhciBmaWxlVVJJID0gU2VydmljZXMuaW8ubmV3RmlsZVVSSShmaWxlKTsNCiAgICAgICAgICAgICAgICAgICAgDQogICAgICAgICAgICAgICAgICAgIGlmKGZpbGUuaXNGaWxlKCkpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgIGlmKC8oXnVzZXJDaHJvbWV8XC51YylcLmpzJC9pLnRlc3QoZmlsZS5sZWFmTmFtZSkpIHsNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBTZXJ2aWNlcy5zY3JpcHRsb2FkZXIubG9hZFN1YlNjcmlwdFdpdGhPcHRpb25zKGZpbGVVUkkuc3BlYywge3RhcmdldDogd2luZG93LCBpZ25vcmVDYWNoZTogdHJ1ZX0pOw0KICAgICAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgICAgICAgICAgZWxzZSBpZigvKF51c2VyQ2hyb21lfFwudWMpXC54dWwkL2kudGVzdChmaWxlLmxlYWZOYW1lKSkgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIHh1bEZpbGVzLnB1c2goZmlsZVVSSS5zcGVjKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgICAgIGVsc2UgaWYoL1wuYXNcLmNzcyQvaS50ZXN0KGZpbGUubGVhZk5hbWUpKSB7DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgaWYoIXNzcy5zaGVldFJlZ2lzdGVyZWQoZmlsZVVSSSwgc3NzLkFHRU5UX1NIRUVUKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3NzLmxvYWRBbmRSZWdpc3RlclNoZWV0KGZpbGVVUkksIHNzcy5BR0VOVF9TSEVFVCk7DQogICAgICAgICAgICAgICAgICAgICAgICB9DQogICAgICAgICAgICAgICAgICAgICAgICBlbHNlIGlmKC9eKD8hKHVzZXJDaHJvbWV8dXNlckNvbnRlbnQpXC5jc3MkKS4rXC5jc3MkL2kudGVzdChmaWxlLmxlYWZOYW1lKSkgew0KICAgICAgICAgICAgICAgICAgICAgICAgICAgIGlmKCFzc3Muc2hlZXRSZWdpc3RlcmVkKGZpbGVVUkksIHNzcy5VU0VSX1NIRUVUKSkNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3NzLmxvYWRBbmRSZWdpc3RlclNoZWV0KGZpbGVVUkksIHNzcy5VU0VSX1NIRUVUKTsNCiAgICAgICAgICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIH0NCiAgICAgICAgICAgICAgICANCiAgICAgICAgICAgICAgICBzZXRUaW1lb3V0KGZ1bmN0aW9uIGxvYWRYVUwoKSB7DQogICAgICAgICAgICAgICAgICAgIGlmKHh1bEZpbGVzLmxlbmd0aCA+IDApIHsNCiAgICAgICAgICAgICAgICAgICAgICAgIGRvY3VtZW50LmxvYWRPdmVybGF5KHh1bEZpbGVzLnNoaWZ0KCksIG51bGwpOw0KICAgICAgICAgICAgICAgICAgICAgICAgc2V0VGltZW91dChsb2FkWFVMLCA1KTsNCiAgICAgICAgICAgICAgICAgICAgfQ0KICAgICAgICAgICAgICAgIH0sIDApOw0KICAgICAgICAgICAgXV0+PC9jb25zdHJ1Y3Rvcj4NCiAgICAgICAgPC9pbXBsZW1lbnRhdGlvbj4NCiAgICA8L2JpbmRpbmc+DQo8L2JpbmRpbmdzPg==);
-  }
+  #main-window {--lwt-accent-color: var(--chrome-background-color);}
+  :root[extradragspace][tabsintitlebar]:not([inFullscreen]) {--space-above-tabbar: 0px !important;}
+  .browser-toolbar:not(.titlebar-color) {background-color: var(--toolbar-bgcolor);}
+  #navigator-toolbox {background: var(--chrome-background-color) !important;}
+  #urlbar:not([focused="true"]):-moz-lwtheme, #urlbar:not([focused="true"]):-moz-lwtheme:hover, 
+  #navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme, 
+  #navigator-toolbox .searchbar-textbox:not([focused="true"]):-moz-lwtheme:hover {border-color: #1C1E1E;}
+  #urlbar:-moz-lwtheme, #urlbar:-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:-moz-lwtheme, 
+  #navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover { background-color: #353535;}
+  #urlbar, .searchbar-textbox {-moz-appearance: none; border: 1px solid hsla(0, 0%, 9.4%, 0.3) !important; border-radius: 4px; box-shadow: 0 1px 4px rgba(0, 0, 0, .05); }
 
   /* Texto seleccionado en barra URL */
-  #urlbar html|input.textbox-input::-moz-selection {
-    background-color: #257ABD !important;
-    color: white !important;
-  }
+  #urlbar html|input.textbox-input::-moz-selection {background-color: #257ABD !important;color: white !important;}
 
-  /* Botones de ventana en la izquierda */
-  .titlebar-max {
-    -moz-box-ordinal-group: 0;
-  }
-
-  .titlebar-content {
-    direction: rtl;
-  }
-
-  .titlebar-close {
-    margin-right: 5px !important;
-  }
-
-  #TabsToolbar {
-    direction: rtl;
-  }
-
-  #tabbrowser-tabs, .tabbrowser-tabs {
-    direction: ltr;
-  }
-
-  .titlebar-spacer[type="post-tabs"] {
-    width: 10px !important;
-  }
-
-  .titlebar-spacer[type="pre-tabs"] {
-    width: 20px !important;
-    border: none 0px !important;
-  }
+  /* Espaciadores a los costados de las pestañas */
+  .titlebar-spacer[type="pre-tabs"] {width: 20px !important; border-inline-end: 0px !important;}
+  .titlebar-spacer[type="post-tabs"] { width: 20px !important; border: none 0px !important;}
 
   /* Hide cuando está maximizado - combinar con Unite gnome addon */
-  #main-window[sizemode="maximized"] .titlebar-buttonbox {
-    margin-left: -80px;
-  }
-
-  #main-window[sizemode="maximized"] .tabbrowser-tabs {
-    margin-left: -80px;
-  }
-
-  #main-window:not([sizemode="maximized"]) .titlebar-buttonbox {
-    margin-left: 4px;
-  }
-
-  .titlebar-buttonbox, .tabbrowser-tabs {
-    transition: margin-left 0.05s;
-  }
+  #main-window[sizemode="maximized"] .titlebar-buttonbox {margin-left: -80px;}
+  #main-window[sizemode="maximized"] .tabbrowser-tabs { margin-left: -80px;}
+  #main-window:not([sizemode="maximized"]) .titlebar-buttonbox {margin-left: 4px;}
+  .titlebar-buttonbox, .tabbrowser-tabs {transition: margin-left 0.05s;}
 
   /* Bordes de puntos en enlaces o menues · about:config : browser.display.focus_ring_width: 0; */
-  ::-moz-focus-inner, input[type=range]::-moz-focus-outer, *::-moz-focus-inner {
-    border: 0;
-  }
-
-  *:focus, :focus, *:visited, *:active, *:hover {
-    outline: 0 !important;
-  }
+  ::-moz-focus-inner, input[type=range]::-moz-focus-outer, *::-moz-focus-inner {border: 0;}
+  *:focus, :focus, *:visited, *:active, *:hover {outline: 0 !important;}
+  .keyboard-focused-tab > .tab-stack > .tab-content, 
+  .tabbrowser-tab:focus:not([aria-activedescendant]) > .tab-stack > .tab-content {outline: 1px dotted transparent !important;}
 
   /* Badges */
   label.toolbarbutton-badge {
@@ -245,16 +114,13 @@
     padding: 0px 3px !important;
     border-radius: 20px !important;
     font-weight: bold !important;
-    box-shadow: -1px 1px 8px #444 !important;
+    box-shadow: -3px 4px 6px #212121 !important;
+    overflow: hidden;
   }
 
-  toolbarbutton .toolbarbutton-badge-stack, toolbarbutton .toolbarbutton-icon, .webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {
-    opacity: 0.8 !important;
-  }
-
-  .webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {
-    filter: saturate(40%);
-  }
+  toolbarbutton .toolbarbutton-badge-stack, toolbarbutton .toolbarbutton-icon, 
+  .webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {opacity: 0.8 !important;}
+  .webextension-browser-action > .toolbarbutton-badge-stack > .toolbarbutton-icon {filter: saturate(40%);}
 
   /* Color bookmark y descargas & Hide botón de screenshot */
   #downloads-button {
@@ -270,40 +136,16 @@
     transition-property: opacity fill;
   }
 
-  #downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-progress-outer {
-    fill: #448a4c !important;
-  }
-
-  #downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-icon {
-    fill: rgb(249, 249, 250) !important;
-  }
-
-  #star-button[starred] {
-    -moz-context-properties: fill, fill-opacity;
-    fill: var(--chrome-color);
-    fill-opacity: 1;
-  }
-
-  #pageAction-urlbar-screenshots_mozilla_org, #pageAction-urlbar-webcompat-reporter_mozilla_org {
-    display: none;
-  }
-
-  .urlbar-icon {
-    opacity: 0.8;
-  }
+  #downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-progress-outer { fill: #448a4c !important;}
+  #downloads-button[attention="success"] > #downloads-indicator-anchor > #downloads-indicator-icon { fill: rgb(249, 249, 250) !important;}
+  #star-button[starred] {-moz-context-properties: fill, fill-opacity; fill: var(--chrome-color); fill-opacity: 1;}
+  #pageAction-urlbar-screenshots_mozilla_org, #pageAction-urlbar-webcompat-reporter_mozilla_org { display: none;}
+  .urlbar-icon { opacity: 0.8;}
 
   /* Esconder close / autohide */
-  .close-icon {
-    border-radius: 2px !important;
-  }
-
-  .close-icon:hover {
-    fill-opacity: 0.07;
-  }
-
-  .close-icon:hover:active {
-    fill-opacity: 0.15;
-  }
+  .close-icon { border-radius: 2px !important;}
+  .close-icon:hover {fill-opacity: 0.07;}
+  .close-icon:hover:active { fill-opacity: 0.15;}
 
   .tab-close-button {
     stroke-opacity: .5;
@@ -322,34 +164,23 @@
     width: 22px;
   }
 
-  .tabbrowser-tab {
-    transition: visibility 0.5s, opacity 0.5s linear !important;
-  }
+  .tabbrowser-tab { transition: visibility 0.5s, opacity 0.5s linear !important;}
 
   /* FIX close cuando hover pestaña no seleccionada*/
   #tabbrowser-tabs[closebuttons="activetab"] > .tabbrowser-tab > .tab-stack > .tab-content > .tab-close-button:not([selected="true"]):not([pinned="true"]) {
-    display: inherit !important;
-  }
+    display: inherit !important;}
 
   /* Icono media blocked */
-  .tab-icon-sound[activemedia-blocked] {
-    display: none !important;
-  }
-
-  .tab-icon-sound {
-    -moz-transition: 0.25s;
-  }
+  .tab-icon-sound[activemedia-blocked] {display: none !important;}
+  .tab-icon-sound {-moz-transition: 0.25s;}
 
   /* Icono media tab pineada */
-  .tab-icon-overlay[soundplaying] {
-    opacity: 0.4;
-  }
+  .tab-icon-overlay[soundplaying] { opacity: 0.4; }
 
   /* Esconder tabs-arrows buttons cuando overflow */
-  #tabbrowser-tabs toolbarbutton.scrollbutton-up, #tabbrowser-tabs toolbarbutton.scrollbutton-down, #tabbrowser-tabs spacer.arrowscrollbox-overflow-end-indicator {
-    display: none !important;
-  }
-
+  #tabbrowser-tabs toolbarbutton.scrollbutton-up, 
+  #tabbrowser-tabs toolbarbutton.scrollbutton-down, 
+  #tabbrowser-tabs spacer.arrowscrollbox-overflow-end-indicator { display: none !important;}
   .tabbrowser-arrowscrollbox > .scrollbutton-up, .tabbrowser-arrowscrollbox > .scrollbutton-down {
     -moz-context-properties: fill, fill-opacity;
     fill: transparent;
@@ -359,109 +190,39 @@
   }
 
   /* Ver todas las tabs de una, no-scroll */
-  #tabbrowser-tabs .tabbrowser-tab:not([pinned=true])[fadein] {
-    min-width: 1px !important;
-  }
+  #tabbrowser-tabs .tabbrowser-tab:not([pinned=true])[fadein] { min-width: 1px !important;}
 
   /* Fix 1px cuando muchas tabs y aparece flecha + fix 2px sobre tabs */
-  :root #TabsToolbar, :root #TabsToolbar + * {
-    min-height: 31px !important;
-  }
-
-  :root #TabsToolbar {
-    padding-top: 0px !important;
-    margin-top: -1px !important;
-  }
+  :root #TabsToolbar, :root #TabsToolbar + * { min-height: 31px !important;}
+  :root #TabsToolbar { padding-top: 0px !important; margin-top: -1px !important;}
 
   /* Tamaño pestañas max-min */
-  .tabbrowser-tab:not([pinned]) {
-    max-width: 160px !important;
-    min-width: 80px !important;
-  }
+  .tabbrowser-tab:not([pinned]) {max-width: 160px !important; min-width: 80px !important;}
 
   /* Contenido texto tab */
-  .tab-label-container {
-    font-size: 12px !important;
-  }
-
-  .tab-content {
-    padding-inline-end: 8px;
-    padding-inline-start: 8px;
-    color: #B2B2B2 !important;
-  }
-
-  .tabbrowser-tab > .tab-stack > .tab-content[selected="true"] {
-    color: #D3D3D3 !important;
-  }
+  .tab-label-container {font-size: 12px !important;}
+  .tab-content { padding-inline-end: 8px; padding-inline-start: 8px; color: #B2B2B2 !important; }
+  .tabbrowser-tab > .tab-stack > .tab-content[selected="true"] { color: #D3D3D3 !important;}
 
   /* Desaturar tabs no seleccionadas */
-  .tab-icon-image {
-    border-radius: 2px !important;
-    filter: saturate(15%);
-    transition-duration: 0.2s;
-  }
-
-  #tabbrowser-tabs .tab-icon-image[selected] {
-    filter: none !important;
-  }
+  .tab-icon-image { border-radius: 2px !important; filter: saturate(15%); transition-duration: 0.2s; }
+  #tabbrowser-tabs .tab-icon-image[selected] {filter: none !important;}
 
   /* No animar paneles */
-  .panel-arrowcontainer {
-    opacity: 1;
-    transform: none;
-    transition: none !important;
-    pointer-events: all !important;
-    color: #a7a592 !important;
-  }
-
-  *#BMB_bookmarksPopup {
-    transform: none !important;
-    transition-duration: 0.5ms !important;
-  }
-
-  panel[type="arrow"]:not([animate="false"]) {
-    transform: none !important;
-    transition-duration: 0.5ms !important;
-  }
-
-  PanelUI-popup * {
-    transition: none !important;
-  }
-
-  findbar {
-    transition: none !important;
-  }
+  .panel-arrowcontainer { opacity: 1; transform: none; transition: none !important; pointer-events: all !important; color: #a7a592 !important;}
+  *#BMB_bookmarksPopup { transform: none !important; transition-duration: 0.5ms !important;}
+  panel[type="arrow"]:not([animate="false"]) { transform: none !important; transition-duration: 0.5ms !important;}
+  PanelUI-popup * {transition: none !important;}
+  findbar {transition: none !important;}
 
   /* Menu general desplegable boton toolbar */
-  photonpanelmultiview .panel-subview-body {
-    margin: 0 !important;
-  }
-
-  #appMenu-edit-controls, #appMenu-edit-controls+toolbarseparator {
-    display: none;
-  }
-
-  #appMenu-popup .panel-arrowcontent {
-    margin: 4px 4px 0 !important;
-    padding: 0 !important;
-  }
-
-  #appMenu-popup .panel-subview-body {
-    margin: -6px 0;
-  }
-
-  #appMenu-mainView {
-    padding: 0 !important;
-  }
-
-  photonpanelmultiview .PanelUI-subView .toolbaritem-combined-buttons>.subviewbutton:not(#appMenu-zoomReset-button):not(#appMenu-fxa-icon) {
-    padding: 10px !important;
-  }
-
-  #appMenu-zoom-controls {
-    margin: -6px 0;
-    margin-inline-end: 0 !important;
-  }
+  photonpanelmultiview .panel-subview-body { margin: 0 !important;}
+  #appMenu-edit-controls, #appMenu-edit-controls+toolbarseparator { display: none; }
+  #appMenu-popup .panel-arrowcontent {margin: 4px 4px 0 !important; padding: 0 !important;}
+  #appMenu-popup .panel-subview-body {margin: -6px 0;}
+  #appMenu-mainView { padding: 0 !important;}
+  photonpanelmultiview .PanelUI-subView .toolbaritem-combined-buttons>.subviewbutton:not(#appMenu-zoomReset-button):not(#appMenu-fxa-icon) { padding: 10px !important;}
+  #appMenu-zoom-controls { margin: -6px 0; margin-inline-end: 0 !important;}
 
   #appMenu-zoomReset-button {
     border-radius: 0 !important;
@@ -470,70 +231,33 @@
     padding: 10px 10px 9px !important;
   }
 
-  #appMenu-zoomEnlarge-button {
-    margin-inline-start: 0 !important;
-  }
-
-  #appMenu-quit-button {
-    padding: 10px !important;
-    margin-top: -5px !important;
-  }
-
-  #appMenu-fxa-container {
-    margin-bottom: -6px;
-    margin-inline-end: 0 !important;
-  }
-
+  #appMenu-zoomEnlarge-button { margin-inline-start: 0 !important;}
+  #appMenu-quit-button {padding: 10px !important; margin-top: -5px !important;}
+  #appMenu-fxa-container { margin-bottom: -6px; margin-inline-end: 0 !important;}
   #appMenu-fxa-container toolbarseparator[orient='vertical'], #appMenu-zoom-controls toolbarseparator[orient='vertical'] {
     margin-inline-start: 0 !important;
     margin-inline-end: 0 !important;
   }
 
-  #appMenu-fxa-label {
-    padding: 10px 32px !important;
-  }
-
-  #appMenu-fxa-avatar {
-    border-radius: 50%;
-    width: 24px !important;
-    height: 24px !important;
-  }
-
-  #appMenu-fxa-icon {
-    padding: 10px !important;
-  }
-
-  #appMenu-fxa-status {
-    margin-left: -8px;
-  }
+  #appMenu-fxa-label { padding: 10px 32px !important;}
+  #appMenu-fxa-avatar { border-radius: 50%; width: 24px !important; height: 24px !important;}
+  #appMenu-fxa-icon { padding: 10px !important;}
+  #appMenu-fxa-status { margin-left: -8px;}
 
   #appMenu-multiView {
     color: var(--chrome-color);
     border: 0px solid rgba(255, 255, 255, 0.05);
     box-shadow: 0 0 6px hsla(0, 0%, 0%, .2);
-    background: #0F1419 !important;
-    --arrowpanel-background: #0F1419 !important;
+    background: var(--chrome-background-color);
+    --arrowpanel-background: var(--chrome-background-color);
   }
 
-  #appMenu-mainView .subviewbutton, #appMenu-mainView .toolbaritem-combined-buttons {
-    opacity: 0.7 !important;
-  }
-
-  #appMenu-zoomReduce-button, #appMenu-zoomEnlarge-button, #appMenu-fullscreen-button {
-    padding: 6px !important;
-    margin: 2px !important;
-    border-radius: 50%;
-  }
-
-  #appMenu-zoomReduce-button {
-    margin-right: -7px !important;
-  }
+  #appMenu-mainView .subviewbutton, #appMenu-mainView .toolbaritem-combined-buttons { opacity: 0.7 !important; }
+  #appMenu-zoomReduce-button, #appMenu-zoomEnlarge-button, #appMenu-fullscreen-button { padding: 6px !important; margin: 2px !important; border-radius: 50%;}
+  #appMenu-zoomReduce-button { margin-right: -7px !important;}
 
   /* General */
-  .panel-arrowcontent {
-    box-shadow: 0 0 4px hsla(0, 0%, 0%, .7) !important;
-    border: 0px !important;
-  }
+  .panel-arrowcontent {box-shadow: 0 0 4px hsla(0, 0%, 0%, .7) !important; border: 0px !important;}
 
   .identity-popup-security-content,
   #identity-popup-permissions-content,
@@ -545,11 +269,7 @@
   /* color aviso banner de permisos actualizar */
   :root[lwt-popup-brighttext] .addon-banner-item::after {fill: #829315 !important;}
   :root[lwt-popup-brighttext] .addon-banner-item {}
-
-  #main-window[sizemode="normal"] {
-    border-radius: 3px 3px 0px 0px !important;
-    background: transparent !important;
-  }
+  #main-window[sizemode="normal"] { border-radius: 3px 3px 0px 0px !important; background: transparent !important;}
 
   .toolbarbutton-animatable-box, .toolbarbutton-1,
   html|*.textbox-input, html|*.textbox-textarea,
@@ -558,9 +278,7 @@
     color: var(--chrome-color) !important;
   }
 
-  .panel-footer > button:not([disabled])[default] {
-    background-color: #a7a592 !important;
-  }
+  .panel-footer > button:not([disabled])[default] {background-color: #a7a592 !important;}
                  
  .popup-notification-primary-button .button-text, 
   #editBookmarkPanelBottomButtons .button-text {
@@ -571,65 +289,35 @@
   
   /* Colores de containers */
   .tabbrowser-tab[usercontextid] > .tab-stack > .tab-background > .tab-bottom-line {
-    background: linear-gradient(to right, transparent 10%, var(--identity-tab-color) 10%, var(--identity-tab-color) 90%, transparent 90%);
-    height: 2px;
-    filter: saturate(0.3);
-  }
-  
+    background: linear-gradient(to right, transparent 10%, var(--identity-tab-color) 10%, var(--identity-tab-color) 90%, transparent 90%); height: 2px; filter: saturate(0.3);}
   #userContext-indicator, #userContext-label, 
   #navigator-toolbox .menu-iconic-text, 
-  #navigator-toolbox .menu-iconic-icon {
-    fill: var(--identity-tab-color) !important;
-    color: var(--identity-tab-color) !important;
-    filter: saturate(0.3) !important;
-  } 
+  #navigator-toolbox .menu-iconic-icon { fill: var(--identity-tab-color) !important; color: var(--identity-tab-color) !important; filter: saturate(0.3) !important; } 
   
   /* Despliegue de url, richbox, listresults */
   .ac-url {opacity: 0.5 !important;}
   .ac-action {filter: contrast(0.3) grayscale(100%) !important;}
   .ac-type-icon {opacity: 0.4 !important;}
   .ac-site-icon {filter: saturate(0.6) !important;}
-
-  /* Sidebar flotante */
-  #browser {
-    --sidebar-size: 60%;
-    position: absolute;
+                 
+  /* Fondo oscuro para cargas, sacar el "destello blanco" */
+  tabpanels {background: linear-gradient(178deg, #222424, #0F1419, #0F1419, #0F1419, #0F1419) !important;}
+  /* Corregir color en los marcadores sidebar */
+  .sidebar-placesTreechildren { color: var(--chrome-color) !important;filter: saturate(0.5) !important; }
+                 
+  /* Sidebar flotante - ALFS */
+  .openit {
+      opacity: 1;
+      margin-right: 0px !important;
+      transition-property: opacity;
+      transition-duration: 0.15s !important;
+      box-shadow: 5px 15px 101px 22px rgba(0,0,0, calc(0.40 + var(--shadow-strong)));
   }
-  #appcontent {
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    position: absolute;
+  .closeit {
+      opacity: 0;
+      box-shadow: none !important;
+      margin-top: calc(-100vh * 2);
+      transition-property: opacity;
+      transition-duration: 0.15s !important;
   }
-  #tabbrowser-tabbox {
-    height: 100%;
-    width: 100%;
-  }
-  #sidebar-header {
-    width: 100%;
-  }
-  #sidebar-box {
-    position: absolute;
-    right: 0;
-    height: calc(var(--sidebar-size) - 42px);
-    z-index: 9999;
-    box-shadow: 12px 26px 36px 16px #00000066;
-  }
-  #sidebar {
-    min-width: 32em !important;
-    min-height: 100%;
-    position: absolute;
-    border-radius: 0 0 0 3px;
-  }
-  .sidebar-splitter, 
-  #sidebar-reverse-position, 
-  #sidebar-extensions-separator {display: none;}
-  
-  .sidebar-placesTreechildren {
-    color: var(--chrome-color) !important;
-    filter: saturate(0.5) !important;
-  }
-
-
 }
