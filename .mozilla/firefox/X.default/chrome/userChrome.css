@@ -303,3 +303,18 @@
   /* Corregir color en los marcadores sidebar */
   .sidebar-placesTreechildren { color: var(--chrome-color) !important;filter: saturate(0.5) !important; }
 
+  /* Sidebar flotante - ALFS */
+  .openit {
+      opacity: 1;
+      margin-right: 0px !important;
+      transition-property: opacity;
+      transition-duration: 0.15s !important;
+      box-shadow: 5px 15px 101px 22px rgba(0,0,0, calc(0.40 + var(--shadow-strong)));
+  }
+  .closeit {
+      opacity: 0;
+      box-shadow: none !important;
+      margin-top: calc(-100vh * 2);
+      transition-property: opacity;
+      transition-duration: 0.15s !important;
+  }
