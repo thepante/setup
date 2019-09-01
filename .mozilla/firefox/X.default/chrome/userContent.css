@@ -1,19 +1,29 @@
-:focus {outline: none;}
+﻿cus {outline: none;}
 ::-moz-focus-inner {border: 0;}
 input[type=range]::-moz-focus-outer {border: 0;}
 *:focus, *:visited, *:active, *:hover {outline: 0 !important;}
 *::-moz-focus-inner {border: 0;}
-
+/*
 body { background-color: white;  color: black;  display: block;  margin: 8px;  -moz-appearance: none !important;}
 * .OutlineContent {background-color: #fff !important;}
+*/
+
+@-moz-document url("about:blank") {
+  prefpane,
+  prefpane > .content-box,
+  prefwindow,
+  window {
+    background-color: red !important;
+	}
+}
+
 
 @-moz-document url("about:home"), url("about:newtab") {
   body {background: linear-gradient(178deg, #222424, #0F1419, #0F1419, #0F1419, #0F1419);}
 
   .activity-stream .onboarding-watermark { opacity: 0.2; }
   .icon-settings { opacity: 0.1; }
-	.top-site-icon { filter: saturate(10%); box-shadow: 0 6px 16px 12px #00000080 !important; }
-	.top-site-icon::before {
+	/*.top-site-icon::before {
 		content: "";
     display: block;
     position: absolute;
@@ -34,10 +44,10 @@ body { background-color: white;  color: black;  display: block;  margin: 8px;  -
 			#0F1419,
 		  #0F1419)
 			!important;
-  }
+  }/*
   .top-site-outer .title .icon {display: none !important;}
   .top-site-outer .title {
-	/*color: #7e7a7a;*/
+	/*color: #7e7a7a;*//*
 	font: "SF Pro Display" !important;
 	font-weight: 800;
 	text-transform: uppercase;
@@ -51,58 +61,9 @@ body { background-color: white;  color: black;  display: block;  margin: 8px;  -
 	inset-inline-start: 0 !important;
 	top: 0 !important;
 	width: 100% !important;
-	}
+	}*/
 
-	/*** Thumbnails definition ***/
-	.top-site-inner a[href="https://www.youtube.com/"] 
-	.top-site-icon {background-image: url("thumbs/yt.jpg") !important;}
-
-	.top-site-inner a[href="https://www.pelispedia.tv/"] 
-	.top-site-icon {background-image: url("thumbs/pp.png") !important;}
-
-	.top-site-inner a[href="https://www.netflix.com/browse"] 
-	.top-site-icon {background-image: url("thumbs/nf.png") !important;}
-
-	.top-site-inner a[href="https://app.usercrowd.com/dashboard"] 
-	.top-site-icon {background-image: url("thumbs/yt.jpg") !important;}
-
-	.top-site-inner a[href="https://www.reddit.com/r/unixporn/new/"] 
-	.top-site-icon {background-image: url("thumbs/up.png") !important;}
-
-	.top-site-inner a[href="http://www.montevideo.gub.uy/buses/"] 
-	.top-site-icon {background-image: url("thumbs/mb.jpg") !important;}
-
-	.top-site-inner a[href="http://comoir.montevideo.gub.uy/"] 
-	.top-site-icon {background-image: url("thumbs/ci.jpg") !important;}
-
-	.top-site-inner a[href="https://www.google.com.uy/maps/@-34.8974664,-56.1579262,14.25z?dcr=0"] 
-	.top-site-icon {background-image: url("thumbs/gm.png") !important;}
-
-	.top-site-inner a[href="http://www.valsf.com.uy/"] 
-	.top-site-icon {background-image: url("thumbs/vsf.jpg") !important;}
-
-	.top-site-inner a[href="https://www.reddit.com/"] 
-	.top-site-icon {background-image: url("thumbs/rd.png") !important;}
-
-	.top-site-inner a[href="https://www.steamgifts.com/"] 
-	.top-site-icon {background-image: url("thumbs/sg.png") !important;}
-
-	.top-site-inner a[href="https://getpocket.com/a/queue/"] 
-	.top-site-icon {background-image: url("thumbs/yt.jpg") !important;}
-
-	.top-site-inner a[href="https://login.live.com/login.srf?wa=wsignin1.0&rpsnv=13&ct=1527464157&rver=6.7.6640.0&wp=MBI_SSL&wreply=https%3a%2f%2foutlook.live.com%2fowa%2f%3fnlp%3d1%26RpsCsrfState%3d0b1e8309-5b22-a722-77a6-4d8d54603eae&id=292841&CBCXT=out&lw=1&fl=dob%2cflname%2cwld"] 
-	.top-site-icon {background-image: url("thumbs/hm.jpg") !important;}
-
-	.top-site-inner a[href="https://www.instagram.com/"] 
-	.top-site-icon {background-image: url("thumbs/ig.png") !important;}
-
-	.top-site-inner a[href="https://itsfoss.com/"] 
-	.top-site-icon {background-image: url("thumbs/yt.jpg") !important;}
-	
-	.top-site-inner a[href="https://translate.google.com.uy/?hl=es-419&tab=wT"] 
-	.top-site-icon {background-image: url("thumbs/gt.png") !important;}
-	
-	
+	*/
 	.top-site-outer .context-menu-button {
 	   background-color: #1e1e1e !important;
 	   box-shadow: 0 1px 3px rgb(30, 30, 30, 0.6) !important;
@@ -115,3 +76,5 @@ body { background-color: white;  color: black;  display: block;  margin: 8px;  -
   }
 
 }
+
+
