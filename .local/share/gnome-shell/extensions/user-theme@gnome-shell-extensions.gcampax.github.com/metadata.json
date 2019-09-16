@@ -9,9 +9,9 @@
   ], 
   "settings-schema": "org.gnome.shell.extensions.user-theme", 
   "shell-version": [
-    "3.28"
+    "3.30"
   ], 
   "url": "https://gitlab.gnome.org/GNOME/gnome-shell-extensions", 
   "uuid": "user-theme@gnome-shell-extensions.gcampax.github.com", 
-  "version": 34
+  "version": 35
 }

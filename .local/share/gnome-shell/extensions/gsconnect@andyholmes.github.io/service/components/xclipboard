@@ -1,0 +1,92 @@
+#!/usr/bin/env gjs
+
+'use strict';
+
+imports.gi.versions.Gdk = '3.0';
+imports.gi.versions.Gio = '2.0';
+imports.gi.versions.Gtk = '3.0';
+
+const Gdk = imports.gi.Gdk;
+const Gio = imports.gi.Gio;
+const Gtk = imports.gi.Gtk;
+
+/*
+ * We set the X11 backend as default to force XWayland
+ */
+Gdk.set_allowed_backends('x11,*');
+Gtk.init(null);
+
+const clipboard = Gtk.Clipboard.get_default(Gdk.Display.get_default());
+var buffer = null;
+
+
+/*
+ * We use stdin and stdout to pipe changes to the parent process, using a
+ * protocol very similar to native messaging hosts. A 32-bit integer is written
+ * indicating the length in bytes of the content that will follow.
+ */
+const stdin = new Gio.DataInputStream({
+    base_stream: new Gio.UnixInputStream({fd: 0}),
+    byte_order: Gio.DataStreamByteOrder.HOST_ENDIAN
+});
+
+const stdout = new Gio.DataOutputStream({
+    base_stream: new Gio.UnixOutputStream({fd: 1}),
+    byte_order: Gio.DataStreamByteOrder.HOST_ENDIAN
+});
+
+
+/*
+ * Watch GtkClipboard for changes and write them to stdout
+ */
+function writeContent(clipboard, text) {
+    // Never write %null, and avoid duplicate copies
+    if (!text || text === buffer) return;
+    
+    try {
+        buffer = text;
+        stdout.put_int32(text.length, null);
+        stdout.put_string(text, null);
+    } catch (e) {
+        logError(e);
+    }
+}
+
+function onOwnerChange(clipboard, event) {
+    clipboard.request_text(writeContent);
+}
+
+clipboard.connect('owner-change', onOwnerChange);
+
+
+/*
+ * Watch stdin for changes and apply them to GtkClipboard
+ */
+function readContent(text) {
+    try {
+        // Read the message
+        let length = stdin.read_int32(null);
+        let text = stdin.read_bytes(length, null).toArray();
+
+        if (text instanceof Uint8Array) {
+            text = imports.byteArray.toString(text);
+        }
+
+        // Set the buffer and GtkClipboard
+        buffer = `${text}`;
+        clipboard.set_text(buffer, -1);
+    } catch (e) {
+        // If there's an error reading we exit so we don't end up in a bad loop
+        logError(e);
+        Gtk.main_quit();
+    }
+    
+    return true;
+}
+
+let source = stdin.base_stream.create_source(null);
+source.set_callback(readContent);
+source.attach(null);
+
+Gtk.main();
+

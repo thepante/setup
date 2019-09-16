@@ -2,9 +2,9 @@
 * {transition-duration: 150ms;}
 
 stage {
-  font-family: Roboto, "M+ 1c", Cantarell, Sans-Serif;
+  font-family: "IBM Plex Sans" /*"undefined", Roboto, "M+ 1c", Cantarell, Sans-Serif*/;
   font-size: 9.75pt;
-  font-weight: 400;
+  font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
 }
 

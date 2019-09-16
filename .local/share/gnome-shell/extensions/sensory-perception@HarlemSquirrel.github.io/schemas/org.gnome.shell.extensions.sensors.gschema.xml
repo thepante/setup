@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gse-sensors">
+
+  <schema path="/org/gnome/shell/extensions/sensory-perception/" id="org.gnome.shell.extensions.sensory-perception">
+
+    <key type="i" name="update-time">
+      <default>15</default>
+      <summary>Seconds before next update</summary>
+      <description>This is the seconds after CPU temperature extension updates the data from the syetem. The default is 15.</description>
+    </key>
+
+    <key type="s" name="unit">
+      <default>"Centigrade"</default>
+      <summary>Unit</summary>
+      <description>The unit ('centigrade' or 'fahrenheit', without quotes) the extension should display the temperature in.</description>
+    </key>
+
+    <key type="b" name="display-label">
+      <default>false</default>
+      <summary>Display label</summary>
+      <description>Display also the label of the sensor in the panel</description>
+    </key>
+
+    <key type="s" name="main-sensor">
+      <default>"Average"</default>
+      <summary>Sensor value to show in panel</summary>
+      <description>Select the sensor whose value has to be shown in the panel</description>
+    </key>
+
+    <key type="b" name="display-degree-sign">
+      <default>true</default>
+      <summary>Show degree sign</summary>
+      <description>Show degree sign in panel and menu</description>
+    </key>
+
+    <key type="b" name="display-decimal-value">
+      <default>false</default>
+      <summary>Show decimal value</summary>
+      <description>Show one digit after decimal</description>
+    </key>
+
+    <key type="b" name="display-hdd-temp">
+      <default>true</default>
+      <summary>Display HDD Temp</summary>
+      <description>Display hard disk drive temperature. Requires hddtemp installed.</description>
+    </key>
+
+    <key type="b" name="display-fan-rpm">
+      <default>true</default>
+      <summary>Display Fan RPM</summary>
+      <description>Display fan rotation per minute.</description>
+    </key>
+
+    <key type="b" name="display-voltage">
+      <default>true</default>
+      <summary>Display voltage</summary>
+      <description>Display voltage of various components.</description>
+    </key>
+
+  </schema>
+</schemalist>

@@ -1,0 +1,48 @@
+#panel.system-fonts {
+  font-size: 11.25pt;
+}
+
+#panel .panel-button {
+  -natural-hpadding: 8px;
+  -minimum-hpadding: 6px;
+}
+
+#panel .panel-button .system-status-icon {
+  padding: 0;
+}
+
+#panel .panel-button .panel-status-indicators-box {
+  spacing: 10px;
+}
+
+#panel .window-controls {
+  -natural-hpadding: 0px;
+  -minimum-hpadding: 0px;
+}
+
+#panel .window-controls-box {
+  spacing: 2px;
+}
+
+#panel .window-controls-box .window-button {
+  width: 22px;
+}
+
+#panelLeft .window-controls-box:first-child .window-button:first-child {
+  padding-left: 3px;
+}
+
+#panelRight .window-controls-box:last-child .window-button:last-child {
+  padding-right: 3px;
+}
+
+#panel .window-controls-box .icon {
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  border: 0;
+}
+
+#panel #appMenu {
+  margin: 0 8px;
+}

@@ -1,0 +1,123 @@
+#!/usr/bin/env gjs
+
+'use strict';
+
+const Gettext = imports.gettext.domain('org.gnome.Shell.Extensions.GSConnect');
+const _ = Gettext.gettext;
+const System = imports.system;
+
+imports.gi.versions.Gdk = '3.0';
+imports.gi.versions.GdkPixbuf = '2.0';
+imports.gi.versions.Gio = '2.0';
+imports.gi.versions.GLib = '2.0';
+imports.gi.versions.GObject = '2.0';
+imports.gi.versions.Gtk = '3.0';
+
+const Gdk = imports.gi.Gdk;
+const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
+const GObject = imports.gi.GObject;
+const Gtk = imports.gi.Gtk;
+
+// Find the root datadir of the extension
+function get_datadir() {
+    let m = /@(.+):\d+/.exec((new Error()).stack.split('\n')[1]);
+    return Gio.File.new_for_path(m[1]).get_parent().get_path();
+}
+
+window.gsconnect = {extdatadir: get_datadir()};
+imports.searchPath.unshift(gsconnect.extdatadir);
+imports._gsconnect;
+
+const Remote = imports.shell.remote;
+const Settings = imports.preferences.service;
+
+
+const Preferences = GObject.registerClass({
+    GTypeName: 'GSConnectPreferences'
+}, class Preferences extends Gtk.Application {
+
+    _init() {
+        super._init({
+            application_id: `${gsconnect.app_id}.Preferences`
+        });
+
+        GLib.set_prgname(_('GSConnect Preferences'));
+        GLib.set_application_name(_('GSConnect Preferences'));
+        this.set_resource_base_path(gsconnect.app_path);
+    }
+
+    vfunc_activate() {
+        if (this._window === undefined) {
+            this._window = new Settings.Window({
+                application: this
+            });
+        }
+
+        this._window.present();
+    }
+
+    vfunc_startup() {
+        super.vfunc_startup();
+
+        // Init some resources
+        let provider = new Gtk.CssProvider();
+        provider.load_from_resource(gsconnect.app_path + '/application.css');
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Screen.get_default(),
+            provider,
+            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+        );
+
+        let actions = [
+            ['broadcast', null],
+            ['connect',   GLib.VariantType.new('s')]
+        ];
+
+        for (let [name, type] of actions) {
+            let action = new Gio.SimpleAction({
+                name: name,
+                parameter_type: type
+            });
+            action.connect('activate', this._proxyAction.bind(this));
+            this.add_action(action);
+        }
+    }
+
+    _proxyAction(action, parameter) {
+        try {
+            // Build the paramter array
+            let paramArray = [];
+
+            if (parameter instanceof GLib.Variant) {
+                paramArray[0] = parameter;
+            }
+
+            // Invoke on our DBus connection
+            let connection = this.get_dbus_connection();
+
+            connection.call(
+                'org.gnome.Shell.Extensions.GSConnect',
+                '/org/gnome/Shell/Extensions/GSConnect',
+                'org.gtk.Actions',
+                'Activate',
+                GLib.Variant.new('(sava{sv})', [action.name, paramArray, {}]),
+                null,
+                Gio.DBusCallFlags.NONE,
+                -1,
+                null,
+                (proxy, res) => {
+                    try {
+                        proxy.call_finish(res);
+                    } catch (e) {
+                        logError(e);
+                    }
+                }
+            );
+        } catch (e) {
+            logError(e, action.name);
+        }
+    }
+});
+
+(new Preferences()).run([System.programInvocationName].concat(ARGV));

@@ -5314,7 +5314,7 @@ decoration {
   transition: box-shadow 0.35s cubic-bezier(0, 0, 0.2, 1);
   border-radius: 6px;
   border-width: 0;
-  margin: 0px;
+  margin: 10px;
   outline-width: 0;
 }
 
@@ -5322,7 +5322,6 @@ decoration, .popup decoration {
   box-shadow: 1px 6px 22px 1px rgba(0, 0, 0, 0.5),
                 0 6px 16px 1px rgba(0, 0, 0, 0.22),
                 0 0 1px rgba(0, 0, 0, 0.15);
-  outline-width: 0;
 }
 
 .csd.popup decoration {
@@ -9414,3 +9413,4 @@ headerbar button {
 headerbar:backdrop button {
   box-shadow: 0 2px 2px rgba(0,0,0, 0.1);
 }
+
