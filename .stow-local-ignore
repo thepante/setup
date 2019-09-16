@@ -1,0 +1,11 @@
+.+,v
+\.\#.+       # CVS conflict files / emacs lock files
+\.cvsignore
+^/README.*
+^/LICENSE.*
+^/COPYING
+
+
+\.git
+\.gitignore
+\.gitmodules
