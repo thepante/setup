@@ -533,4 +533,40 @@ https://nls1729.github.io
            tiled on the primary monitor and a Window Maximized Effect preference is
            selected.
 
+2019-03-08 Added diable-enable on monitor change to handle loss of diabled hot corner
+           for laptop.  Changed Tile Maximized Effect to be more efficient.
+
+2019-03-16 Thanks to rockon999 for his merge request that fixed Gnome Shell 3.32 issues
+           for extension-reloader  It was helpful in updating activities-config.
+
+2019-03-20 Changes for GS3.32 are not compatible with earlier versions. Changing
+           metadata.json to reflect only version 3.32.  Added set and get methods to
+           the ActivitiesIconButton GObject class to allow access to variables that
+           are not visible to previous javascript.  Modified the previous javascript
+           to use the get and set methods.  Added imports.misc.util to replace calls
+           where the util code was previously accessible through main.js.  Increased
+           delay for feature to move the ActivitiesIconButton from top left corner to
+           top right corner.
+           
+2019-03-23 Removed un-needed "_( )" and added needed "_( )"for translations.  Now xgettext
+           should find everything and gettext will not be executed when not needed.
+           
+2019-03-27 Uploaded for review update for GS 3.32.
+
+2019-04-27 Removed disable enable on monitor change - not required.
+
+2019-05-25 User reported unable to close a message concerning missing hot corners. POP OS 19.04
+           is based on Ubuntu which has a patch applied to the shell which causes the missing
+           hot corners.  Gnome Shell 3.32 aparently does not allow a reactive St.Bin which was
+           used to close the message.  The St.Bin has been replaced with an St.Button to fix
+           the problem.  See 2017-11-11 for all the details of the workaround for the patch.
+
+2019-09-18 Version 3.34 of Gnome Shell removed access to extension version and shell version
+           from access in prefs.js.  Usage of object.actor is deprecated.  Worked around
+           access to extension version and shell version and corrected object.actor issues.
+
+2019-09-20 GS3.34 is supported.  Uploaded for review.
+
 ...
+
+zip file: 2019-09-20 07:33:41 236e2ba1736ebdc54f98b5abcd38254399faa4fa

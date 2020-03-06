@@ -296,6 +296,13 @@ const ConversationWidget = GObject.registerClass({
             GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
             GObject.Object
         ),
+        'plugin': GObject.ParamSpec.object(
+            'plugin',
+            'Plugin',
+            'The plugin providing this conversation',
+            GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
+            GObject.Object
+        ),
         'has-pending': GObject.ParamSpec.boolean(
             'has-pending',
             'Has Pending',
@@ -320,7 +327,10 @@ const ConversationWidget = GObject.registerClass({
 
     _init(params) {
         this.connectTemplate();
-        super._init({device: params.device});
+        super._init({
+            device: params.device,
+            plugin: params.plugin
+        });
         Object.assign(this, params);
 
         this.device.bind_property(
@@ -398,12 +408,12 @@ const ConversationWidget = GObject.registerClass({
         return (this.pending_box.get_children().length);
     }
 
-    get sms() {
-        if (this._sms === undefined) {
-            this._sms = this.device.lookup_plugin('sms');
-        }
+    get plugin() {
+        return this._plugin || null;
+    }
 
-        return this._sms;
+    set plugin(plugin) {
+        this._plugin = plugin;
     }
 
     get thread_id() {
@@ -415,7 +425,7 @@ const ConversationWidget = GObject.registerClass({
     }
 
     set thread_id(thread_id) {
-        let thread = this.sms.threads[thread_id];
+        let thread = this.plugin.threads[thread_id];
         let message = (thread) ? thread[0] : null;
 
         if (message && this.addresses.length === 0) {
@@ -440,6 +450,19 @@ const ConversationWidget = GObject.registerClass({
             message.run_dispose();
             imports.system.gc();
         });
+    }
+
+    _onKeyPressEvent(entry, event) {
+        let keyval = event.get_keyval()[1];
+        let state = event.get_state()[1];
+        let mask = state & Gtk.accelerator_get_default_mod_mask();
+
+        if (keyval === Gdk.KEY_Return && (mask & Gdk.ModifierType.SHIFT_MASK)) {
+            entry.emit('insert-at-cursor', '\n');
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -505,12 +528,12 @@ const ConversationWidget = GObject.registerClass({
 
         // Try and find a thread_id for this number
         if (this.thread_id === null && this.addresses.length) {
-            this._thread_id = this.sms.getThreadIdForAddresses(this.addresses);
+            this._thread_id = this.plugin.getThreadIdForAddresses(this.addresses);
         }
 
         // Make a copy of the thread and fill the window with messages
-        if (this.sms.threads[this.thread_id]) {
-            this.__messages = this.sms.threads[this.thread_id].slice(0);
+        if (this.plugin.threads[this.thread_id]) {
+            this.__messages = this.plugin.threads[this.thread_id].slice(0);
             this.logPrevious();
         }
     }
@@ -656,7 +679,7 @@ const ConversationWidget = GObject.registerClass({
         if (!this.entry.text.trim()) return;
 
         // Send the message
-        this.sms.sendMessage(this.addresses, entry.text);
+        this.plugin.sendMessage(this.addresses, entry.text);
 
         // Log the message as pending
         let message = new MessageLabel({
@@ -696,6 +719,13 @@ var Window = GObject.registerClass({
             GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
             GObject.Object
         ),
+        'plugin': GObject.ParamSpec.object(
+            'plugin',
+            'Plugin',
+            'The plugin providing messages',
+            GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
+            GObject.Object
+        ),
         'thread-id': GObject.ParamSpec.string(
             'thread-id',
             'Thread ID',
@@ -715,11 +745,6 @@ var Window = GObject.registerClass({
         this.connectTemplate();
         super._init(params);
         this.headerbar.subtitle = this.device.name;
-
-        this.settings = new Gio.Settings({
-            settings_schema: gsconnect.gschema.lookup('org.gnome.Shell.Extensions.GSConnect.Messaging', true),
-            path: '/org/gnome/shell/extensions/gsconnect/messaging/'
-        });
 
         this.insert_action_group('device', this.device);
 
@@ -745,7 +770,7 @@ var Window = GObject.registerClass({
         // Threads
         this.thread_list.set_sort_func(this._sortThreads);
 
-        this._threadsChangedId = this.sms.connect(
+        this._threadsChangedId = this.plugin.connect(
             'notify::threads',
             this._onThreadsChanged.bind(this)
         );
@@ -761,20 +786,20 @@ var Window = GObject.registerClass({
 
         this._sync();
         this._onThreadsChanged();
-        this._restoreGeometry();
+        this.restoreGeometry('messaging');
     }
 
     vfunc_delete_event(event) {
-        this._saveGeometry();
+        this.saveGeometry();
         return this.hide_on_delete();
     }
 
-    get sms() {
-        if (!this._sms) {
-            this._sms = this.device.lookup_plugin('sms');
-        }
+    get plugin() {
+        return this._plugin || null;
+    }
 
-        return this._sms;
+    set plugin(plugin) {
+        this._plugin = plugin;
     }
 
     get thread_id() {
@@ -793,7 +818,7 @@ var Window = GObject.registerClass({
 
         // Create a conversation widget if there isn't one
         let conversation = this.stack.get_child_by_name(thread_id);
-        let thread = this.sms.threads[thread_id];
+        let thread = this.plugin.threads[thread_id];
 
         if (conversation === null) {
             if (!thread) {
@@ -803,6 +828,7 @@ var Window = GObject.registerClass({
 
             conversation = new ConversationWidget({
                 device: this.device,
+                plugin: this.plugin,
                 thread_id: thread_id
             });
 
@@ -848,24 +874,15 @@ var Window = GObject.registerClass({
     }
 
     _sync() {
-        // Contacts
-        let contacts = this.device.lookup_plugin('contacts');
-
-        if (contacts) {
-            contacts.connected();
-        } else {
-            this.device.contacts._loadFolks();
-        }
-
-        // SMS history
-        this.sms.connected();
+        this.device.contacts.fetch();
+        this.plugin.connected();
     }
 
     _onDestroy(window) {
         window.disconnectTemplate();
         GLib.source_remove(window._timestampThreadsId);
         window.contact_chooser.disconnect(window._numberSelectedId);
-        window.sms.disconnect(window._threadsChangedId);
+        window.plugin.disconnect(window._threadsChangedId);
     }
 
     _onNewConversation() {
@@ -887,57 +904,13 @@ var Window = GObject.registerClass({
     }
 
     /**
-     * Window State
-     */
-    _restoreGeometry() {
-        if (this._mutterSettings === undefined) {
-            this._mutterSettings = new Gio.Settings({
-                schema_id: 'org.gnome.mutter'
-            });
-        }
-
-        // Restore geometry, even if we're going to maximize
-        let [width, height] = this.settings.get_value('window-size').deep_unpack();
-        this.set_default_size(width, height);
-
-        // Respect mutter's settings
-        if (!this._mutterSettings.get_boolean('center-new-windows')) {
-            let [x, y] = this.settings.get_value('window-position').deep_unpack();
-            this.move(x, y);
-        }
-
-        // Maximize if set
-        if (this.settings.get_boolean('window-maximized'))
-            this.maximize();
-    }
-
-    _saveGeometry() {
-        let state = this.get_window().get_state();
-
-        // Maximized State
-        let maximized = (state & Gdk.WindowState.MAXIMIZED);
-        this.settings.set_boolean('window-maximized', maximized);
-
-        // Leave the size and position at the values before maximizing
-        if (maximized || (state & Gdk.WindowState.FULLSCREEN))
-            return;
-
-        // Save the size and position
-        let size = this.get_size();
-        this.settings.set_value('window-size', new GLib.Variant('(ii)', size));
-
-        let position = this.get_position();
-        this.settings.set_value('window-position', new GLib.Variant('(ii)', position));
-    }
-
-    /**
      * Threads
      */
     _onThreadsChanged() {
         // Get the last message in each thread
         let messages = {};
 
-        for (let [thread_id, thread] of Object.entries(this.sms.threads)) {
+        for (let [thread_id, thread] of Object.entries(this.plugin.threads)) {
             let message = thread[thread.length - 1];
 
             // Skip messages without a body (eg. MMS messages without text)
@@ -1029,7 +1002,7 @@ var Window = GObject.registerClass({
         });
 
         // Try to find a thread_id
-        let thread_id = this.sms.getThreadIdForAddresses(addresses);
+        let thread_id = this.plugin.getThreadIdForAddresses(addresses);
 
         for (let row of this.thread_list.get_children()) {
             if (row.message.thread_id === thread_id)
@@ -1048,7 +1021,7 @@ var Window = GObject.registerClass({
         }
 
         // Try to find a thread ID for this address group
-        let thread_id = this.sms.getThreadIdForAddresses(addresses);
+        let thread_id = this.plugin.getThreadIdForAddresses(addresses);
 
         if (thread_id === null) {
             thread_id = GLib.uuid_string_random();
@@ -1067,6 +1040,7 @@ var Window = GObject.registerClass({
         // We're creating a new conversation
         let conversation = new ConversationWidget({
             device: this.device,
+            plugin: this.plugin,
             addresses: addresses
         });
 
@@ -1161,7 +1135,7 @@ var Window = GObject.registerClass({
                 this.stack.visible_child.setMessage(message);
             }
         } catch (e) {
-            warning(e);
+            debug(e);
         }
     }
 });
@@ -1186,6 +1160,13 @@ var ConversationChooser = GObject.registerClass({
             'The message to share',
             GObject.ParamFlags.READWRITE,
             ''
+        ),
+        'plugin': GObject.ParamSpec.object(
+            'plugin',
+            'Plugin',
+            'The plugin providing messages',
+            GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
+            GObject.Object
         )
     }
 }, class ConversationChooser extends Gtk.ApplicationWindow {
@@ -1236,27 +1217,27 @@ var ConversationChooser = GObject.registerClass({
         this.show_all();
     }
 
-    get sms() {
-        if (this._sms === undefined) {
-            this._sms = this.device.lookup_plugin('sms');
-        }
+    get plugin() {
+        return this._plugin || null;
+    }
 
-        return this._sms;
+    set plugin(plugin) {
+        this._plugin = plugin;
     }
 
     _new(button) {
         let message = this.message;
         this.destroy();
 
-        this.sms.sms();
-        this.sms.window._onNewConversation();
-        this.sms.window._pendingShare = message;
+        this.plugin.sms();
+        this.plugin.window._onNewConversation();
+        this.plugin.window._pendingShare = message;
     }
 
     _select(box, row) {
-        this.sms.sms();
-        this.sms.window.thread_id = row.message.thread_id.toString();
-        this.sms.window.setMessage(this.message);
+        this.plugin.sms();
+        this.plugin.window.thread_id = row.message.thread_id.toString();
+        this.plugin.window.setMessage(this.message);
 
         this.destroy();
     }

@@ -115,8 +115,10 @@ var Plugin = GObject.registerClass({
 
         this.info.directories = {};
         this.info.mount = null;
-        this.info.regex = new RegExp(`sftp://(${this.info.ip}):(1739|17[4-5][0-9]|176[0-4])`);
-        this.info.uri = `sftp://${this.info.ip}:${this.info.port}/`;
+        this.info.regex = new RegExp(
+            'sftp://(' + this.info.ip + '):(1739|17[4-5][0-9]|176[0-4])'
+        );
+        this.info.uri = 'sftp://' + this.info.ip + ':' + this.info.port + '/';
 
         // If 'multiPaths' is present setup a local URI for each
         if (info.hasOwnProperty('multiPaths')) {
@@ -217,7 +219,7 @@ var Plugin = GObject.registerClass({
             this._addSubmenu();
             this._mounting = false;
         } catch (e) {
-            logError(e, `${this.device.name} (${this.name})`);
+            logError(e, this.device.name);
             this.unmount();
         }
     }
@@ -256,7 +258,7 @@ var Plugin = GObject.registerClass({
                     let result = proc.communicate_utf8_finish(res)[1].trim();
 
                     if (proc.get_exit_status() !== 0) {
-                        debug(result, `${this.device.name} (${this.name})`);
+                        debug(result, this.device.name);
                     }
 
                     resolve();
@@ -455,7 +457,7 @@ var Plugin = GObject.registerClass({
 
             link.make_symbolic_link(link_target, null);
         } catch (e) {
-            warning(e, `${this.device.name}: ${this.name}`);
+            debug(e, this.device.name);
         }
     }
 

@@ -2,6 +2,9 @@
 <schemalist gettext-domain="org.gnome.Shell.Extensions.GSConnect">
   <schema id="org.gnome.Shell.Extensions.GSConnect" path="/org/gnome/shell/extensions/gsconnect/">
     <!-- Extension Settings -->
+    <key name="enabled" type="b">
+      <default>true</default>
+    </key>
     <key name="show-indicators" type="b">
       <default>false</default>
     </key>
@@ -30,24 +33,10 @@
     </key>
   </schema>
 
-  <schema id="org.gnome.Shell.Extensions.GSConnect.Messaging" path="/org/gnome/shell/extensions/gsconnect/messaging/">
-    <key name="window-position" type="(ii)">
-      <default>(0, 0)</default>
-    </key>
+  <!-- Window Geometry -->
+  <schema id="org.gnome.Shell.Extensions.GSConnect.WindowState">
     <key name="window-size" type="(ii)">
-      <default>(300, 300)</default>
-    </key>
-    <key name="window-maximized" type="b">
-      <default>false</default>
-    </key>
-  </schema>
-
-  <schema id="org.gnome.Shell.Extensions.GSConnect.Preferences" path="/org/gnome/shell/extensions/gsconnect/preferences/">
-    <key name="window-position" type="(ii)">
       <default>(0, 0)</default>
-    </key>
-    <key name="window-size" type="(ii)">
-      <default>(640, 440)</default>
     </key>
     <key name="window-maximized" type="b">
       <default>false</default>
@@ -57,9 +46,6 @@
   <!-- Device Settings -->
   <schema id="org.gnome.Shell.Extensions.GSConnect.Device">
     <key name="certificate-pem" type="s">
-      <default>""</default>
-    </key>
-    <key name="id" type="s">
       <default>""</default>
     </key>
     <key name="keybindings" type="a{ss}">
@@ -75,7 +61,7 @@
       <default>false</default>
     </key>
     <key name="type" type="s">
-      <default>"unknown"</default>
+      <default>"smartphone"</default>
     </key>
     <key name="incoming-capabilities" type="as">
       <default>[]</default>
@@ -133,6 +119,9 @@
     <key name="send-notifications" type="b">
       <default>true</default>
     </key>
+    <key name="send-active" type="b">
+      <default>true</default>
+    </key>
     <key name="applications" type="s">
       <default>'{}'</default>
     </key>
@@ -141,8 +130,12 @@
     <key name="share-camera" type="b">
       <default>true</default>
     </key>
+    <key name="receive-directory" type="s">
+      <default>""</default>
+    </key>
   </schema>
   <schema id="org.gnome.Shell.Extensions.GSConnect.Plugin.Ping"/>
+  <schema id="org.gnome.Shell.Extensions.GSConnect.Plugin.Presenter"/>
   <schema id="org.gnome.Shell.Extensions.GSConnect.Plugin.RunCommand">
     <key name="command-list" type="a{sv}">
       <default>{}</default>

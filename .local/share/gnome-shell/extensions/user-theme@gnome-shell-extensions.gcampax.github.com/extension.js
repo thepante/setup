@@ -1,23 +1,21 @@
 // -*- mode: js2; indent-tabs-mode: nil; js2-basic-offset: 4 -*-
-// Load shell theme from ~/.themes/name/gnome-shell
+// Load shell theme from ~/.local/share/themes/name/gnome-shell
+/* exported init */
 
-const GLib = imports.gi.GLib;
-const Gio = imports.gi.Gio;
+const { Gio, GLib } = imports.gi;
+
+const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
 
 const SETTINGS_KEY = 'name';
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Convenience = Me.imports.convenience;
-
 class ThemeManager {
     constructor() {
-        this._settings = Convenience.getSettings();
+        this._settings = ExtensionUtils.getSettings();
     }
 
     enable() {
-        this._changedId = this._settings.connect('changed::'+SETTINGS_KEY, this._changeTheme.bind(this));
+        this._changedId = this._settings.connect(`changed::${SETTINGS_KEY}`, this._changeTheme.bind(this));
         this._changeTheme();
     }
 
@@ -32,36 +30,32 @@ class ThemeManager {
     }
 
     _changeTheme() {
-        let _stylesheet = null;
-        let _themeName = this._settings.get_string(SETTINGS_KEY);
+        let stylesheet = null;
+        let themeName = this._settings.get_string(SETTINGS_KEY);
 
-        if (_themeName) {
-            let _userCssStylesheet = GLib.get_home_dir() + '/.themes/' + _themeName + '/gnome-shell/gnome-shell.css';
-            let file = Gio.file_new_for_path(_userCssStylesheet);
-            if (file.query_exists(null))
-                _stylesheet = _userCssStylesheet;
-            else {
-                let sysdirs = GLib.get_system_data_dirs();
-                sysdirs.unshift(GLib.get_user_data_dir());
-                for (let i = 0; i < sysdirs.length; i++) {
-                    _userCssStylesheet = sysdirs[i] + '/themes/' + _themeName + '/gnome-shell/gnome-shell.css';
-                    let file = Gio.file_new_for_path(_userCssStylesheet);
-                    if (file.query_exists(null)) {
-                        _stylesheet = _userCssStylesheet;
-                        break;
-                    }
-                }
-            }
+        if (themeName) {
+            let stylesheetPaths = [
+                [GLib.get_home_dir(), '.themes'],
+                [GLib.get_user_data_dir(), 'themes'],
+                ...GLib.get_system_data_dirs().map(dir => [dir, 'themes']),
+            ].map(themeDir => GLib.build_filenamev([
+                ...themeDir, themeName, 'gnome-shell', 'gnome-shell.css',
+            ]));
+
+            stylesheet = stylesheetPaths.find(path => {
+                let file = Gio.file_new_for_path(path);
+                return file.query_exists(null);
+            });
         }
 
-        if (_stylesheet)
-            global.log('loading user theme: ' + _stylesheet);
+        if (stylesheet)
+            global.log(`loading user theme: ${stylesheet}`);
         else
             global.log('loading default theme (Adwaita)');
-        Main.setThemeStylesheet(_stylesheet);
+        Main.setThemeStylesheet(stylesheet);
         Main.loadTheme();
     }
-};
+}
 
 function init() {
     return new ThemeManager();

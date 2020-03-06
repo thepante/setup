@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: UnitTest (TypeScript)
+hidden: true
+file_extensions: ['spec.ts', 'test.ts']
+scope: source.ts.unittest
+contexts:
+  main:
+    - include: scope:source.ts#prototype
+    - include: scope:source.ts

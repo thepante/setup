@@ -4,7 +4,6 @@ const Clutter = imports.gi.Clutter;
 const GdkPixbuf = imports.gi.GdkPixbuf
 const Gio = imports.gi.Gio;
 const Gtk = imports.gi.Gtk;
-const Lang = imports.lang;
 const Pango = imports.gi.Pango;
 const Shell = imports.gi.Shell;
 const St = imports.gi.St;
@@ -12,6 +11,7 @@ const St = imports.gi.St;
 const Util = imports.misc.util;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Docking = Me.imports.docking;
 const Utils = Me.imports.utils;
 
 let tracker = Shell.WindowTracker.get_default();
@@ -35,21 +35,20 @@ const MAX_WINDOWS_CLASSES = 4;
  * obtained by composing the desired classes below based on the settings.
  *
  */
-var AppIconIndicator = new Lang.Class({
+var AppIconIndicator = class DashToDock_AppIconIndicator {
 
-    Name: 'DashToDock.AppIconIndicator',
-
-    _init: function(source, settings) {
+    constructor(source) {
         this._indicators = [];
 
         // Unity indicators always enabled for now
-        let unityIndicator = new UnityIndicator(source, settings);
+        let unityIndicator = new UnityIndicator(source);
         this._indicators.push(unityIndicator);
 
         // Choose the style for the running indicators
         let runningIndicator = null;
         let runningIndicatorStyle;
 
+        let settings = Docking.DockManager.settings;
         if (settings.get_boolean('apply-custom-theme' )) {
             runningIndicatorStyle = RunningIndicatorStyle.DOTS;
         } else {
@@ -58,100 +57,93 @@ var AppIconIndicator = new Lang.Class({
 
         switch (runningIndicatorStyle) {
             case RunningIndicatorStyle.DEFAULT:
-                runningIndicator = new RunningIndicatorDefault(source, settings);
+                runningIndicator = new RunningIndicatorDefault(source);
                 break;
 
             case RunningIndicatorStyle.DOTS:
-                runningIndicator = new RunningIndicatorDots(source, settings);
+                runningIndicator = new RunningIndicatorDots(source);
                 break;
 
             case RunningIndicatorStyle.SQUARES:
-                runningIndicator = new RunningIndicatorSquares(source, settings);
+                runningIndicator = new RunningIndicatorSquares(source);
                 break;
 
             case RunningIndicatorStyle.DASHES:
-                runningIndicator = new RunningIndicatorDashes(source, settings);
+                runningIndicator = new RunningIndicatorDashes(source);
             break;
 
             case RunningIndicatorStyle.SEGMENTED:
-                runningIndicator = new RunningIndicatorSegmented(source, settings);
+                runningIndicator = new RunningIndicatorSegmented(source);
                 break;
 
             case RunningIndicatorStyle.SOLID:
-                runningIndicator = new RunningIndicatorSolid(source, settings);
+                runningIndicator = new RunningIndicatorSolid(source);
                 break;
 
             case RunningIndicatorStyle.CILIORA:
-                runningIndicator = new RunningIndicatorCiliora(source, settings);
+                runningIndicator = new RunningIndicatorCiliora(source);
                 break;
 
             case RunningIndicatorStyle.METRO:
-                runningIndicator = new RunningIndicatorMetro(source, settings);
+                runningIndicator = new RunningIndicatorMetro(source);
             break;
 
             default:
-                runningIndicator = new RunningIndicatorBase(source, settings);
+                runningIndicator = new RunningIndicatorBase(source);
         }
 
         this._indicators.push(runningIndicator);
-    },
+    }
 
-    update: function() {
+    update() {
         for (let i=0; i<this._indicators.length; i++){
             let indicator = this._indicators[i];
             indicator.update();
         }
-    },
+    }
 
-    destroy: function() {
+    destroy() {
         for (let i=0; i<this._indicators.length; i++){
             let indicator = this._indicators[i];
             indicator.destroy();
         }
     }
-});
+}
 
 /*
  * Base class to be inherited by all indicators of any kind
 */
-const IndicatorBase = new Lang.Class({
+var IndicatorBase = class DashToDock_IndicatorBase {
 
-    Name: 'DashToDock.IndicatorBase',
-
-    _init: function(source, settings) {
-        this._settings = settings;
+    constructor(source) {
         this._source = source;
         this._signalsHandler = new Utils.GlobalSignalsHandler();
 
-        this._sourceDestroyId = this._source.actor.connect('destroy',
-            Lang.bind(this._signalsHandler, this._signalsHandler.destroy)
-        );
-    },
+        this._sourceDestroyId = this._source.actor.connect('destroy', () => {
+            this._signalsHandler.destroy();
+        });
+    }
 
-    update: function() {
-    },
+    update() {
+    }
 
-    destroy: function() {
+    destroy() {
         this._source.actor.disconnect(this._sourceDestroyId);
         this._signalsHandler.destroy();
     }
-});
+};
 
 /*
  * A base indicator class for running style, from which all other EunningIndicators should derive,
  * providing some basic methods, variables definitions and their update,  css style classes handling.
  *
  */
-const RunningIndicatorBase = new Lang.Class({
+var RunningIndicatorBase = class DashToDock_RunningIndicatorBase extends IndicatorBase {
 
-    Name: 'DashToDock.RunningIndicatorBase',
-    Extends: IndicatorBase,
+    constructor(source) {
+        super(source)
 
-    _init: function(source, settings) {
-
-        this.parent(source, settings)
-
-        this._side =  Utils.getPosition(this._settings);
+        this._side = Utils.getPosition();
         this._nWindows = 0;
 
         this._dominantColorExtractor = new DominantColorExtractor(this._source.app);
@@ -159,9 +151,9 @@ const RunningIndicatorBase = new Lang.Class({
         // These statuses take into account the workspace/monitor isolation
         this._isFocused = false;
         this._isRunning = false;
-    },
+    }
 
-    update: function() {
+    update() {
         // Limit to 1 to MAX_WINDOWS_CLASSES  windows classes
         this._nWindows = Math.min(this._source.getInterestingWindows().length, MAX_WINDOWS_CLASSES);
 
@@ -174,7 +166,7 @@ const RunningIndicatorBase = new Lang.Class({
 
         // In the case of workspace isolation, we need to hide the dots of apps with
         // no windows in the current workspace
-        if (this._source.app.state != Shell.AppState.STOPPED  && this._nWindows > 0)
+        if ((this._source.app.state != Shell.AppState.STOPPED || this._source.isLocation()) && this._nWindows > 0)
             this._isRunning = true;
         else
             this._isRunning = false;
@@ -182,9 +174,9 @@ const RunningIndicatorBase = new Lang.Class({
         this._updateCounterClass();
         this._updateFocusClass();
         this._updateDefaultDot();
-    },
+    }
 
-    _updateCounterClass: function() {
+    _updateCounterClass() {
         for (let i = 1; i <= MAX_WINDOWS_CLASSES; i++) {
             let className = 'running' + i;
             if (i != this._nWindows)
@@ -192,33 +184,33 @@ const RunningIndicatorBase = new Lang.Class({
             else
                 this._source.actor.add_style_class_name(className);
         }
-    },
+    }
 
-    _updateFocusClass: function() {
+    _updateFocusClass() {
         if (this._isFocused)
             this._source.actor.add_style_class_name('focused');
         else
             this._source.actor.remove_style_class_name('focused');
-    },
+    }
 
-    _updateDefaultDot: function() {
+    _updateDefaultDot() {
         if (this._isRunning)
             this._source._dot.show();
         else
             this._source._dot.hide();
-    },
+    }
 
-    _hideDefaultDot: function() {
+    _hideDefaultDot() {
         // I use opacity to hide the default dot because the show/hide function
         // are used by the parent class.
         this._source._dot.opacity = 0;
-    },
+    }
 
-    _restoreDefaultDot: function() {
+    _restoreDefaultDot() {
         this._source._dot.opacity = 255;
-    },
+    }
 
-    _enableBacklight: function() {
+    _enableBacklight() {
 
         let colorPalette = this._dominantColorExtractor._getColorPalette();
 
@@ -241,48 +233,42 @@ const RunningIndicatorBase = new Lang.Class({
             'background-gradient-end: ' +  colorPalette.darker + ';'
         );
 
-    },
+    }
 
-    _disableBacklight: function() {
+    _disableBacklight() {
         this._source._iconContainer.set_style(null);
-    },
+    }
 
-    destroy: function() {
-        this.parent();
+    destroy() {
         this._disableBacklight();
         // Remove glossy background if the children still exists
         if (this._source._iconContainer.get_children().length > 1)
             this._source._iconContainer.get_children()[1].set_style(null);
         this._restoreDefaultDot();
+
+        super.destroy();
     }
-});
+};
 
 // We add a css class so third parties themes can limit their indicaor customization
 // to the case we do nothing
-const RunningIndicatorDefault =  new Lang.Class({
+var RunningIndicatorDefault = class DashToDock_RunningIndicatorDefault extends RunningIndicatorBase {
 
-    Name: 'DashToDock.RunningIndicatorDefault',
-    Extends: RunningIndicatorBase,
-
-    _init: function(source, settings) {
-        this.parent(source, settings);
+    constructor(source) {
+        super(source);
         this._source.actor.add_style_class_name('default');
-    },
-
-    destroy: function() {
-        this.parent();
-        this._source.actor.remove_style_class_name('default');
     }
-});
 
-const RunningIndicatorDots = new Lang.Class({
+    destory() {
+        this._source.actor.remove_style_class_name('default');
+        super.destroy();
+    }
+};
 
-    Name: 'DashToDock.RunningIndicatorDots',
-    Extends: RunningIndicatorBase,
+var RunningIndicatorDots = class DashToDock_RunningIndicatorDots extends RunningIndicatorBase {
 
-    _init: function(source, settings) {
-
-        this.parent(source, settings)
+    constructor(source) {
+        super(source)
 
         this._hideDefaultDot();
 
@@ -317,7 +303,7 @@ const RunningIndicatorDots = new Lang.Class({
 
         this._area.set_transform(m);
 
-        this._area.connect('repaint', Lang.bind(this, this._updateIndicator));
+        this._area.connect('repaint', this._updateIndicator.bind(this));
         this._source._iconContainer.add_child(this._area);
 
         let keys = ['custom-theme-running-dots-color',
@@ -329,26 +315,25 @@ const RunningIndicatorDots = new Lang.Class({
 
         keys.forEach(function(key) {
             this._signalsHandler.add([
-                this._settings,
+                Docking.DockManager.settings,
                 'changed::' + key,
-                Lang.bind(this, this.update)
+                this.update.bind(this)
             ]);
         }, this);
 
         // Apply glossy background
         // TODO: move to enable/disableBacklit to apply itonly to the running apps?
         // TODO: move to css class for theming support
-        let path = imports.misc.extensionUtils.getCurrentExtension().path;
-        this._glossyBackgroundStyle = 'background-image: url(\'' + path + '/media/glossy.svg\');' +
-                              'background-size: contain;';
+        this._glossyBackgroundStyle = 'background-image: url(\'' + Me.path + '/media/glossy.svg\');' +
+                                      'background-size: contain;';
+    }
 
-    },
-
-    update: function() {
-        this.parent();
+    update() {
+        super.update();
 
         // Enable / Disable the backlight of running apps
-        if (!this._settings.get_boolean('apply-custom-theme') && this._settings.get_boolean('unity-backlit-items')) {
+        if (!Docking.DockManager.settings.get_boolean('apply-custom-theme') &&
+            Docking.DockManager.settings.get_boolean('unity-backlit-items')) {
             this._source._iconContainer.get_children()[1].set_style(this._glossyBackgroundStyle);
             if (this._isRunning)
                 this._enableBacklight();
@@ -361,9 +346,9 @@ const RunningIndicatorDots = new Lang.Class({
 
         if (this._area)
             this._area.queue_repaint();
-    },
+    }
 
-     _computeStyle: function() {
+     _computeStyle() {
 
         let [width, height] = this._area.get_surface_size();
         this._width = height;
@@ -376,9 +361,10 @@ const RunningIndicatorDots = new Lang.Class({
         this._borderWidth = themeNode.get_border_width(this._side);
         this._bodyColor = themeNode.get_background_color();
 
-        if (!this._settings.get_boolean('apply-custom-theme')) {
+        let settings = Docking.DockManager.settings;
+        if (!settings.get_boolean('apply-custom-theme')) {
             // Adjust for the backlit case
-            if (this._settings.get_boolean('unity-backlit-items')) {
+            if (settings.get_boolean('unity-backlit-items')) {
                 // Use dominant color for dots too if the backlit is enables
                 let colorPalette = this._dominantColorExtractor._getColorPalette();
 
@@ -396,7 +382,7 @@ const RunningIndicatorDots = new Lang.Class({
             }
 
             // Apply dominant color if requested
-            if (this._settings.get_boolean('running-indicator-dominant-color')) {
+            if (settings.get_boolean('running-indicator-dominant-color')) {
                 let colorPalette = this._dominantColorExtractor._getColorPalette();
                 if (colorPalette !== null) {
                     this._bodyColor = Clutter.color_from_string(colorPalette.original)[1];
@@ -404,10 +390,10 @@ const RunningIndicatorDots = new Lang.Class({
             }
 
             // Finally, use customize style if requested
-            if (this._settings.get_boolean('custom-theme-customize-running-dots')) {
-                this._borderColor = Clutter.color_from_string(this._settings.get_string('custom-theme-running-dots-border-color'))[1];
-                this._borderWidth = this._settings.get_int('custom-theme-running-dots-border-width');
-                this._bodyColor =  Clutter.color_from_string(this._settings.get_string('custom-theme-running-dots-color'))[1];
+            if (settings.get_boolean('custom-theme-customize-running-dots')) {
+                this._borderColor = Clutter.color_from_string(settings.get_string('custom-theme-running-dots-border-color'))[1];
+                this._borderWidth = settings.get_int('custom-theme-running-dots-border-width');
+                this._bodyColor =  Clutter.color_from_string(settings.get_string('custom-theme-running-dots-color'))[1];
             }
         }
 
@@ -416,9 +402,9 @@ const RunningIndicatorDots = new Lang.Class({
         this._radius = Math.max(this._width/22, this._borderWidth/2);
         this._padding = 0; // distance from the margin
         this._spacing = this._radius + this._borderWidth; // separation between the dots
-     },
+     }
 
-    _updateIndicator: function() {
+    _updateIndicator() {
 
         let area = this._area;
         let cr = this._area.get_context();
@@ -426,9 +412,9 @@ const RunningIndicatorDots = new Lang.Class({
         this._computeStyle();
         this._drawIndicator(cr);
         cr.$dispose();
-    },
+    }
 
-    _drawIndicator: function(cr) {
+    _drawIndicator(cr) {
         // Draw the required numbers of dots
         let n = this._nWindows;
 
@@ -445,23 +431,19 @@ const RunningIndicatorDots = new Lang.Class({
         cr.strokePreserve();
         Clutter.cairo_set_source_color(cr, this._bodyColor);
         cr.fill();
-    },
-
-    destroy: function() {
-        this.parent();
-        this._area.destroy();
     }
 
-});
+    destroy() {
+        this._area.destroy();
+        super.destroy();
+    }
+};
 
 // Adapted from dash-to-panel by Jason DeRose
 // https://github.com/jderose9/dash-to-panel
-const RunningIndicatorCiliora = new Lang.Class({
+var RunningIndicatorCiliora = class DashToDock_RunningIndicatorCiliora extends RunningIndicatorDots {
 
-    Name: 'DashToDock.RunningIndicatorCiliora',
-    Extends: RunningIndicatorDots,
-
-    _drawIndicator: function(cr) {
+    _drawIndicator(cr) {
         if (this._isRunning) {
 
             let size =  Math.max(this._width/20, this._borderWidth);
@@ -469,7 +451,8 @@ const RunningIndicatorCiliora = new Lang.Class({
             let lineLength = this._width - (size*(this._nWindows-1)) - (spacing*(this._nWindows-1));
             let padding = this._borderWidth;
             // For the backlit case here we don't want the outer border visible
-            if (this._settings.get_boolean('unity-backlit-items') && !this._settings.get_boolean('custom-theme-customize-running-dots'))
+            if (Docking.DockManager.settings.get_boolean('unity-backlit-items') &&
+                !Docking.DockManager.settings.get_boolean('custom-theme-customize-running-dots'))
                 padding = 0;
             let yOffset = this._height - padding - size;
 
@@ -489,16 +472,13 @@ const RunningIndicatorCiliora = new Lang.Class({
             cr.fill();
         }
     }
-});
+};
 
 // Adapted from dash-to-panel by Jason DeRose
 // https://github.com/jderose9/dash-to-panel
-const RunningIndicatorSegmented = new Lang.Class({
+var RunningIndicatorSegmented = class DashToDock_RunningIndicatorSegmented extends RunningIndicatorDots {
 
-    Name: 'DashToDock.RunningIndicatorSegmented',
-    Extends: RunningIndicatorDots,
-
-    _drawIndicator: function(cr) {
+    _drawIndicator(cr) {
         if (this._isRunning) {
             let size =  Math.max(this._width/20, this._borderWidth);
             let spacing = Math.ceil(this._width/18); // separation between the dots
@@ -506,7 +486,8 @@ const RunningIndicatorSegmented = new Lang.Class({
             let lineLength = this._width - (size*(this._nWindows-1)) - (spacing*(this._nWindows-1));
             let padding = this._borderWidth;
             // For the backlit case here we don't want the outer border visible
-            if (this._settings.get_boolean('unity-backlit-items') && !this._settings.get_boolean('custom-theme-customize-running-dots'))
+            if (Docking.DockManager.settings.get_boolean('unity-backlit-items') &&
+                !Docking.DockManager.settings.get_boolean('custom-theme-customize-running-dots'))
                 padding = 0;
             let yOffset = this._height - padding - size;
 
@@ -524,22 +505,20 @@ const RunningIndicatorSegmented = new Lang.Class({
             cr.fill()
         }
     }
-});
+};
 
 // Adapted from dash-to-panel by Jason DeRose
 // https://github.com/jderose9/dash-to-panel
-const RunningIndicatorSolid = new Lang.Class({
+var RunningIndicatorSolid = class DashToDock_RunningIndicatorSolid extends RunningIndicatorDots {
 
-    Name: 'DashToDock.RunningIndicatorSolid',
-    Extends: RunningIndicatorDots,
-
-    _drawIndicator: function(cr) {
+    _drawIndicator(cr) {
         if (this._isRunning) {
 
             let size =  Math.max(this._width/20, this._borderWidth);
             let padding = this._borderWidth;
             // For the backlit case here we don't want the outer border visible
-            if (this._settings.get_boolean('unity-backlit-items') && !this._settings.get_boolean('custom-theme-customize-running-dots'))
+            if (Docking.DockManager.settings.get_boolean('unity-backlit-items') &&
+                !Docking.DockManager.settings.get_boolean('custom-theme-customize-running-dots'))
                 padding = 0;
             let yOffset = this._height - padding - size;
 
@@ -556,16 +535,13 @@ const RunningIndicatorSolid = new Lang.Class({
 
         }
     }
-});
+};
 
 // Adapted from dash-to-panel by Jason DeRose
 // https://github.com/jderose9/dash-to-panel
-const RunningIndicatorSquares = new Lang.Class({
+var RunningIndicatorSquares = class DashToDock_RunningIndicatorSquares extends RunningIndicatorDots {
 
-    Name: 'DashToDock.RunningIndicatorSquares',
-    Extends: RunningIndicatorDots,
-
-    _drawIndicator: function(cr) {
+    _drawIndicator(cr) {
         if (this._isRunning) {
             let size =  Math.max(this._width/11, this._borderWidth);
             let padding = this._borderWidth;
@@ -585,16 +561,13 @@ const RunningIndicatorSquares = new Lang.Class({
             cr.fill();
         }
     }
-});
+}
 
 // Adapted from dash-to-panel by Jason DeRose
 // https://github.com/jderose9/dash-to-panel
-const RunningIndicatorDashes = new Lang.Class({
+var RunningIndicatorDashes = class DashToDock_RunningIndicatorDashes extends RunningIndicatorDots {
 
-    Name: 'DashToDock.RunningIndicatorDashes',
-    Extends: RunningIndicatorDots,
-
-    _drawIndicator: function(cr) {
+    _drawIndicator(cr) {
         if (this._isRunning) {
             let size =  Math.max(this._width/20, this._borderWidth);
             let padding = this._borderWidth;
@@ -616,26 +589,29 @@ const RunningIndicatorDashes = new Lang.Class({
             cr.fill();
         }
     }
-});
+}
 
 // Adapted from dash-to-panel by Jason DeRose
 // https://github.com/jderose9/dash-to-panel
-const RunningIndicatorMetro = new Lang.Class({
+var RunningIndicatorMetro = class DashToDock_RunningIndicatorMetro extends RunningIndicatorDots {
 
-    Name: 'DashToDock.RunningIndicatorMetro',
-    Extends: RunningIndicatorDots,
-
-    _init: function(source, settings) {
-        this.parent(source, settings);
+    constructor(source) {
+        super(source);
         this._source.actor.add_style_class_name('metro');
-    },
+    }
 
-    _drawIndicator: function(cr) {
+    destroy() {
+        this._source.actor.remove_style_class_name('metro');
+        super.destroy();
+    }
+
+    _drawIndicator(cr) {
         if (this._isRunning) {
             let size =  Math.max(this._width/20, this._borderWidth);
             let padding = 0;
             // For the backlit case here we don't want the outer border visible
-            if (this._settings.get_boolean('unity-backlit-items') && !this._settings.get_boolean('custom-theme-customize-running-dots'))
+            if (Docking.DockManager.settings.get_boolean('unity-backlit-items') &&
+                !Docking.DockManager.settings.get_boolean('custom-theme-customize-running-dots'))
                 padding = 0;
             let yOffset = this._height - padding - size;
 
@@ -668,24 +644,17 @@ const RunningIndicatorMetro = new Lang.Class({
                 cr.fill();
             }
         }
-    },
-
-    destroy: function() {
-        this.parent();
-        this._source.actor.remove_style_class_name('metro');
     }
-});
+}
 
 /*
  * Unity like notification and progress indicators
  */
-const UnityIndicator = new Lang.Class({
-    Name: 'DashToDock.UnityIndicator',
-    Extends: IndicatorBase,
+var UnityIndicator = class DashToDock_UnityIndicator extends IndicatorBase {
 
-    _init: function(source, settings) {
+    constructor(source) {
 
-        this.parent(source, settings);
+        super(source);
 
         this._notificationBadgeLabel = new St.Label();
         this._notificationBadgeBin = new St.Bin({
@@ -698,44 +667,44 @@ const UnityIndicator = new Lang.Class({
         this._notificationBadgeBin.hide();
 
         this._source._iconContainer.add_child(this._notificationBadgeBin);
-        this._source._iconContainer.connect('allocation-changed', Lang.bind(this, this.updateNotificationBadge));
+        this._source._iconContainer.connect('allocation-changed', this.updateNotificationBadge.bind(this));
 
         this._remoteEntries = [];
         this._source.remoteModel.lookupById(this._source.app.id).forEach(
-            Lang.bind(this, function(entry) {
+            (entry) => {
                 this.insertEntryRemote(entry);
-            })
+            }
         );
 
         this._signalsHandler.add([
             this._source.remoteModel,
             'entry-added',
-            Lang.bind(this, this._onLauncherEntryRemoteAdded)
+            this._onLauncherEntryRemoteAdded.bind(this)
         ], [
             this._source.remoteModel,
             'entry-removed',
-            Lang.bind(this, this._onLauncherEntryRemoteRemoved)
+            this._onLauncherEntryRemoteRemoved.bind(this)
         ])
-    },
+    }
 
-    _onLauncherEntryRemoteAdded: function(remoteModel, entry) {
+    _onLauncherEntryRemoteAdded(remoteModel, entry) {
         if (!entry || !entry.appId())
             return;
         if (this._source && this._source.app && this._source.app.id == entry.appId()) {
             this.insertEntryRemote(entry);
         }
-    },
+    }
 
-    _onLauncherEntryRemoteRemoved: function(remoteModel, entry) {
+    _onLauncherEntryRemoteRemoved(remoteModel, entry) {
         if (!entry || !entry.appId())
             return;
 
         if (this._source && this._source.app && this._source.app.id == entry.appId()) {
             this.removeEntryRemote(entry);
         }
-    },
+    }
 
-    updateNotificationBadge: function() {
+    updateNotificationBadge() {
         let scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
         let [minWidth, natWidth] = this._source._iconContainer.get_preferred_width(-1);
         let logicalNatWidth = natWidth / scaleFactor;
@@ -749,9 +718,9 @@ const UnityIndicator = new Lang.Class({
 
         this._notificationBadgeBin.width = Math.round(logicalNatWidth - margin_left);
         this._notificationBadgeLabel.clutter_text.ellipsize = Pango.EllipsizeMode.MIDDLE;
-    },
+    }
 
-    _notificationBadgeCountToText: function(count) {
+    _notificationBadgeCountToText(count) {
         if (count <= 9999) {
             return count.toString();
         } else if (count < 1e5) {
@@ -770,50 +739,67 @@ const UnityIndicator = new Lang.Class({
             let billions = count / 1e9;
             return billions.toFixed(1).toString() + "B";
         }
-    },
+    }
 
-    setNotificationBadge: function(count) {
+    setNotificationBadge(count) {
         this._notificationBadgeCount = count;
         let text = this._notificationBadgeCountToText(count);
         this._notificationBadgeLabel.set_text(text);
-    },
+    }
 
-    toggleNotificationBadge: function(activate) {
+    toggleNotificationBadge(activate) {
         if (activate && this._notificationBadgeCount > 0) {
             this.updateNotificationBadge();
             this._notificationBadgeBin.show();
         }
         else
             this._notificationBadgeBin.hide();
-    },
+    }
 
-    _showProgressOverlay: function() {
+    _showProgressOverlay() {
         if (this._progressOverlayArea) {
             this._updateProgressOverlay();
             return;
         }
 
         this._progressOverlayArea = new St.DrawingArea({x_expand: true, y_expand: true});
-        this._progressOverlayArea.connect('repaint', Lang.bind(this, function() {
+        this._progressOverlayArea.add_style_class_name('progress-bar');
+        this._progressOverlayArea.connect('repaint', () => {
             this._drawProgressOverlay(this._progressOverlayArea);
-        }));
+        });
 
         this._source._iconContainer.add_child(this._progressOverlayArea);
-        this._updateProgressOverlay();
-    },
+        let node = this._progressOverlayArea.get_theme_node();
 
-    _hideProgressOverlay: function() {
+        let [hasColor, color] = node.lookup_color('-progress-bar-background', false);
+        if (hasColor)
+            this._progressbar_background = color
+        else
+            this._progressbar_background = new Clutter.Color({red: 204, green: 204, blue: 204, alpha: 255});
+
+        [hasColor, color] = node.lookup_color('-progress-bar-border', false);
+        if (hasColor)
+            this._progressbar_border = color;
+        else
+            this._progressbar_border = new Clutter.Color({red: 230, green: 230, blue: 230, alpha: 255});
+
+        this._updateProgressOverlay();
+    }
+
+    _hideProgressOverlay() {
         if (this._progressOverlayArea)
             this._progressOverlayArea.destroy();
         this._progressOverlayArea = null;
-    },
+        this._progressbar_background = null;
+        this._progressbar_border = null;
+    }
 
-    _updateProgressOverlay: function() {
+    _updateProgressOverlay() {
         if (this._progressOverlayArea)
             this._progressOverlayArea.queue_repaint();
-    },
+    }
 
-    _drawProgressOverlay: function(area) {
+    _drawProgressOverlay(area) {
         let scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
         let [surfaceWidth, surfaceHeight] = area.get_surface_size();
         let cr = area.get_context();
@@ -858,8 +844,12 @@ const UnityIndicator = new Lang.Class({
         height -= 2.0*lineWidth;
 
         let finishedWidth = Math.ceil(this._progress * width);
-        stroke = Cairo.SolidPattern.createRGBA(0.8, 0.8, 0.8, 1.0);
-        fill = Cairo.SolidPattern.createRGBA(0.9, 0.9, 0.9, 1.0);
+
+        let bg = this._progressbar_background;
+        let bd = this._progressbar_border;
+
+        stroke = Cairo.SolidPattern.createRGBA(bd.red/255, bd.green/255, bd.blue/255, bd.alpha/255);
+        fill = Cairo.SolidPattern.createRGBA(bg.red/255, bg.green/255, bg.blue/255, bg.alpha/255);
 
         if (Clutter.get_default_text_direction() == Clutter.TextDirection.RTL)
             Utils.drawRoundedLine(cr, x + lineWidth/2.0 + width - finishedWidth, y + lineWidth/2.0, finishedWidth, height, true, true, stroke, fill);
@@ -867,31 +857,31 @@ const UnityIndicator = new Lang.Class({
             Utils.drawRoundedLine(cr, x + lineWidth/2.0, y + lineWidth/2.0, finishedWidth, height, true, true, stroke, fill);
 
         cr.$dispose();
-    },
+    }
 
-    setProgress: function(progress) {
+    setProgress(progress) {
         this._progress = Math.min(Math.max(progress, 0.0), 1.0);
         this._updateProgressOverlay();
-    },
+    }
 
-    toggleProgressOverlay: function(activate) {
+    toggleProgressOverlay(activate) {
         if (activate) {
             this._showProgressOverlay();
         }
         else {
             this._hideProgressOverlay();
         }
-    },
+    }
 
-    insertEntryRemote: function(remote) {
+    insertEntryRemote(remote) {
         if (!remote || this._remoteEntries.indexOf(remote) !== -1)
             return;
 
         this._remoteEntries.push(remote);
         this._selectEntryRemote(remote);
-    },
+    }
 
-    removeEntryRemote: function(remote) {
+    removeEntryRemote(remote) {
         if (!remote || this._remoteEntries.indexOf(remote) == -1)
             return;
 
@@ -905,9 +895,9 @@ const UnityIndicator = new Lang.Class({
             this.setProgress(0);
             this.toggleProgressOverlay(false);
         }
-    },
+    }
 
-    _selectEntryRemote: function(remote) {
+    _selectEntryRemote(remote) {
         if (!remote)
             return;
 
@@ -917,27 +907,27 @@ const UnityIndicator = new Lang.Class({
         [
             remote,
             'count-changed',
-            Lang.bind(this, (remote, value) => {
+            (remote, value) => {
                 this.setNotificationBadge(value);
-            })
+            }
         ], [
             remote,
             'count-visible-changed',
-            Lang.bind(this, (remote, value) => {
+            (remote, value) => {
                 this.toggleNotificationBadge(value);
-            })
+            }
         ], [
             remote,
             'progress-changed',
-            Lang.bind(this, (remote, value) => {
+            (remote, value) => {
                 this.setProgress(value);
-            })
+            }
         ], [
             remote,
             'progress-visible-changed',
-            Lang.bind(this, (remote, value) => {
+            (remote, value) => {
                 this.toggleProgressOverlay(value);
-            })
+            }
         ]);
 
         this.setNotificationBadge(remote.count());
@@ -945,7 +935,7 @@ const UnityIndicator = new Lang.Class({
         this.setProgress(remote.progress());
         this.toggleProgressOverlay(remote.progressVisible());
     }
-});
+}
 
 
 // We need an icons theme object, this is the only way I managed to get
@@ -965,17 +955,16 @@ const DOMINANT_COLOR_ICON_SIZE = 64;
 
 // Compute dominant color frim the app icon.
 // The color is cached for efficiency.
-const DominantColorExtractor = new Lang.Class({
-    Name: 'DashToDock.DominantColorExtractor',
+var DominantColorExtractor = class DashToDock_DominantColorExtractor {
 
-    _init: function(app) {
+    constructor(app) {
         this._app = app;
-    },
+    }
 
     /**
      * Try to get the pixel buffer for the current icon, if not fail gracefully
      */
-    _getIconPixBuf: function() {
+    _getIconPixBuf() {
         let iconTexture = this._app.create_icon_texture(16);
 
         if (themeLoader === null) {
@@ -1008,7 +997,7 @@ const DominantColorExtractor = new Lang.Class({
             return icon_info.load_icon();
         else
             return null;
-    },
+    }
 
     /**
      * The backlight color choosing algorithm was mostly ported to javascript from the
@@ -1016,7 +1005,7 @@ const DominantColorExtractor = new Lang.Class({
      * https://bazaar.launchpad.net/~unity-team/unity/trunk/view/head:/launcher/LauncherIcon.cpp
      * so it more or less works the same way.
      */
-    _getColorPalette: function() {
+    _getColorPalette() {
         if (iconCacheMap.get(this._app.get_id())) {
             // We already know the answer
             return iconCacheMap.get(this._app.get_id());
@@ -1109,7 +1098,7 @@ const DominantColorExtractor = new Lang.Class({
         iconCacheMap.set(this._app.get_id(), backgroundColor);
 
         return backgroundColor;
-    },
+    }
 
     /**
      * Downsample large icons before scanning for the backlight color to
@@ -1122,7 +1111,7 @@ const DominantColorExtractor = new Lang.Class({
      *
      * @return [];
      */
-    _resamplePixels: function (pixels, resampleX, resampleY) {
+    _resamplePixels (pixels, resampleX, resampleY) {
         let resampledPixels = [];
         // computing the limit outside the for (where it would be repeated at each iteration)
         // for performance reasons
@@ -1137,5 +1126,5 @@ const DominantColorExtractor = new Lang.Class({
         }
 
         return resampledPixels;
-    },
-})
+    }
+};

@@ -13,3 +13,6 @@
 [submodule ".fzf"]
 	path = .fzf
 	url = https://github.com/junegunn/fzf
+[submodule ".zsh/completions"]
+	path = .zsh/zsh-completions
+	url = https://github.com/zsh-users/zsh-completions

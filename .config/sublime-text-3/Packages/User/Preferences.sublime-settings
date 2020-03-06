@@ -1,6 +1,7 @@
 {
+	"color_scheme": "Packages/ayu/ayu-dark.sublime-color-scheme",
 	"font_face": "SF Mono Semibold",
-	"color_scheme": "Packages/ayu/ayu-dark.tmTheme",
+	"font_options": "subpixel_antialias",
 	"font_size": 11,
 	"ignored_packages":
 	[

@@ -1,0 +1,53 @@
+[2020.03.02 20:47:50] Launched version: 1009003, install beta: [FALSE], alpha: 0, debug mode: [FALSE], test dc: [FALSE]
+[2020.03.02 20:47:50] Executable dir: /opt/telegram/, name: telegram
+[2020.03.02 20:47:50] Initial working dir: /home/pante/
+[2020.03.02 20:47:50] Working dir: /home/pante/.local/share/TelegramDesktop/
+[2020.03.02 20:47:50] Command line: /opt/telegram/telegram --
+[2020.03.02 20:47:50] Executable path before check: /opt/telegram/telegram
+[2020.03.02 20:47:50] Logs started
+[2020.03.02 20:47:50] Fontconfig version: 2.13.1.
+[2020.03.02 20:47:50] Custom FONTCONFIG_FILE: /home/pante/.local/share/TelegramDesktop/tdata/fc-custom-1.conf
+[2020.03.02 20:47:50] Connecting local socket to /tmp/bb255ed9ce115a5e356633c25695a009-{87A94AB0-E370-4cde-98D3-ACC110C5967D}...
+[2020.03.02 20:47:50] This is the only instance of Telegram, starting server and app...
+[2020.03.02 20:47:50] Moved logging from '/home/pante/.local/share/TelegramDesktop/log_start3.txt' to '/home/pante/.local/share/TelegramDesktop/log.txt'!
+[2020.03.02 20:47:50] Old start log 'log_start0.txt' found, deleted: [TRUE]
+[2020.03.02 20:47:50] Old start log 'log_start1.txt' found, deleted: [TRUE]
+[2020.03.02 20:47:50] Old start log 'log_start2.txt' found, deleted: [TRUE]
+[2020.03.02 20:47:50] Opened '/home/pante/.local/share/TelegramDesktop/tdata/working' for reading, the previous Telegram Desktop launch was not finished properly :( Crash log size: 12
+[2020.03.02 20:47:50] Update Info: MTP is unavailable.
+[2020.03.02 20:47:51] Update Info: Starting loading '/home/pante/.local/share/TelegramDesktop/tupdates/tlinuxupd1009014' from 0 offset.
+[2020.03.02 20:47:51] Update Info: Loading using HTTP from 'https://updates.tdesktop.com/tlinux/tlinuxupd1009014'.
+[2020.03.02 20:47:54] Primary screen DPI: 79
+[2020.03.02 20:47:54] Could not load 'ayatana-appindicator3' with version 1 :(
+[2020.03.02 20:47:55] Error: failed to load 'gdk_x11_drawable_get_xdisplay' function!
+[2020.03.02 20:47:55] Getting DE, XDG_CURRENT_DESKTOP: 'ubuntu:GNOME'
+[2020.03.02 20:47:55] Getting DE, DESKTOP_SESSION: 'ubuntu'
+[2020.03.02 20:47:55] Getting DE, KDE_SESSION_VERSION: ''
+[2020.03.02 20:47:55] DE: Ubuntu
+[2020.03.02 20:47:55] Tray Icon: Try Qt = [TRUE], Prefer appindicator = [TRUE]
+[2020.03.02 20:47:55] App Info: reading settings...
+[2020.03.02 20:47:55] App Info: reading encrypted settings...
+[2020.03.02 20:47:55] Lang Info: Loaded cached, keys: 2581
+[2020.03.02 20:47:55] OpenAL Logging Level: (not set)
+[2020.03.02 20:47:55] Audio Playback Devices: OpenAL Soft
+[2020.03.02 20:47:55] Audio Playback Default Device: OpenAL Soft
+[2020.03.02 20:47:55] Audio Capture Devices: USB Audio Device Mono;Monitor of USB Audio Device Analog Stereo;Monitor of Built-in Audio Analog Stereo;Built-in Audio Analog Stereo;Monitor of PulseEffects(apps);Monitor of PulseEffects(mic)
+[2020.03.02 20:47:55] Audio Capture Default Device: USB Audio Device Mono
+[2020.03.02 20:47:55] App Info: reading map...
+[2020.03.02 20:47:55] App Info: reading encrypted map...
+[2020.03.02 20:47:55] App Info: reading encrypted user settings...
+[2020.03.02 20:47:55] App Info: encrypted user settings read.
+[2020.03.02 20:47:55] App Info: reading encrypted mtp data...
+[2020.03.02 20:47:55] MTP Info: read keys, current: 5, to destroy: 0
+[2020.03.02 20:47:55] Map read time: 5
+[2020.03.02 20:47:55] TCP Error: network - Network unreachable
+[2020.03.02 20:47:55] HTTP Error: network error 99 - Network unreachable
+[2020.03.02 20:47:55] Export Info: Destroy top bar by controller removal.
+[2020.03.02 20:47:55] Tray Icon: Using appindicator tray icon.
+[2020.03.02 20:47:55] Found Unity Launcher entry telegramdesktop.desktop!
+[2020.03.02 20:47:56] TCP Error: network - Network unreachable
+[2020.03.02 20:47:56] HTTP Error: network error 99 - Network unreachable
+[2020.03.02 20:47:58] TCP Error: network - Network unreachable
+[2020.03.02 20:47:58] HTTP Error: network error 99 - Network unreachable
+[2020.03.02 20:48:22] TCP Error: network - Network unreachable
+[2020.03.02 20:48:22] HTTP Error: network error 99 - Network unreachable

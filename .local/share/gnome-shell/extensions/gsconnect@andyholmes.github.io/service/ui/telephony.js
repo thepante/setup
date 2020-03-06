@@ -8,13 +8,20 @@ const Contacts = imports.service.ui.contacts;
 const Messaging = imports.service.ui.messaging;
 
 
-var Dialog = GObject.registerClass({
+var LegacyMessagingDialog = GObject.registerClass({
     GTypeName: 'GSConnectLegacyMessagingDialog',
     Properties: {
         'device': GObject.ParamSpec.object(
             'device',
             'Device',
             'The device associated with this window',
+            GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
+            GObject.Object
+        ),
+        'plugin': GObject.ParamSpec.object(
+            'plugin',
+            'Plugin',
+            'The plugin providing messages',
             GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
             GObject.Object
         )
@@ -31,8 +38,8 @@ var Dialog = GObject.registerClass({
         super._init({
             application: Gio.Application.get_default(),
             device: params.device,
-            use_header_bar: true,
-            visible: true
+            plugin: params.plugin,
+            use_header_bar: true
         });
 
         this.set_response_sensitive(Gtk.ResponseType.OK, false);
@@ -70,17 +77,19 @@ var Dialog = GObject.registerClass({
         // Set the message if given
         if (params.message) {
             this.message = params.message;
-            let message = new Messaging.MessageLabel(this.message);
-            message.margin_bottom = 12;
-            this.message_box.add(message);
+            this.addresses = params.message.addresses;
+
+            let label = new Messaging.MessageLabel(this.message);
+            label.margin_bottom = 12;
+            this.message_box.add(label);
+
+        // Otherwise set the address(es) if we were passed those
+        } else if (params.addresses) {
+            this.addresses = params.addresses;
         }
 
-        // Set the address if given
-        if (params.addresses) {
-            this.addresses = params.addresses;
-
-        // Otherwise load the contact list
-        } else {
+        // Load the contact list if we weren't supplied with an address
+        if (this.addresses.length === 0) {
             this.contact_chooser = new Contacts.ContactChooser({
                 device: this.device
             });
@@ -95,8 +104,26 @@ var Dialog = GObject.registerClass({
             this.stack.visible_child_name = 'contact-chooser';
         }
 
-        // Cleanup on ::destroy
+        this.restoreGeometry('legacy-messaging-dialog');
+
         this.connect('destroy', this._onDestroy);
+    }
+
+    _onDestroy(dialog) {
+        if (dialog._numberSelectedId !== undefined) {
+            dialog.contact_chooser.disconnect(dialog._numberSelectedId);
+            dialog.contact_chooser.destroy();
+        }
+
+        dialog.entry.buffer.disconnect(dialog._entryChangedId);
+        dialog.device.disconnect(dialog._connectedId);
+    }
+
+    vfunc_delete_event() {
+        this.disconnectTemplate();
+        this.saveGeometry();
+
+        return false;
     }
 
     vfunc_response(response_id) {
@@ -104,15 +131,14 @@ var Dialog = GObject.registerClass({
             // Refuse to send empty or whitespace only texts
             if (!this.entry.buffer.text.trim()) return;
 
-            this.sms.sendMessage(
-                this._addresses,
+            this.plugin.sendMessage(
+                this.addresses,
                 this.entry.buffer.text,
                 1,
                 true
             );
         }
 
-        this.disconnectTemplate();
         this.destroy();
     }
 
@@ -135,21 +161,12 @@ var Dialog = GObject.registerClass({
         this._onStateChanged();
     }
 
-    get sms() {
-        if (!this._sms) {
-            this._sms = this.device.lookup_plugin('sms');
-        }
-
-        return this._sms;
+    get plugin() {
+        return this._plugin || null;
     }
 
-    _onDestroy(window) {
-        if (window._numberSelectedId) {
-            window.contact_chooser.disconnect(window._numberSelectedId);
-        }
-
-        window.device.disconnect(window._connectedId);
-        window.entry.buffer.disconnect(window._entryChangedId);
+    set plugin(plugin) {
+        this._plugin = plugin;
     }
 
     _onNumberSelected(chooser, number) {
@@ -164,7 +181,7 @@ var Dialog = GObject.registerClass({
         switch (false) {
             case this.device.connected:
             case (this.entry.buffer.text.trim().length):
-            case (this.stack.visible_child_name === 'message'):
+            case (this.stack.visible_child_name === 'message-editor'):
                 this.set_response_sensitive(Gtk.ResponseType.OK, false);
                 break;
 

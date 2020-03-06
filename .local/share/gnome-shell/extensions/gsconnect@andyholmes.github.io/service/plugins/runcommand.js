@@ -104,8 +104,11 @@ var Plugin = GObject.registerClass({
     connected() {
         super.connected();
 
+        // Disable the commands action until we know better
         this.sendCommandList();
         this.requestCommandList();
+
+        this._handleCommandList(this.remote_commands);
     }
 
     cacheClear() {
@@ -117,10 +120,6 @@ var Plugin = GObject.registerClass({
     cacheLoaded() {
         if (this.device.connected) {
             this.connected();
-        }
-
-        if (this.device.get_incoming_supported('runcommand.request')) {
-            this._handleCommandList(this.remote_commands);
         }
     }
 
@@ -151,7 +150,7 @@ var Plugin = GObject.registerClass({
         try {
             proc.wait_check_finish(res);
         } catch (e) {
-            debug(e, this.name);
+            debug(e);
         }
     }
 
@@ -195,7 +194,12 @@ var Plugin = GObject.registerClass({
         item.set_submenu(submenu);
 
         // If the submenu item is already present it will be replaced
-        this.device.replaceMenuAction('commands', item);
+        let index = this.device.settings.get_strv('menu-actions').indexOf('commands');
+
+        if (index > -1) {
+            this.device.removeMenuAction('commands');
+            this.device.addMenuItem(item, index);
+        }
     }
 
     /**

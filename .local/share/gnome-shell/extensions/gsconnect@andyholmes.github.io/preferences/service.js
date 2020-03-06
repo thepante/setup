@@ -94,85 +94,18 @@ async function generateSupportLog(time) {
  */
 var ConnectDialog = GObject.registerClass({
     GTypeName: 'GSConnectConnectDialog',
-    Properties: {
-        'has-devices': GObject.ParamSpec.boolean(
-            'has-devices',
-            'Has Devices',
-            'Whether any KDE Connect enabled bluetooth devices are present',
-            GObject.ParamFlags.READABLE,
-            false
-        )
-    },
     Template: 'resource:///org/gnome/Shell/Extensions/GSConnect/ui/connect.ui',
     Children: [
         'cancel-button', 'connect-button',
-        'lan-radio', 'lan-grid', 'lan-ip', 'lan-port',
-        'bluez-radio', 'bluez-grid', 'bluez-device', 'bluez-devices'
+        'lan-radio', 'lan-grid', 'lan-ip', 'lan-port'
     ]
 }, class ConnectDialog extends Gtk.Dialog {
 
-    _init(parent = null) {
+    _init(params = {}) {
         this.connectTemplate();
-        super._init({
-            application: Gio.Application.get_default(),
-            modal: (parent),
-            transient_for: parent,
+        super._init(Object.assign({
             use_header_bar: true
-        });
-
-        // Bluez Device ComboBox
-        let iconCell = new Gtk.CellRendererPixbuf({xpad: 6});
-        this.bluez_device.pack_start(iconCell, false);
-        this.bluez_device.add_attribute(iconCell, 'pixbuf', 0);
-
-        let nameCell = new Gtk.CellRendererText();
-        this.bluez_device.pack_start(nameCell, true);
-        this.bluez_device.add_attribute(nameCell, 'text', 1);
-
-        if (this.application.bluetooth) {
-            this._devicesId = this.application.bluetooth.connect(
-                'notify::devices',
-                this.populate.bind(this)
-            );
-            this.populate();
-        }
-
-        // Connection type selection
-        this.lan_radio.bind_property(
-            'active',
-            this.lan_grid,
-            'sensitive',
-            GObject.BindingFlags.SYNC_CREATE
-        );
-
-        this.bluez_radio.bind_property(
-            'active',
-            this.bluez_grid,
-            'sensitive',
-            GObject.BindingFlags.SYNC_CREATE
-        );
-
-        // Hide Bluez and selection if there are no supported bluetooth devices
-        this.bind_property(
-            'has-devices',
-            this.bluez_radio,
-            'visible',
-            GObject.BindingFlags.SYNC_CREATE
-        );
-
-        this.bind_property(
-            'has-devices',
-            this.bluez_grid,
-            'visible',
-            GObject.BindingFlags.SYNC_CREATE
-        );
-
-        this.bind_property(
-            'has-devices',
-            this.lan_radio,
-            'visible',
-            GObject.BindingFlags.SYNC_CREATE
-        );
+        }, params));
     }
 
     vfunc_response(response_id) {
@@ -180,16 +113,11 @@ var ConnectDialog = GObject.registerClass({
             try {
                 let address;
 
-                // Bluetooth device selected
-                if (this.bluez_device.visible && this.bluez_radio.active) {
-                    let path = this.bluez_device.active_id;
-                    address = GLib.Variant.new_string(`bluetooth://${path}`);
-
                 // Lan host/port entered
-                } else if (this.lan_ip.text) {
+                if (this.lan_ip.text) {
                     let host = this.lan_ip.text;
                     let port = this.lan_port.value;
-                    address = GLib.Variant.new_string(`lan://${host}:${port}`);
+                    address = GLib.Variant.new_string('lan://' + host + ':' + port);
                 } else {
                     return false;
                 }
@@ -207,39 +135,6 @@ var ConnectDialog = GObject.registerClass({
         this.disconnectTemplate();
         this.destroy();
         return false;
-    }
-
-    get has_devices() {
-        if (!this.application.bluetooth) {
-            return false;
-        }
-
-        return this.application.bluetooth.devices.length > 0;
-    }
-
-    populate() {
-        this.bluez_devices.clear();
-        let theme = Gtk.IconTheme.get_default();
-
-        if (this.has_devices) {
-            for (let device of this.application.bluetooth.devices) {
-                let pixbuf = theme.load_icon(
-                    device.Icon,
-                    16,
-                    Gtk.IconLookupFlags.FORCE_SIZE
-                );
-
-                this.bluez_devices.set(
-                    this.bluez_devices.append(),
-                    [0, 1, 2],
-                    [pixbuf, `${device.Alias} (${device.Adapter})`, device.g_object_path]
-                );
-            }
-
-            this.bluez_device.active_id = this.application.bluetooth.devices[0].g_object_path;
-        }
-
-        this.notify('has-devices');
     }
 });
 
@@ -277,8 +172,11 @@ var Window = GObject.registerClass({
     Children: [
         // HeaderBar
         'headerbar', 'infobar', 'stack',
-        'service-menu', 'service-edit', 'service-entry', 'service-refresh',
+        'service-menu', 'service-edit', 'service-refresh',
         'device-menu', 'prev-button',
+
+        // Popover
+        'rename-popover', 'rename', 'rename-label', 'rename-entry', 'rename-submit',
 
         // Focus Box
         'service-window', 'service-box',
@@ -292,18 +190,35 @@ var Window = GObject.registerClass({
         this.connectTemplate();
         super._init(params);
 
-        // GSettings
+        // Service Settings
         this.settings = new Gio.Settings({
             settings_schema: gsconnect.gschema.lookup(
-                'org.gnome.Shell.Extensions.GSConnect.Preferences',
+                'org.gnome.Shell.Extensions.GSConnect',
                 true
-            ),
-            path: '/org/gnome/shell/extensions/gsconnect/preferences/'
+            )
         });
 
+        // Service Proxy
+        this.service = new Remote.Service();
+
+        this._deviceAddedId = this.service.connect(
+            'device-added',
+            this._onDeviceAdded.bind(this)
+        );
+
+        this._deviceRemovedId = this.service.connect(
+            'device-removed',
+            this._onDeviceRemoved.bind(this)
+        );
+
+        this._serviceChangedId = this.service.connect(
+            'notify::active',
+            this._onServiceChanged.bind(this)
+        );
+
         // HeaderBar (Service Name)
-        this.headerbar.title = gsconnect.settings.get_string('name');
-        this.service_entry.text = this.headerbar.title;
+        this.headerbar.title = this.settings.get_string('name');
+        this.rename_entry.text = this.headerbar.title;
 
         // Scroll with keyboard focus
         this.service_box.set_focus_vadjustment(this.service_window.vadjustment);
@@ -312,13 +227,13 @@ var Window = GObject.registerClass({
         this.device_list.set_header_func(rowSeparators);
 
         // Discoverable InfoBar
-        gsconnect.settings.bind(
+        this.settings.bind(
             'discoverable',
             this.infobar,
             'reveal-child',
             Gio.SettingsBindFlags.INVERT_BOOLEAN
         );
-        this.add_action(gsconnect.settings.create_action('discoverable'));
+        this.add_action(this.settings.create_action('discoverable'));
 
         // Application Menu
         this._initMenu();
@@ -333,12 +248,12 @@ var Window = GObject.registerClass({
         // Restore window size/maximized/position
         this._restoreGeometry();
 
-        // Start the remote service
-        this._init_async();
+        // Prime the service
+        this._initService();
     }
 
     get display_mode() {
-        if (gsconnect.settings.get_boolean('show-indicators')) {
+        if (this.settings.get_boolean('show-indicators')) {
             return 'panel';
         } else {
             return 'user-menu';
@@ -346,13 +261,14 @@ var Window = GObject.registerClass({
     }
 
     set display_mode(mode) {
-        gsconnect.settings.set_boolean('show-indicators', (mode === 'panel'));
+        this.settings.set_boolean('show-indicators', (mode === 'panel'));
     }
 
     vfunc_delete_event(event) {
         if (this.service) {
             this.service.disconnect(this._deviceAddedId);
             this.service.disconnect(this._deviceRemovedId);
+            this.service.disconnect(this._serviceChangedId);
             this.service.destroy();
             this.service = null;
         }
@@ -361,26 +277,15 @@ var Window = GObject.registerClass({
         this.disconnectTemplate();
         GLib.source_remove(this._refreshSource);
 
+        // FIXME: this wouldn't be necessary if we were disposing devices right
+        this.application.quit();
         return false;
     }
 
-    async _init_async() {
+    async _initService() {
         try {
-            // Device Manager
-            this.service = new Remote.Service();
-
-            // Watch for new and removed
-            this._deviceAddedId = this.service.connect(
-                'device-added',
-                this._onDeviceAdded.bind(this)
-            );
-
-            this._deviceRemovedId = this.service.connect(
-                'device-removed',
-                this._onDeviceRemoved.bind(this)
-            );
-
-            await this.service.start();
+            this._onServiceChanged(this.service, null);
+            await this.service.reload();
         } catch (e) {
             logError(e, 'GSConnect');
         }
@@ -402,12 +307,12 @@ var Window = GObject.registerClass({
 
         // "Connect to..." Dialog
         let connectDialog = new Gio.SimpleAction({name: 'connect'});
-        connectDialog.connect('activate', this._connectDialog);
+        connectDialog.connect('activate', this._connectDialog.bind(this));
         this.add_action(connectDialog);
 
         // "Generate Support Log" GAction
         let generateSupportLog = new Gio.SimpleAction({name: 'support-log'});
-        generateSupportLog.connect('activate', this._generateSupportLog);
+        generateSupportLog.connect('activate', this._generateSupportLog.bind(this));
         this.add_action(generateSupportLog);
 
         // "Help" GAction
@@ -417,9 +322,9 @@ var Window = GObject.registerClass({
     }
 
     _refresh() {
-        if (this.device_list.get_children().length < 1) {
+        if (this.service.active && this.device_list.get_children().length < 1) {
             this.device_list_spinner.active = true;
-            this.application.activate_action('broadcast', null);
+            this.service.activate_action('refresh', null);
         } else {
             this.device_list_spinner.active = false;
         }
@@ -427,26 +332,29 @@ var Window = GObject.registerClass({
         return GLib.SOURCE_CONTINUE;
     }
 
+    /**
+     * Window State
+     */
     _restoreGeometry() {
-        if (this._mutterSettings === undefined) {
-            this._mutterSettings = new Gio.Settings({
-                schema_id: 'org.gnome.mutter'
-            });
+        this._windowState = new Gio.Settings({
+            settings_schema: gsconnect.gschema.lookup(
+                'org.gnome.Shell.Extensions.GSConnect.WindowState',
+                true
+            ),
+            path: '/org/gnome/shell/extensions/gsconnect/preferences/'
+        });
+
+        // Size
+        let [width, height] = this._windowState.get_value('window-size').deep_unpack();
+
+        if (width && height) {
+            this.set_default_size(width, height);
         }
 
-        // Restore geometry, even if we're going to maximize
-        let [width, height] = this.settings.get_value('window-size').deep_unpack();
-        this.set_default_size(width, height);
-
-        // Respect mutter's settings
-        if (!this._mutterSettings.get_boolean('center-new-windows')) {
-            let [x, y] = this.settings.get_value('window-position').deep_unpack();
-            this.move(x, y);
-        }
-
-        // Maximize if set
-        if (this.settings.get_boolean('window-maximized'))
+        // Maximized State
+        if (this._windowState.get_boolean('window-maximized')) {
             this.maximize();
+        }
     }
 
     _saveGeometry() {
@@ -454,18 +362,15 @@ var Window = GObject.registerClass({
 
         // Maximized State
         let maximized = (state & Gdk.WindowState.MAXIMIZED);
-        this.settings.set_boolean('window-maximized', maximized);
+        this._windowState.set_boolean('window-maximized', maximized);
 
-        // Leave the size and position at the values before maximizing
+        // Leave the size at the value before maximizing
         if (maximized || (state & Gdk.WindowState.FULLSCREEN))
             return;
 
-        // Save the size and position
+        // Size
         let size = this.get_size();
-        this.settings.set_value('window-size', new GLib.Variant('(ii)', size));
-
-        let position = this.get_position();
-        this.settings.set_value('window-position', new GLib.Variant('(ii)', position));
+        this._windowState.set_value('window-size', new GLib.Variant('(ii)', size));
     }
 
     /**
@@ -490,7 +395,7 @@ var Window = GObject.registerClass({
                 program_name: 'GSConnect',
                 // TRANSLATORS: eg. 'Translator Name <your.email@domain.com>'
                 translator_credits: _('translator-credits'),
-                version: `${gsconnect.metadata.version}`,
+                version: gsconnect.metadata.version.toString(),
                 website: gsconnect.metadata.url,
                 license_type: Gtk.License.GPL_2_0,
                 modal: true,
@@ -509,7 +414,11 @@ var Window = GObject.registerClass({
      * Connect to..." Dialog
      */
     _connectDialog() {
-        new ConnectDialog(Gio.Application.get_default()._window);
+        new ConnectDialog({
+            application: Gio.Application.get_default(),
+            modal: true,
+            transient_for: this
+        });
     }
 
     /**
@@ -524,12 +433,12 @@ var Window = GObject.registerClass({
         dialog.add_button(_('Review Log'), Gtk.ResponseType.OK);
 
         // Enable debug logging and mark the current time
-        gsconnect.settings.set_boolean('debug', true);
+        this.settings.set_boolean('debug', true);
         let now = GLib.DateTime.new_now_local().format('%R');
 
         dialog.connect('response', (dialog, response_id) => {
             // Disable debug logging and destroy the dialog
-            gsconnect.settings.set_boolean('debug', false);
+            this.settings.set_boolean('debug', false);
             dialog.destroy();
 
             // Only generate a log if instructed
@@ -562,7 +471,7 @@ var Window = GObject.registerClass({
         this.service_edit.visible = true;
         this.service_menu.visible = true;
 
-        this.headerbar.title = gsconnect.settings.get_string('name');
+        this.headerbar.title = this.settings.get_string('name');
         this.headerbar.subtitle = null;
 
         // Panel
@@ -571,18 +480,14 @@ var Window = GObject.registerClass({
     }
 
     _onEditServiceName(button, event) {
-        this.service_entry.text = this.headerbar.title;
+        this.rename_entry.text = this.headerbar.title;
+        this.rename_entry.has_focus = true;
     }
 
-    _onUnfocusServiceName(entry, event) {
-        this.service_edit.active = false;
-        return false;
-    }
-
-    _onSetServiceName(button, event) {
-        if (this.service_entry.text.length) {
-            this.headerbar.title = this.service_entry.text;
-            gsconnect.settings.set_string('name', this.service_entry.text);
+    _onSetServiceName(widget) {
+        if (this.rename_entry.text.length) {
+            this.headerbar.title = this.rename_entry.text;
+            this.settings.set_string('name', this.rename_entry.text);
         }
 
         this.service_edit.active = false;
@@ -591,6 +496,21 @@ var Window = GObject.registerClass({
     /**
      * Context Switcher
      */
+    _getTypeLabel(device) {
+        switch (device.type) {
+            case 'laptop':
+                return _('Laptop');
+            case 'phone':
+                return _('Smartphone');
+            case 'tablet':
+                return _('Tablet');
+            case 'tv':
+                return _('Television');
+            default:
+                return _('Desktop');
+        }
+    }
+
     _setDeviceMenu(panel = null) {
         this.device_menu.insert_action_group('device', null);
         this.device_menu.insert_action_group('settings', null);
@@ -637,7 +557,7 @@ var Window = GObject.registerClass({
         row.add(grid);
 
         let icon = new Gtk.Image({
-            gicon: new Gio.ThemedIcon({name: `${device.icon_name}-symbolic`}),
+            gicon: new Gio.ThemedIcon({name: device.icon_name}),
             icon_size: Gtk.IconSize.BUTTON,
             visible: true
         });
@@ -650,7 +570,6 @@ var Window = GObject.registerClass({
             vexpand: true,
             visible: true
         });
-        device.settings.bind('name', title, 'label', 0);
         grid.attach(title, 1, 0, 1, 1);
 
         let status = new Gtk.Label({
@@ -662,6 +581,15 @@ var Window = GObject.registerClass({
         });
         grid.attach(status, 2, 0, 1, 1);
 
+        // Keep name up to date
+        device.bind_property(
+            'name',
+            title,
+            'label',
+            GObject.BindingFlags.SYNC_CREATE
+        );
+
+        // Keep status up to date
         device.connect(
             'notify::connected',
             this._onDeviceChanged.bind(null, status)
@@ -734,9 +662,17 @@ var Window = GObject.registerClass({
             this.device_menu.visible = true;
 
             this.headerbar.title = prefs.device.name;
-            this.headerbar.subtitle = prefs.device.display_type;
+            this.headerbar.subtitle = this._getTypeLabel(prefs.device);
         } catch (e) {
             logError(e);
+        }
+    }
+
+    _onServiceChanged(service, pspec) {
+        if (this.service.active) {
+            this.device_list_placeholder.label = _('Searching for devices…');
+        } else {
+            this.device_list_placeholder.label = _('Waiting for service…');
         }
     }
 });

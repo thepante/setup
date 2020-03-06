@@ -1,0 +1,5 @@
+2020/03/06-00:05:51.539526 7f5dbaffd700 Recovering log #79
+2020/03/06-00:05:51.540050 7f5dbaffd700 Level-0 table #81: started
+2020/03/06-00:05:51.548921 7f5dbaffd700 Level-0 table #81: 2829 bytes OK
+2020/03/06-00:05:51.564733 7f5dbaffd700 Delete type=0 #79
+2020/03/06-00:05:51.564803 7f5dbaffd700 Delete type=3 #77

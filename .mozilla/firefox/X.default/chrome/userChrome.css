@@ -1,10 +1,10 @@
-/* Gnome 02/2019 - u/thepante */
+/* Gnome 03/2020 - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 :root:-moz-lwtheme-brighttext, :root, * {
-    --chrome-background-color: linear-gradient(150deg, #102E33, #171E33, #262038) !important; /*#0F1419 !important; /*era #141414*/
+    --chrome-background-color: #0F1419 !important; /* linear-gradient(150deg, #102E33, #171E33, #262038) ///  #0F1419 !important; /*era #141414*/
     --chrome-color: #a7a592 !important;
     --chrome-secondary-background-color: #222424 !important;
     --toolbox-border-bottom-color: hsl(240, 5%, 5%);
@@ -46,6 +46,15 @@
   #urlbar:-moz-lwtheme, #urlbar:-moz-lwtheme:hover, #navigator-toolbox .searchbar-textbox:-moz-lwtheme, 
   #navigator-toolbox .searchbar-textbox:-moz-lwtheme:hover {background-color: #111 !important;}
   :root #urlbar, :root .searchbar-textbox {opacity: 0.7 !important;}
+
+#urlbar-background {
+  background: #282020 !important;
+}
+
+#urlbar:not(.megabar):not([focused="true"]), #urlbar.megabar:not([focused="true"]) > #urlbar-background, #navigator-toolbox #searchbar:not(:focus-within) {
+	border-color: #202020 !important;
+}
+
 
   .tabs-newtab-button, #TabsToolbar > #new-tab-button, #TabsToolbar > toolbarpaletteitem > #new-tab-button {
     list-style-image: url(chrome://browser/skin/tabbrowser/newtab.svg); margin-top: 2px !important; opacity: 0.3;}
@@ -154,9 +163,10 @@
     transition: visibility 0.5s, opacity 0.5s linear !important;
   }
 
-  .tabbrowser-tab[selected="true"] .tab-close-button, .tabbrowser-tab:hover .tab-close-button {
+  /*.tabbrowser-tab[selected="true"] .tab-close-button,*/ .tabbrowser-tab:not([pinned="true"]):hover .tab-close-button {
     stroke-opacity: .5;
     visibility: visible;
+    display: block !important;
     opacity: 1;
     height: 22px;
     width: 22px;
@@ -188,7 +198,8 @@
   }
 
   /* Ver todas las tabs de una, no-scroll */
-  #tabbrowser-tabs .tabbrowser-tab:not([pinned=true])[fadein] { min-width: 1px !important;}
+  #tabbrowser-tabs .tabbrowser-tab:not([pinned=true]):not([selected=true])[fadein] { min-width: 1px !important;}
+  #tabbrowser-tabs .tabbrowser-tab[selected="true"] {min-width: 30px !important;}
 
   /* Fix 1px cuando muchas tabs y aparece flecha + fix 2px sobre tabs */
   :root #TabsToolbar, :root #TabsToolbar + * { min-height: 31px !important;}
@@ -203,7 +214,7 @@
   .tabbrowser-tab > .tab-stack > .tab-content[selected="true"] { color: #D3D3D3 !important;}
 
   /* Desaturar tabs no seleccionadas */
-  .tab-icon-image { border-radius: 2px !important; filter: saturate(15%); transition-duration: 0.2s; }
+  .tab-icon-image { border-radius: 2px !important; filter: saturate(15%); transition-duration: 0.2s; opacity: 0.7;}
   #tabbrowser-tabs .tab-icon-image[selected] {filter: none !important;}
 
   /* No animar paneles */
@@ -303,18 +314,13 @@
   /* Corregir color en los marcadores sidebar */
   .sidebar-placesTreechildren { color: var(--chrome-color) !important;filter: saturate(0.5) !important; }
 
-  /* Sidebar flotante - ALFS */
-  .openit {
-      opacity: 1;
-      margin-right: 0px !important;
-      transition-property: opacity;
-      transition-duration: 0.15s !important;
-      box-shadow: 5px 15px 101px 22px rgba(0,0,0, calc(0.40 + var(--shadow-strong)));
+  /* fonts varias */
+  #urlbar-input {
+  --urlbar-scheme-size:8ch;
+    font-weight: 500;
   }
-  .closeit {
-      opacity: 0;
-      box-shadow: none !important;
-      margin-top: calc(-100vh * 2);
-      transition-property: opacity;
-      transition-duration: 0.15s !important;
-  }
+
+  /* badge */
+  .toolbarbutton-badge {
+  margin: 2px 5px !important;
+}

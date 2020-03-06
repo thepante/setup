@@ -14,14 +14,17 @@ var ReplyDialog = GObject.registerClass({
             'The device associated with this window',
             GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
             GObject.Object
+        ),
+        'plugin': GObject.ParamSpec.object(
+            'plugin',
+            'Plugin',
+            'The plugin that owns this notification',
+            GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
+            GObject.Object
         )
     },
     Template: 'resource:///org/gnome/Shell/Extensions/GSConnect/ui/notification-reply-dialog.ui',
-    Children: [
-        'infobar',
-        'notification-title', 'notification-body',
-        'message-entry'
-    ]
+    Children: ['infobar', 'notification-title', 'notification-body', 'entry']
 }, class Dialog extends Gtk.Dialog {
 
     _init(params) {
@@ -29,6 +32,7 @@ var ReplyDialog = GObject.registerClass({
         super._init({
             application: Gio.Application.get_default(),
             device: params.device,
+            plugin: params.plugin,
             use_header_bar: true
         });
 
@@ -55,7 +59,7 @@ var ReplyDialog = GObject.registerClass({
         // Message Entry/Send Button
         this.device.bind_property(
             'connected',
-            this.message_entry,
+            this.entry,
             'sensitive',
             GObject.BindingFlags.DEFAULT
         );
@@ -65,27 +69,39 @@ var ReplyDialog = GObject.registerClass({
             this._onStateChanged.bind(this)
         );
 
-        this._entryChangedId = this.message_entry.buffer.connect(
+        this._entryChangedId = this.entry.buffer.connect(
             'changed',
             this._onStateChanged.bind(this)
         );
 
-        // Cleanup on ::destroy
+        this.restoreGeometry('notification-reply-dialog');
+
         this.connect('destroy', this._onDestroy);
+    }
+
+    _onDestroy(dialog) {
+        dialog.entry.buffer.disconnect(dialog._entryChangedId);
+        dialog.device.disconnect(dialog._connectedId);
+    }
+
+    vfunc_delete_event() {
+        this.disconnectTemplate();
+        this.saveGeometry();
+
+        return false;
     }
 
     vfunc_response(response_id) {
         if (response_id === Gtk.ResponseType.OK) {
             // Refuse to send empty or whitespace only messages
-            if (!this.message_entry.buffer.text.trim()) return;
+            if (!this.entry.buffer.text.trim()) return;
 
             this.plugin.replyNotification(
                 this.uuid,
-                this.message_entry.buffer.text
+                this.entry.buffer.text
             );
         }
 
-        this.disconnectTemplate();
         this.destroy();
     }
 
@@ -99,27 +115,22 @@ var ReplyDialog = GObject.registerClass({
             this._uuid = uuid;
         } else {
             this.destroy();
-            warning('no uuid for repliable notification');
+            debug('no uuid for repliable notification');
         }
     }
 
     get plugin() {
-        if (!this._plugin) {
-            this._plugin = this.device.lookup_plugin('notification');
-        }
-
-        return this._plugin;
+        return this._plugin || null;
     }
 
-    _onDestroy(window) {
-        window.device.disconnect(window._connectedId);
-        window.message_entry.buffer.disconnect(window._entryChangedId);
+    set plugin(plugin) {
+        this._plugin = plugin;
     }
 
     _onStateChanged() {
         switch (false) {
             case this.device.connected:
-            case (this.message_entry.buffer.text.trim() !== ''):
+            case (this.entry.buffer.text.trim().length):
                 break;
 
             default:

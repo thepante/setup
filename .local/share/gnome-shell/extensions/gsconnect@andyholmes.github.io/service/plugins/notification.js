@@ -105,6 +105,8 @@ var Plugin = GObject.registerClass({
 
     _init(device) {
         super._init(device, 'notification');
+
+        this._session = this.service.components.get('session');
     }
 
     handlePacket(packet) {
@@ -117,11 +119,11 @@ var Plugin = GObject.registerClass({
 
             // We don't support *incoming* replies (yet)
             case 'kdeconnect.notification.reply':
-                warning('Not implemented', packet.type);
+                debug(`Not implemented: ${packet.type}`);
                 return;
 
             default:
-                warning('Unknown notification packet', this.device.name);
+                debug(`Unknown notification packet: ${packet.type}`);
         }
     }
 
@@ -179,7 +181,7 @@ var Plugin = GObject.registerClass({
                     break;
 
                 default:
-                    warning('Unknown notification type', this.device.name);
+                    debug(`Unknown notification type ${this.device.name}`);
             }
         }
     }
@@ -343,7 +345,10 @@ var Plugin = GObject.registerClass({
                 return;
             }
 
-            debug(`(${notif.appName}) ${notif.title}: ${notif.text}`);
+            // Sending when the session is active is forbidden
+            if (this._session.active && !this.settings.get_boolean('send-active')) {
+                return;
+            }
 
             // TODO: revisit application notification settings
             let applications = JSON.parse(this.settings.get_string('applications'));
@@ -576,11 +581,13 @@ var Plugin = GObject.registerClass({
     replyNotification(uuid, message, notification) {
         // If the message has no content, open a dialog for the user to add one
         if (!message) {
-            new NotificationUI.ReplyDialog({
+            let dialog = new NotificationUI.ReplyDialog({
                 device: this.device,
                 uuid: uuid,
-                notification: notification
+                notification: notification,
+                plugin: this
             });
+            dialog.present();
 
         // Otherwise just send the reply
         } else {

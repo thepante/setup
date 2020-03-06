@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="ding">
+    <enum id="org.gnome.shell.extension.ding.ZoomLevel">
+        <value value="0" nick="small"/>
+        <value value="1" nick="standard"/>
+        <value value="2" nick="large"/>
+    </enum>
+    <schema path="/org/gnome/shell/extensions/ding/" id="org.gnome.shell.extensions.ding">
+    <key name="icon-size" enum="org.gnome.shell.extension.ding.ZoomLevel">
+        <default>'standard'</default>
+        <summary>Icon size</summary>
+        <description>Set the size for the desktop icons.</description>
+    </key>
+	<key type="b" name="show-home">
+        <default>true</default>
+        <summary>Show personal folder</summary>
+        <description>Show the personal folder in the desktop.</description>
+    </key>
+	<key type="b" name="show-trash">
+        <default>true</default>
+        <summary>Show trash icon</summary>
+        <description>Show the trash icon in the desktop.</description>
+    </key>
+  </schema>
+</schemalist>

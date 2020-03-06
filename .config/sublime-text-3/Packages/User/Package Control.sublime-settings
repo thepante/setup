@@ -6,7 +6,11 @@
 	"installed_packages":
 	[
 		"A File Icon",
+		"Align Arguments",
+		"Alignment",
 		"All Autocomplete",
+		"Anaconda",
+		"ayu",
 		"Brackets Color Scheme",
 		"ColorPicker",
 		"Git",
@@ -15,6 +19,8 @@
 		"Oceanic Next Color Scheme",
 		"Package Control",
 		"SideBarEnhancements",
-		"sublime-github"
+		"sublime-github",
+		"Terminality",
+		"Terminus"
 	]
 }

@@ -132,10 +132,17 @@ var ChannelService = GObject.registerClass({
             'private.pem'
         ]);
 
-        this._certificate = Gio.TlsCertificate.new_for_paths(certPath, keyPath);
+        // Ensure a certificate exists with our id as the common name
+        this._certificate = Gio.TlsCertificate.new_for_paths(
+            certPath,
+            keyPath,
+            this.service.id
+        );
 
-        if (gsconnect.settings.get_string('id').length === 0) {
-            gsconnect.settings.set_string('id', this._certificate.common_name);
+        // If the service id doesn't match the common name, this is probably a
+        // certificate from an earlier version and we need to set it now
+        if (this.service.settings.get_string('id') !== this._certificate.common_name) {
+            this.service.settings.set_string('id', this._certificate.common_name);
         }
     }
 
@@ -209,7 +216,6 @@ var ChannelService = GObject.registerClass({
             this._udp6_source.set_callback(this._onIncomingIdentity.bind(this, this._udp6));
             this._udp6_source.attach(null);
         } catch (e) {
-            this._udp6.close();
             this._udp6 = null;
         }
 
@@ -246,7 +252,6 @@ var ChannelService = GObject.registerClass({
             this._udp4_source.set_callback(this._onIncomingIdentity.bind(this, this._udp4));
             this._udp4_source.attach(null);
         } catch (e) {
-            this._udp4.close();
             this._udp4 = null;
 
             // We failed to get either an IPv4 or IPv6 socket to bind

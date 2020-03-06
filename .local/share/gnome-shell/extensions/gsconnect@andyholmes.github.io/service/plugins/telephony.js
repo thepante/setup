@@ -54,7 +54,7 @@ var Plugin = GObject.registerClass({
     get legacy_sms() {
         // We have to do this lookup each time, because if we hold a reference
         // to the plugin we don't know if it's disabled
-        let sms = this.device.lookup_plugin('sms');
+        let sms = this.device._plugins.get('sms');
         return (sms && sms.settings.get_boolean('legacy-sms'));
     }
 
@@ -251,18 +251,28 @@ var Plugin = GObject.registerClass({
     }
 
     legacyReply(packet) {
-        let window = new TelephonyUI.Dialog({
-            address: packet.body.phoneNumber,
-            device: this.device,
-            message: {
-                date: packet.id,
-                addresses: [{address: packet.body.phoneNumber}],
-                body: packet.body.messageBody,
-                sender: packet.body.contactName || _('Unknown Contact'),
-                type: 1
+        try {
+            let plugin = this.device._plugins.get('sms');
+
+            if (plugin === undefined) {
+                throw new Error('SMS Plugin is disabled');
             }
-        });
-        window.present();
+
+            let dialog = new TelephonyUI.LegacyMessagingDialog({
+                device: this.device,
+                message: {
+                    date: packet.id,
+                    addresses: [{address: packet.body.phoneNumber}],
+                    body: packet.body.messageBody,
+                    sender: packet.body.contactName || _('Unknown Contact'),
+                    type: 1 // MessageBox.INBOX
+                },
+                plugin: plugin
+            });
+            dialog.present();
+        } catch (e) {
+            logError(e);
+        }
     }
 
     /**

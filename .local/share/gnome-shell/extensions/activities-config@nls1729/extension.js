@@ -2,7 +2,7 @@
 /*
   Activities Configurator Gnome Shell Extension
 
-  Copyright (c) 2012-2018 Norman L. Smith
+  Copyright (c) 2012-2019 Norman L. Smith
 
   This extension is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License
@@ -26,6 +26,7 @@ const Atk = imports.gi.Atk;
 const Clutter = imports.gi.Clutter;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
+const GObject = imports.gi.GObject;
 const Shell = imports.gi.Shell;
 const Meta = imports.gi.Meta;
 const St = imports.gi.St;
@@ -36,6 +37,7 @@ const Panel = imports.ui.panel;
 const PanelMenu = imports.ui.panelMenu;
 const Mainloop = imports.mainloop;
 const Config = imports.misc.config;
+const Util = imports.misc.util;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
@@ -45,8 +47,6 @@ const Convenience = Me.imports.convenience;
 const Keys = Me.imports.keys;
 const Notify = Me.imports.notify;
 const Readme = Me.imports.readme;
-const CONFLICT = _("Conflict Detected:");
-const MIA_ICON = _("Missing Icon:");
 const DEFAULT_ICO = Me.path + Keys.ICON_FILE;
 const DISABLE_TOGGLE = 32767;
 const MAJOR_VERSION = parseInt(Config.PACKAGE_VERSION.split('.')[0]);
@@ -56,15 +56,16 @@ const GioSSS = Gio.SettingsSchemaSource;
 const THEME_SCHEMA = 'org.gnome.shell.extensions.user-theme';
 
 
+var ActivitiesIconButton = GObject.registerClass(
 class ActivitiesIconButton extends PanelMenu.Button {
 
-    constructor() {
-        super(0.0, null, true);
+    _init() {
+        super._init(0.0, null, true);
         this._actorSignals = [];
         this._mainSignals = [];
         this.container.name = 'panelActivitiesIconButtonContainer';
-        this.actor.accessible_role = Atk.Role.TOGGLE_BUTTON;
-        this.actor.name = 'panelActivitiesIconButton';
+        this.accessible_role = Atk.Role.TOGGLE_BUTTON;
+        this.name = 'panelActivitiesIconButton';
         this._iconLabelBox = new St.BoxLayout();
         this._iconBin = new St.Bin();
         this._textBin = new St.Bin();
@@ -72,24 +73,38 @@ class ActivitiesIconButton extends PanelMenu.Button {
         this._label = new St.Label();
         this._textBin.child = this._label;
         this._iconLabelBox.add(this._textBin);
-        this.actor.add_actor(this._iconLabelBox);
-        this.actor.label_actor = this._label;
+        this.add_actor(this._iconLabelBox);
+        this.label_actor = this._label;
         let sig;
-        this._actorSignals.push(sig = this.actor.connect('captured-event', this._onCapturedEvent.bind(this)));
-        this._actorSignals.push(sig = this.actor.connect_after('key-release-event', this._onKeyRelease.bind(this)));
+        this._actorSignals.push(sig = this.connect('captured-event', this._onCapturedEvent.bind(this)));
+        this._actorSignals.push(sig = this.connect_after('key-release-event', this._onKeyRelease.bind(this)));
         this._mainSignals.push(sig = Main.overview.connect('showing', () => {
-            this.actor.add_style_pseudo_class('overview');
-            this.actor.add_accessible_state (Atk.StateType.CHECKED);
+            this.add_style_pseudo_class('overview');
+            this.add_accessible_state (Atk.StateType.CHECKED);
         }));
         this._mainSignals.push(sig = Main.overview.connect('hiding', () => {
-            this.actor.remove_style_pseudo_class('overview');
-            this.actor.remove_accessible_state (Atk.StateType.CHECKED);
+            this.remove_style_pseudo_class('overview');
+            this.remove_accessible_state (Atk.StateType.CHECKED);
         }));
         this._xdndTimeOut = 0;
         this._touchAndHoldTimeoutId = 0;
         this._prefsCommand = 'gnome-shell-extension-prefs';
         this._waylandDragOverTimedOutId = 0;
         this._motionUnHandled = false;
+    }
+
+    set label(labelText) {
+        this._label.set_text(labelText);
+    }
+
+    get label() {
+        return (this._label.get_text());
+    }
+
+    set style(textStyle) {
+        this._label.set_style(textStyle);
+        let ct = this._label.get_clutter_text();
+        ct.set_use_markup(true);
     }
 
     handleDragOver(source, actor, x, y, time) {
@@ -118,7 +133,7 @@ class ActivitiesIconButton extends PanelMenu.Button {
             this._removeTouchAndHoldTimeoutId();
             this._touchAndHoldTimeoutId = Mainloop.timeout_add(600, () => {
                 this._touchAndHoldTimeoutId = 0;
-                Main.Util.trySpawnCommandLine(this._prefsCommand);
+                Util.trySpawnCommandLine(this._prefsCommand);
             });
         } else if (event.type() == Clutter.EventType.BUTTON_PRESS) {
             if (!Main.overview.shouldToggleByCornerOrButton())
@@ -139,7 +154,7 @@ class ActivitiesIconButton extends PanelMenu.Button {
             if (event.get_button() == 3) {
                 if (Main.overview.visible)
                     Main.overview.toggle();
-                Main.Util.trySpawnCommandLine(this._prefsCommand);
+                Util.trySpawnCommandLine(this._prefsCommand);
             } else {
                 Main.overview.toggle();
             }
@@ -202,7 +217,7 @@ class ActivitiesIconButton extends PanelMenu.Button {
         while(this._actorSignals.length > 0) {
             let sig = this._actorSignals.pop();
             if (sig > 0)
-	        this.actor.disconnect(sig);
+	        this.disconnect(sig);
         }
         while(this._mainSignals.length > 0) {
             let sig = this._mainSignals.pop();
@@ -216,7 +231,7 @@ class ActivitiesIconButton extends PanelMenu.Button {
         super.destroy();
     }
 
-};
+});
 
 class Configurator {
 
@@ -266,6 +281,7 @@ class Configurator {
         this._keyValue = false;
         this._keyChanged = false;
         this._keyChangedSig = null;
+        this._panelDelayTimeout = 0;
     }
 
     _appStateChanged(appSystem, app) {
@@ -303,7 +319,8 @@ class Configurator {
         // like a maximized window.  It can be turned off if it interferes with
         // an extension which handles tiling.
         this._tileOff = this._settings.get_boolean(Keys.TILE_OFF);
-        this._maxUnmax();
+        if (this._tileOff)
+            this._maxUnmax();
     }
 
     _maxWindowPanelEffect() {
@@ -345,7 +362,15 @@ class Configurator {
     }
 
     _panelDelay() {
-        this._panelDelayTimeout = Mainloop.timeout_add(1000, this._maxUnmax.bind(this));
+        if (this._panelDelayTimeout == 0) {
+            this._panelDelayTimeout = Mainloop.timeout_add(1000, this._panelDelayExpired.bind(this));
+        }
+    }
+
+    _panelDelayExpired() {
+        this._maxUnmax();
+        Mainloop.source_remove(this._panelDelayTimeout);
+        this._panelDelayTimeout = 0;
     }
 
     _maxUnmax() {
@@ -444,7 +469,7 @@ class Configurator {
     _setPositionRight() {
         this._positionRight = this._settings.get_boolean(Keys.BTN_POSITION);
         this.disable();
-        this._timeoutId = Mainloop.timeout_add(500, this._delayedEnable.bind(this));
+        this._timeoutId = Mainloop.timeout_add(1000, this._delayedEnable.bind(this));
     }
 
     _connectThemeContextSig() {
@@ -536,7 +561,7 @@ class Configurator {
         while(this._settingsSignals.length > 0) {
             let sig = this._settingsSignals.pop();
             if (sig > 0)
-	        this._settings.disconnect(sig);
+               this._settings.disconnect(sig);
         }
         this._handleCornerSignals(false);
         if (this._signalHotCornersChanged > 0) {
@@ -565,7 +590,7 @@ class Configurator {
         let iconPath = this._settings.get_string(Keys.NEW_ICO);
         if (this._iconPath != iconPath) {
             if (!GLib.file_test(iconPath, GLib.FileTest.EXISTS)) {
-                Notify.notifyError(_(MIA_ICON),Readme.makeTextStr(Readme.ICON_MIA));
+                Notify.notifyError(_("Missing Icon:"),Readme.makeTextStr(Readme.ICON_MIA));
                 iconPath = DEFAULT_ICO;
                 this._settings.set_string(Keys.NEW_ICO, DEFAULT_ICO);
             }
@@ -579,8 +604,9 @@ class Configurator {
             let pixels = this._settings.get_int(Keys.PAD_ICO);
             let icosize = this._settings.get_double(Keys.SCF_ICO);
             let iconStyle = 'icon-size: %fem; padding-left: %dpx; padding-right: %dpx'.format(icosize, pixels, pixels);
-            this._activitiesIconButton._iconBin.show();
+            this._activitiesIconButton._iconBin.hide();
             this._activitiesIconButton._iconBin.child.set_style(iconStyle);
+            this._activitiesIconButton._iconBin.show();
         }
     }
 
@@ -588,13 +614,11 @@ class Configurator {
         let labelText = this._settings.get_string(Keys.NEW_TXT) || this._savedText;
         if (this._settings.get_boolean(Keys.NO_TEXT))
             labelText = '';
-        this._activitiesIconButton._label.set_text(labelText);
+        this._activitiesIconButton.label = labelText;
         if (labelText != '') {
             let pixels = this._settings.get_int(Keys.PAD_TXT);
             let textStyle = 'padding-left: %dpx; padding-right: %dpx'.format(pixels, pixels);
-            this._activitiesIconButton._label.set_style(textStyle);
-            let ct = this._activitiesIconButton._label.get_clutter_text();
-            ct.set_use_markup(true);
+            this._activitiesIconButton.style = textStyle;
         }
     }
 
@@ -665,11 +689,11 @@ class Configurator {
     }
 
     _setPanelStyle(backgroundStyle) {
-        Main.panel.actor.set_style(backgroundStyle);
+        Main.panel.set_style(backgroundStyle);
     }
 
     _removePanelStyle() {
-        Main.panel.actor.set_style(null);
+        Main.panel.set_style(null);
         if (this._roundedCornersHidden) {
             Main.panel._leftCorner.actor.hide();
             Main.panel._rightCorner.actor.hide();
@@ -764,7 +788,7 @@ class Configurator {
         }
         if (Main.getThemeStylesheet() != null || Main.sessionMode.currentMode == 'classic') {
             this._userOrClassicTheme = true;
-            let themeNode = Main.panel.actor.get_theme_node();
+            let themeNode = Main.panel.get_theme_node();
             let color = themeNode.get_background_color().to_string();
             let rgbT = Colors.getColorRGBandTransparency(color);
             this._themeRGB = rgbT.rgb;
@@ -809,7 +833,7 @@ class Configurator {
         if (this._colorSig == null) {
             this._colorSig = this._settings.connect('changed::'+Keys.COLOURS, this._setPanelColor.bind(this));
         }
-        if (Main.panel.actor.get_style() == null || !Main.panel._leftCorner.actor.visible) {
+        if (Main.panel.get_style() == null || !Main.panel._leftCorner.actor.visible) {
             this._handleCornerSignals(false);
         } else {
             this._handleCornerSignals(true);
@@ -897,7 +921,7 @@ class Configurator {
             if (Main.panel._leftBox.get_first_child().name != 'panelActivitiesIconButtonContainer') {
                 this._conflictCount = this._conflictCount + 1;
                 if (this._conflictCount > 30) {
-                    Notify.notifyError(_(CONFLICT),Readme.makeTextStr(Readme.CONFLICTS));
+                    Notify.notifyError(_("Conflict Detected:"),Readme.makeTextStr(Readme.CONFLICTS));
                     this._conflictCount = 0;
                     this.disable();
                 } else {
@@ -992,7 +1016,6 @@ class Configurator {
         }
         this._overrideTheme = this._settings.get_boolean(Keys.OVERR_THEME);
         this._connectSettings();
-        this._setText();
         this._iconPath = '';
         this._setIcon();
         this._setHotCornerThreshold();
@@ -1028,6 +1051,7 @@ class Configurator {
         if ((Main.sessionMode.currentMode == 'classic' || Main.sessionMode.currentMode == 'user') && this._showOverviewNoAppsRunning)
             this._timeoutId = Mainloop.timeout_add(1000, this._showOverview.bind(this));
         this._maxWindowPanelEffect();
+        this._setText();
         this._enabled = true;
         log('Activities Configurator Enabled');
     }
@@ -1049,7 +1073,6 @@ class Configurator {
     }
 
     enable() {
-
         // For extension to function in classic mode
         // Conflict Detection must be enabled.
         if (Main.sessionMode.currentMode == 'classic')
@@ -1122,6 +1145,7 @@ class Configurator {
             this._activitiesIconButton.destroy();
             this._activitiesIconButton = null;
             this._enabled = false;
+            log('Activities Configurator Disabled');
         }
     }
 };

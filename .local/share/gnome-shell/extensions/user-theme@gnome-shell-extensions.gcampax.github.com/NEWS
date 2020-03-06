@@ -1,3 +1,145 @@
+3.34.0
+======
+
+Translators:
+  Rafael Fontenelle [pt_BR], Efstathios Iosifidis [el], Milo Casagrande [it],
+  Sabri Ünal [tr]
+
+3.33.92
+=======
+
+Translators:
+  Марко Костић [sr], Tim Sabsch [de], Rūdolfs Mazurs [lv], Matej Urbančič [sl],
+  Balázs Úr [hu], Claude Paroz [fr], Fran Dieguez [gl], Changwoo Ryu [ko],
+  Ryuta Fujii [ja], Fabio Tomat [fur], Goran Vidović [hr]
+
+3.33.91
+=======
+* Misc. bug fixes and cleanups [Florian; !88, !90, !91, !92]
+
+Contributors:
+  Florian Müllner
+
+Translators:
+  Asier Sarasua Garmendia [eu], Anders Jonsson [sv], Marek Černocký [cs],
+  Kukuh Syafaat [id], Jiri Grönroos [fi], Florentina Mușat [ro],
+  Aurimas Černius [lt], Daniel Mustieles [es], Piotr Drąg [pl], Jordi Mas [ca],
+  Danial Behzadi [fa]
+3.33.90
+=======
+* window-list: Support showing windows from all workspaces [Florian; #154]
+* Misc. bug fixes and cleanups [Florian; !86, !87]
+
+Contributors:
+  Florian Müllner
+
+Translators:
+  Jor Teron [mjw]
+
+3.33.4
+======
+* Make GNOME Classic more classic:
+  - Disable GNOME 3 overview [Florian; !69]
+  - Add window picker button to window list [Florian; !73, !80]
+  - Style improvements and fixes [Jakub; #169, !82]
+  - Support horizontal workspace layout in window list [Florian; !70]
+  - Add draggable previews to window list workspace switcher [Florian; !74]
+  - Arrange workspaces horizontally [Florian; !72]
+* workspace-indicator: Support horizontal workspace layout [Florian; !71]
+* workspace-indicator: Add draggable previews [Florian; !77]
+* Misc. bug fixes and cleanups [Florian; !75, !76, !79, !78, #168, !84]
+
+Contributors:
+  Florian Müllner, Jakub Steiner, Jor Teron
+
+Translators:
+  Jor Teron [mjw]
+
+3.33.3
+======
+* Misc. bug fixes [Florian, Marco; !67, !68]
+
+Contributors:
+  Florian Müllner, Marco Trevisan (Treviño)
+
+3.33.2
+======
+* Misc. bug fixes and cleanups [Florian; !66]
+
+Contributors:
+  Florian Müllner
+
+3.33.1
+======
+* Misc. bug fixes [Florian; !64]
+
+Contributors:
+  Florian Müllner
+
+3.32.1
+======
+* Fix windowsNavigator extension after ES6 port [Florian; #143]
+* screenshot-window-sizer: Add phone screenshot sizes [Adrien; !65]
+* Misc. bug fixes and cleanups [Fabian; !62]
+
+Contributors:
+  Florian Müllner, Adrien Plazas, Fabian P. Schmidt
+
+3.32.0
+======
+
+Contributors:
+  Florian Müllner
+
+Translations:
+  Victor Ibragimov [tg], Kristjan SCHMIDT [eo], Mart Raudsepp [et]
+
+3.31.92
+=======
+* Misc. bug fixes and cleanups [Florian; !57, !58, !59, !60]
+
+Contributors:
+  Florian Müllner
+
+3.31.91
+=======
+* apps-menu: Remove outdated legacy-tray handling [Florian; !53]
+* user-theme: Allow using XDG user data dir [Tomasz; !55]
+* Misc. bug fixes and cleanups [Florian; !52, !54, !56]
+
+Contributors:
+  Tomasz Gąsior, Florian Müllner
+
+Translators:
+  Matej Urbančič [sl], Gun Chleoc [gd]
+
+3.31.90
+=======
+* Misc. bug fixes and cleanups [Florian; !49, !50, !51]
+
+Contributors:
+  Florian Müllner
+
+Translators:
+  Ryuta Fujii [ja], Charles Monzat [fr], Pieter Schalk Schoeman [af]
+
+3.31.2
+======
+* Remove obsolete alternate-tab extension [Florian; #786496]
+* Adjust to gnome-shell changes [Florian; #113]
+
+Contributors:
+  Florian Müllner
+
+3.30.1
+======
+* apps-menu: Fix height on HiDPI systems [Florian; #102]
+* window-list: Only switch between windows on active workspace when scrolling
+  [Florian; #78]
+
+Contributors:
+  Florian Müllner
+
 3.30.0
 ======
 * Bump version

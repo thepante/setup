@@ -11,6 +11,7 @@ const Main = imports.ui.main;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
+const Compat = Me.imports.compat;
 const Convenience = Me.imports.convenience;
 const Extension = Me.imports.extension;
 const Intellifade = Me.imports.intellifade;
@@ -31,7 +32,6 @@ const USER_THEME_SCHEMA = 'org.gnome.shell.extensions.user-theme';
  * window_group/actor-added: occurs when a window actor is added
  * window_group/actor-removed: occurs when a window actor is removed
  * wm/switch-workspace: occurs after a workspace is switched
- *
  */
 
 /**
@@ -136,10 +136,11 @@ function cleanup() {
     }
 
     for (let window_actor of this.windows) {
-
-        if (typeof (window_actor._dpt_signals) !== 'undefined') {
-            for (let signalId of window_actor._dpt_signals) {
-                disconnect(window_actor, signalId);
+        if (!window_actor.is_destroyed()) {
+            if (typeof (window_actor._dpt_signals) !== 'undefined') {
+                for (let signalId of window_actor._dpt_signals) {
+                    disconnect(window_actor, signalId);
+                }
             }
         }
 
@@ -234,7 +235,7 @@ function _userThemeChanged() {
 
         log('[Dynamic Panel Transparency] Updating user theme data.');
 
-        let theme = Main.panel.actor.get_theme_node();
+        let theme = Compat.getActorOf(Main.panel).get_theme_node();
 
         /* Store user theme values. */
         let background = null;

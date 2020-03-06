@@ -6,9 +6,10 @@
     "3.26", 
     "3.28", 
     "3.30", 
+    "3.34", 
     "3.32"
   ], 
   "url": "http://frippery.org/extensions", 
   "uuid": "Move_Clock@rmy.pobox.com", 
-  "version": 19
+  "version": 20
 }

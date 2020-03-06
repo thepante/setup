@@ -20,18 +20,22 @@ HISTFILE=~/.zsh_history
 HISTSIZE=100
 SAVEHIST=500
 HISTDUP=erase
-setopt    appendhistory
-setopt    sharehistory
+setopt appendhistory
+setopt sharehistory
 
 source $HOME/.aliases
-source $(dirname $(gem which colorls))/tab_complete.sh
+# source $(dirname $(gem which colorls))/tab_complete.sh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/zsh-interactive-cd.plugin.zsh
 source ~/.zsh/shf.zsh
 source ~/.zsh/k/k.sh
 
-# source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # source ~/.zsh/auto_expand.zsh
+
+ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=002
+ZSH_HIGHLIGHT_STYLES[precommand]=fg=002
+ZSH_HIGHLIGHT_STYLES[arg0]=bold
 
 bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
@@ -53,7 +57,10 @@ function man() {
 }
 
 
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-        source /etc/profile.d/vte.sh
-fi
+# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
+#         source /etc/profile.d/vte.sh
+# fi
+
+eval $(thefuck --alias)
+unsetopt extended_history

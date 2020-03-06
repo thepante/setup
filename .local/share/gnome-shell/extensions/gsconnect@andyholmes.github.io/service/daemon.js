@@ -2,11 +2,6 @@
 
 'use strict';
 
-const Gettext = imports.gettext.domain('org.gnome.Shell.Extensions.GSConnect');
-const _ = Gettext.gettext;
-const System = imports.system;
-
-imports.gi.versions.Atspi = '2.0';
 imports.gi.versions.Gdk = '3.0';
 imports.gi.versions.GdkPixbuf = '2.0';
 imports.gi.versions.Gio = '2.0';
@@ -57,7 +52,7 @@ const Service = GObject.registerClass({
             'Id',
             'The service id',
             GObject.ParamFlags.READWRITE,
-            'GSConnect'
+            null
         ),
         'name': GObject.ParamSpec.string(
             'name',
@@ -121,9 +116,6 @@ const Service = GObject.registerClass({
             });
 
             for (let name in imports.service.plugins) {
-                // Don't report mousepad support in Wayland sessions
-                if (_WAYLAND && name == 'mousepad') continue;
-
                 let meta = imports.service.plugins[name].Metadata;
 
                 if (!meta) continue;
@@ -274,11 +266,12 @@ const Service = GObject.registerClass({
      */
     _initActions() {
         let actions = [
-            ['broadcast', this._identify.bind(this)],
             ['connect', this._identify.bind(this), 's'],
             ['device', this._device.bind(this), '(ssbv)'],
             ['error', this._error.bind(this), 'a{ss}'],
             ['preferences', this._preferences],
+            ['quit', () => this.quit()],
+            ['refresh', this._identify.bind(this)],
             ['wiki', this._wiki.bind(this), 's']
         ];
 
@@ -721,8 +714,7 @@ const Service = GObject.registerClass({
                         break;
 
                     default:
-                        warning(`Unsupported URI: ${file.get_uri()}`);
-                        return;
+                        throw new Error(`Unsupported URI: ${file.get_uri()}`);
                 }
 
                 // Show chooser dialog
@@ -1154,5 +1146,5 @@ const Service = GObject.registerClass({
     }
 });
 
-(new Service()).run([System.programInvocationName].concat(ARGV));
+(new Service()).run([imports.system.programInvocationName].concat(ARGV));
 

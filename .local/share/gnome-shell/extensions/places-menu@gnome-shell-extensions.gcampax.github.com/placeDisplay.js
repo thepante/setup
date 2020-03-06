@@ -1,18 +1,10 @@
 // -*- mode: js; js-indent-level: 4; indent-tabs-mode: nil -*-
 
-const GLib = imports.gi.GLib;
-const Gio = imports.gi.Gio;
-const Shell = imports.gi.Shell;
-const Mainloop = imports.mainloop;
+const { Gio, GLib, Shell } = imports.gi;
 const Signals = imports.signals;
-const St = imports.gi.St;
 
-const DND = imports.ui.dnd;
 const Main = imports.ui.main;
-const Params = imports.misc.params;
-const Search = imports.ui.search;
 const ShellMountOperation = imports.ui.shellMountOperation;
-const Util = imports.misc.util;
 
 const Gettext = imports.gettext.domain('gnome-shell-extensions');
 const _ = Gettext.gettext;
@@ -28,8 +20,8 @@ const Hostname1Iface = '<node> \
 const Hostname1 = Gio.DBusProxy.makeProxyWrapper(Hostname1Iface);
 
 class PlaceInfo {
-    constructor() {
-        this._init.apply(this, arguments);
+    constructor(...params) {
+        this._init(...params);
     }
 
     _init(kind, file, name, icon) {
@@ -46,65 +38,54 @@ class PlaceInfo {
         return false;
     }
 
-    _createLaunchCallback(launchContext, tryMount) {
-        return (_ignored, result) => {
-            try {
-                Gio.AppInfo.launch_default_for_uri_finish(result);
-            } catch(e) {
-                if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_MOUNTED)) {
-                    let source = {
-                        get_icon: () => { return this.icon; }
-                    };
-                    let op = new ShellMountOperation.ShellMountOperation(source);
-                    this.file.mount_enclosing_volume(0, op.mountOp, null, (file, result) => {
-                        try {
-                            op.close();
-                            file.mount_enclosing_volume_finish(result);
-                        } catch(e) {
-                            if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.FAILED_HANDLED))
-                                // e.g. user canceled the password dialog
-                                return;
-                            Main.notifyError(_("Failed to mount volume for “%s”").format(this.name), e.message);
-                            return;
-                        }
+    async _ensureMountAndLaunch(context, tryMount) {
+        try {
+            await this._launchDefaultForUri(this.file.get_uri(), context, null);
+        } catch (err) {
+            if (!err.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_MOUNTED)) {
+                Main.notifyError(_('Failed to launch “%s”').format(this.name), err.message);
+                return;
+            }
 
-                        if (tryMount) {
-                            let callback = this._createLaunchCallback(launchContext, false);
-                            Gio.AppInfo.launch_default_for_uri_async(file.get_uri(),
-                                                                     launchContext,
-                                                                     null,
-                                                                     callback);
-                        }
-                    });
-                } else {
-                    Main.notifyError(_("Failed to launch “%s”").format(this.name), e.message);
-                }
+            let source = {
+                get_icon: () => this.icon,
+            };
+            let op = new ShellMountOperation.ShellMountOperation(source);
+            try {
+                await this._mountEnclosingVolume(0, op.mountOp, null);
+
+                if (tryMount)
+                    this._ensureMountAndLaunch(context, false);
+            } catch (e) {
+                if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.FAILED_HANDLED))
+                    Main.notifyError(_('Failed to mount volume for “%s”').format(this.name), e.message);
+            } finally {
+                op.close();
             }
         }
     }
 
     launch(timestamp) {
         let launchContext = global.create_app_launch_context(timestamp, -1);
-        let callback = this._createLaunchCallback(launchContext, true);
-        Gio.AppInfo.launch_default_for_uri_async(this.file.get_uri(),
-                                                 launchContext,
-                                                 null,
-                                                 callback);
+        this._ensureMountAndLaunch(launchContext, true);
     }
 
     getIcon() {
-        this.file.query_info_async('standard::symbolic-icon', 0, 0, null,
-                                   (file, result) => {
-                                       try {
-                                           let info = file.query_info_finish(result);
-                                           this.icon = info.get_symbolic_icon();
-                                           this.emit('changed');
-                                       } catch(e) {
-                                           if (e instanceof Gio.IOErrorEnum)
-                                               return;
-                                           throw e;
-                                       }
-                                   });
+        this.file.query_info_async('standard::symbolic-icon',
+            Gio.FileQueryInfoFlags.NONE,
+            0,
+            null,
+            (file, result) => {
+                try {
+                    let info = file.query_info_finish(result);
+                    this.icon = info.get_symbolic_icon();
+                    this.emit('changed');
+                } catch (e) {
+                    if (e instanceof Gio.IOErrorEnum)
+                        return;
+                    throw e;
+                }
+            });
 
         // return a generic icon for this kind for now, until we have the
         // icon from the query info above
@@ -127,18 +108,44 @@ class PlaceInfo {
         try {
             let info = this.file.query_info('standard::display-name', 0, null);
             return info.get_display_name();
-        } catch(e) {
+        } catch (e) {
             if (e instanceof Gio.IOErrorEnum)
                 return this.file.get_basename();
             throw e;
         }
     }
-};
+
+    _launchDefaultForUri(uri, context, cancel) {
+        return new Promise((resolve, reject) => {
+            Gio.AppInfo.launch_default_for_uri_async(uri, context, cancel, (o, res) => {
+                try {
+                    Gio.AppInfo.launch_default_for_uri_finish(res);
+                    resolve();
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+    }
+
+    _mountEnclosingVolume(flags, mountOp, cancel) {
+        return new Promise((resolve, reject) => {
+            this.file.mount_enclosing_volume(flags, mountOp, cancel, (o, res) => {
+                try {
+                    this.file.mount_enclosing_volume_finish(res);
+                    resolve();
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+    }
+}
 Signals.addSignalMethods(PlaceInfo.prototype);
 
 class RootInfo extends PlaceInfo {
     _init() {
-        super._init('devices', Gio.File.new_for_path('/'), _("Computer"));
+        super._init('devices', Gio.File.new_for_path('/'), _('Computer'));
 
         let busName = 'org.freedesktop.hostname1';
         let objPath = '/org/freedesktop/hostname1';
@@ -148,7 +155,7 @@ class RootInfo extends PlaceInfo {
 
             this._proxy = obj;
             this._proxy.connect('g-properties-changed',
-                                this._propertiesChanged.bind(this));
+                this._propertiesChanged.bind(this));
             this._propertiesChanged(obj);
         });
     }
@@ -161,7 +168,7 @@ class RootInfo extends PlaceInfo {
         // GDBusProxy will emit a g-properties-changed when hostname1 goes down
         // ignore it
         if (proxy.g_name_owner) {
-            this.name = proxy.PrettyHostname || _("Computer");
+            this.name = proxy.PrettyHostname || _('Computer');
             this.emit('changed');
         }
     }
@@ -173,7 +180,7 @@ class RootInfo extends PlaceInfo {
         }
         super.destroy();
     }
-};
+}
 
 
 class PlaceDeviceInfo extends PlaceInfo {
@@ -191,24 +198,25 @@ class PlaceDeviceInfo extends PlaceInfo {
     }
 
     eject() {
-        let mountOp = new ShellMountOperation.ShellMountOperation(this._mount);
+        let unmountArgs = [
+            Gio.MountUnmountFlags.NONE,
+            (new ShellMountOperation.ShellMountOperation(this._mount)).mountOp,
+            null, // Gio.Cancellable
+        ];
 
-        if (this._mount.can_eject())
-            this._mount.eject_with_operation(Gio.MountUnmountFlags.NONE,
-                                             mountOp.mountOp,
-                                             null, // Gio.Cancellable
-                                             this._ejectFinish.bind(this));
-        else
-            this._mount.unmount_with_operation(Gio.MountUnmountFlags.NONE,
-                                               mountOp.mountOp,
-                                               null, // Gio.Cancellable
-                                               this._unmountFinish.bind(this));
+        if (this._mount.can_eject()) {
+            this._mount.eject_with_operation(...unmountArgs,
+                this._ejectFinish.bind(this));
+        } else {
+            this._mount.unmount_with_operation(...unmountArgs,
+                this._unmountFinish.bind(this));
+        }
     }
 
     _ejectFinish(mount, result) {
         try {
             mount.eject_with_operation_finish(result);
-        } catch(e) {
+        } catch (e) {
             this._reportFailure(e);
         }
     }
@@ -216,16 +224,16 @@ class PlaceDeviceInfo extends PlaceInfo {
     _unmountFinish(mount, result) {
         try {
             mount.unmount_with_operation_finish(result);
-        } catch(e) {
+        } catch (e) {
             this._reportFailure(e);
         }
     }
 
     _reportFailure(exception) {
-        let msg = _("Ejecting drive “%s” failed:").format(this._mount.get_name());
+        let msg = _('Ejecting drive “%s” failed:').format(this._mount.get_name());
         Main.notifyError(msg, exception.message);
     }
-};
+}
 
 class PlaceVolumeInfo extends PlaceInfo {
     _init(kind, volume) {
@@ -251,7 +259,7 @@ class PlaceVolumeInfo extends PlaceInfo {
     getIcon() {
         return this._volume.get_symbolic_icon();
     }
-};
+}
 
 const DEFAULT_DIRECTORIES = [
     GLib.UserDirectory.DIRECTORY_DOCUMENTS,
@@ -271,9 +279,8 @@ var PlacesManager = class {
         };
 
         this._settings = new Gio.Settings({ schema_id: BACKGROUND_SCHEMA });
-        this._showDesktopIconsChangedId =
-            this._settings.connect('changed::show-desktop-icons',
-                                   this._updateSpecials.bind(this));
+        this._showDesktopIconsChangedId = this._settings.connect(
+            'changed::show-desktop-icons', this._updateSpecials.bind(this));
         this._updateSpecials();
 
         /*
@@ -283,7 +290,7 @@ var PlacesManager = class {
         this._connectVolumeMonitorSignals();
         this._updateMounts();
 
-        this._bookmarksFile = this._findBookmarksFile()
+        this._bookmarksFile = this._findBookmarksFile();
         this._bookmarkTimeoutId = 0;
         this._monitor = null;
 
@@ -293,11 +300,12 @@ var PlacesManager = class {
                 if (this._bookmarkTimeoutId > 0)
                     return;
                 /* Defensive event compression */
-                this._bookmarkTimeoutId = Mainloop.timeout_add(100, () => {
-                    this._bookmarkTimeoutId = 0;
-                    this._reloadBookmarks();
-                    return false;
-                });
+                this._bookmarkTimeoutId = GLib.timeout_add(
+                    GLib.PRIORITY_DEFAULT, 100, () => {
+                        this._bookmarkTimeoutId = 0;
+                        this._reloadBookmarks();
+                        return false;
+                    });
             });
 
             this._reloadBookmarks();
@@ -305,9 +313,17 @@ var PlacesManager = class {
     }
 
     _connectVolumeMonitorSignals() {
-        const signals = ['volume-added', 'volume-removed', 'volume-changed',
-                         'mount-added', 'mount-removed', 'mount-changed',
-                         'drive-connected', 'drive-disconnected', 'drive-changed'];
+        const signals = [
+            'volume-added',
+            'volume-removed',
+            'volume-changed',
+            'mount-added',
+            'mount-removed',
+            'mount-changed',
+            'drive-connected',
+            'drive-disconnected',
+            'drive-changed',
+        ];
 
         this._volumeMonitorSignals = [];
         let func = this._updateMounts.bind(this);
@@ -328,18 +344,19 @@ var PlacesManager = class {
         if (this._monitor)
             this._monitor.cancel();
         if (this._bookmarkTimeoutId)
-            Mainloop.source_remove(this._bookmarkTimeoutId);
+            GLib.source_remove(this._bookmarkTimeoutId);
     }
 
     _updateSpecials() {
-        this._places.special.forEach(p => { p.destroy(); });
+        this._places.special.forEach(p => p.destroy());
         this._places.special = [];
 
         let homePath = GLib.get_home_dir();
 
-        this._places.special.push(new PlaceInfo('special',
-                                                Gio.File.new_for_path(homePath),
-                                                _("Home")));
+        this._places.special.push(new PlaceInfo(
+            'special',
+            Gio.File.new_for_path(homePath),
+            _('Home')));
 
         let specials = [];
         let dirs = DEFAULT_DIRECTORIES.slice();
@@ -349,13 +366,13 @@ var PlacesManager = class {
 
         for (let i = 0; i < dirs.length; i++) {
             let specialPath = GLib.get_user_special_dir(dirs[i]);
-            if (specialPath == null || specialPath == homePath)
+            if (!specialPath || specialPath === homePath)
                 continue;
 
             let file = Gio.File.new_for_path(specialPath), info;
             try {
                 info = new PlaceInfo('special', file);
-            } catch(e) {
+            } catch (e) {
                 if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND))
                     continue;
                 throw e;
@@ -374,30 +391,31 @@ var PlacesManager = class {
         let networkMounts = [];
         let networkVolumes = [];
 
-        this._places.devices.forEach(p => { p.destroy(); });
+        this._places.devices.forEach(p => p.destroy());
         this._places.devices = [];
-        this._places.network.forEach(p => { p.destroy(); });
+        this._places.network.forEach(p => p.destroy());
         this._places.network = [];
 
         /* Add standard places */
         this._places.devices.push(new RootInfo());
-        this._places.network.push(new PlaceInfo('network',
-                                                Gio.File.new_for_uri('network:///'),
-                                                _("Browse Network"),
-                                                'network-workgroup-symbolic'));
+        this._places.network.push(new PlaceInfo(
+            'network',
+            Gio.File.new_for_uri('network:///'),
+            _('Browse Network'),
+            'network-workgroup-symbolic'));
 
         /* first go through all connected drives */
         let drives = this._volumeMonitor.get_connected_drives();
         for (let i = 0; i < drives.length; i++) {
             let volumes = drives[i].get_volumes();
 
-            for(let j = 0; j < volumes.length; j++) {
+            for (let j = 0; j < volumes.length; j++) {
                 let identifier = volumes[j].get_identifier('class');
                 if (identifier && identifier.includes('network')) {
                     networkVolumes.push(volumes[j]);
                 } else {
                     let mount = volumes[j].get_mount();
-                    if(mount != null)
+                    if (mount)
                         this._addMount('devices', mount);
                 }
             }
@@ -405,8 +423,8 @@ var PlacesManager = class {
 
         /* add all volumes that is not associated with a drive */
         let volumes = this._volumeMonitor.get_volumes();
-        for(let i = 0; i < volumes.length; i++) {
-            if(volumes[i].get_drive() != null)
+        for (let i = 0; i < volumes.length; i++) {
+            if (volumes[i].get_drive())
                 continue;
 
             let identifier = volumes[i].get_identifier('class');
@@ -414,18 +432,18 @@ var PlacesManager = class {
                 networkVolumes.push(volumes[i]);
             } else {
                 let mount = volumes[i].get_mount();
-                if(mount != null)
+                if (mount)
                     this._addMount('devices', mount);
             }
         }
 
         /* add mounts that have no volume (/etc/mtab mounts, ftp, sftp,...) */
         let mounts = this._volumeMonitor.get_mounts();
-        for(let i = 0; i < mounts.length; i++) {
-            if(mounts[i].is_shadowed())
+        for (let i = 0; i < mounts.length; i++) {
+            if (mounts[i].is_shadowed())
                 continue;
 
-            if(mounts[i].get_volume())
+            if (mounts[i].get_volume())
                 continue;
 
             let root = mounts[i].get_default_location();
@@ -445,9 +463,9 @@ var PlacesManager = class {
             this._addVolume('network', networkVolumes[i]);
         }
 
-        for (let i = 0; i < networkMounts.length; i++) {
+        for (let i = 0; i < networkMounts.length; i++)
             this._addMount('network', networkMounts[i]);
-        }
+
 
         this.emit('devices-updated');
         this.emit('network-updated');
@@ -478,7 +496,7 @@ var PlacesManager = class {
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
             let components = line.split(' ');
-            let bookmark = components[0];
+            let [bookmark] = components;
 
             if (!bookmark)
                 continue;
@@ -488,16 +506,16 @@ var PlacesManager = class {
                 continue;
 
             let duplicate = false;
-            for (let i = 0; i < this._places.special.length; i++) {
-                if (file.equal(this._places.special[i].file)) {
+            for (let j = 0; j < this._places.special.length; j++) {
+                if (file.equal(this._places.special[j].file)) {
                     duplicate = true;
                     break;
                 }
             }
             if (duplicate)
                 continue;
-            for (let i = 0; i < bookmarks.length; i++) {
-                if (file.equal(bookmarks[i].file)) {
+            for (let j = 0; j < bookmarks.length; j++) {
+                if (file.equal(bookmarks[j].file)) {
                     duplicate = true;
                     break;
                 }
@@ -522,7 +540,7 @@ var PlacesManager = class {
 
         try {
             devItem = new PlaceDeviceInfo(kind, mount);
-        } catch(e) {
+        } catch (e) {
             if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND))
                 return;
             throw e;
@@ -536,7 +554,7 @@ var PlacesManager = class {
 
         try {
             volItem = new PlaceVolumeInfo(kind, volume);
-        } catch(e) {
+        } catch (e) {
             if (e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND))
                 return;
             throw e;

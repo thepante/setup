@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: UnitTest (JavaScript React)
+hidden: true
+file_extensions: ['spec.jsx', 'test.jsx']
+scope: source.js.react.unittest
+contexts:
+  main:
+    - include: scope:source.js.react#prototype
+    - include: scope:source.js.react

@@ -37,13 +37,6 @@ var Device = GObject.registerClass({
             GObject.ParamFlags.READABLE,
             GObject.Object
         ),
-        'display-type': GObject.ParamSpec.string(
-            'display-type',
-            'Display Type',
-            'A user-visible type string',
-            GObject.ParamFlags.READABLE,
-            null
-        ),
         'encryption-info': GObject.ParamSpec.string(
             'encryption-info',
             'Encryption Info',
@@ -93,6 +86,7 @@ var Device = GObject.registerClass({
         super._init();
 
         this._channel = null;
+        this._id = identity.body.deviceId;
 
         // GLib.Source timeout id's for pairing requests
         this._incomingPairRequest = 0;
@@ -103,13 +97,10 @@ var Device = GObject.registerClass({
         this._handlers = new Map();
         this._transfers = new Map();
 
-        // We at least need the device Id for GSettings and the DBus interface
-        let deviceId = identity.body.deviceId;
-
         // GSettings
         this.settings = new Gio.Settings({
             settings_schema: gsconnect.gschema.lookup(UUID, true),
-            path: '/org/gnome/shell/extensions/gsconnect/device/' + deviceId + '/'
+            path: '/org/gnome/shell/extensions/gsconnect/device/' + this.id + '/'
         });
 
         // Watch for plugins changes
@@ -169,27 +160,12 @@ var Device = GObject.registerClass({
     }
 
     get contacts() {
-        let contacts = this.lookup_plugin('contacts');
+        let contacts = this._plugins.get('contacts');
 
         if (contacts && contacts.settings.get_boolean('contacts-source')) {
             return contacts._store;
         } else {
             return this.service.contacts;
-        }
-    }
-
-    get display_type() {
-        switch (this.type) {
-            case 'laptop':
-                return _('Laptop');
-            case 'phone':
-                return _('Smartphone');
-            case 'tablet':
-                return _('Tablet');
-            case 'tv':
-                return _('Television');
-            default:
-                return _('Desktop');
         }
     }
 
@@ -227,7 +203,7 @@ var Device = GObject.registerClass({
     }
 
     get id() {
-        return this.settings.get_string('id');
+        return this._id;
     }
 
     get name() {
@@ -238,34 +214,18 @@ var Device = GObject.registerClass({
         return this.settings.get_boolean('paired');
     }
 
-    get supported_plugins() {
-        let supported = this.settings.get_strv('supported-plugins');
-
-        // Preempt mousepad plugin on Wayland
-        if (_WAYLAND) {
-            supported = supported.filter(name => (name !== 'mousepad'));
-        }
-
-        return supported;
-    }
-
-    get allowed_plugins() {
-        let disabled = this.settings.get_strv('disabled-plugins');
-        return this.supported_plugins.filter(name => !disabled.includes(name));
-    }
-
     get icon_name() {
         switch (this.type) {
             case 'laptop':
-                return 'laptop';
+                return 'laptop-symbolic';
             case 'phone':
-                return 'smartphone';
+                return 'smartphone-symbolic';
             case 'tablet':
-                return 'tablet';
+                return 'tablet-symbolic';
             case 'tv':
-                return 'tv';
+                return 'tv-symbolic';
             default:
-                return 'computer';
+                return 'computer-symbolic';
         }
     }
 
@@ -282,8 +242,12 @@ var Device = GObject.registerClass({
     }
 
     _handleIdentity(packet) {
-        this.settings.set_string('id', packet.body.deviceId);
-        this.settings.set_string('type', packet.body.deviceType);
+        // The type won't change, but it might not be properly set yet
+        if (this.type !== packet.body.deviceType) {
+            this.settings.set_string('type', packet.body.deviceType);
+            this.notify('type');
+            this.notify('icon-name');
+        }
 
         // The name may change so we check and notify if so
         if (this.name !== packet.body.deviceName) {
@@ -299,9 +263,14 @@ var Device = GObject.registerClass({
         // Packets
         let incoming = packet.body.incomingCapabilities.sort();
         let outgoing = packet.body.outgoingCapabilities.sort();
+        let inc = this.settings.get_strv('incoming-capabilities');
+        let out = this.settings.get_strv('outgoing-capabilities');
 
-        this.settings.set_strv('incoming-capabilities', incoming);
-        this.settings.set_strv('outgoing-capabilities', outgoing);
+        // Only write GSettings if something has changed
+        if (incoming.join('') != inc.join('') || outgoing.join('') != out.join('')) {
+            this.settings.set_strv('incoming-capabilities', incoming);
+            this.settings.set_strv('outgoing-capabilities', outgoing);
+        }
 
         // Determine supported plugins by matching incoming to outgoing types
         let supported = [];
@@ -320,7 +289,13 @@ var Device = GObject.registerClass({
             }
         }
 
-        this.settings.set_strv('supported-plugins', supported.sort());
+        // Only write GSettings if something has changed
+        let currentSupported = this.settings.get_strv('supported-plugins');
+        supported.sort();
+
+        if (currentSupported.join('') !== supported.join('')) {
+            this.settings.set_strv('supported-plugins', supported);
+        }
     }
 
     /**
@@ -333,7 +308,14 @@ var Device = GObject.registerClass({
             this._connected = true;
             this.notify('connected');
 
-            this._plugins.forEach(async (plugin) => plugin.connected());
+            // Run the connected hook for each plugin
+            this._plugins.forEach(async (plugin) => {
+                try {
+                    plugin.connected();
+                } catch (e) {
+                    logError(e, `${this.name}: ${plugin.name}`);
+                }
+            });
         }
     }
 
@@ -348,7 +330,14 @@ var Device = GObject.registerClass({
             this._connected = false;
             this.notify('connected');
 
-            this._plugins.forEach(async (plugin) => plugin.disconnected());
+            // Run the disconnected hook for each plugin
+            this._plugins.forEach(async (plugin) => {
+                try {
+                    plugin.disconnected();
+                } catch (e) {
+                    logError(e, `${this.name}: ${plugin.name}`);
+                }
+            });
         }
     }
 
@@ -394,7 +383,7 @@ var Device = GObject.registerClass({
                     throw new Error(`Unsupported packet type (${packet.type})`);
             }
         } catch (e) {
-            warning(e, this.name);
+            debug(e, this.name);
         }
     }
 
@@ -440,6 +429,14 @@ var Device = GObject.registerClass({
         });
         openPath.connect('activate', this.openPath);
         this.add_action(openPath);
+
+        // Preference helpers
+        let clearCache = new Gio.SimpleAction({
+            name: 'clearCache',
+            parameter_type: new GLib.VariantType('s')
+        });
+        clearCache.connect('activate', this._clearCache.bind(this));
+        this.add_action(clearCache);
     }
 
     /**
@@ -695,6 +692,22 @@ var Device = GObject.registerClass({
         Gio.AppInfo.launch_default_for_uri_async(uri, null, null, null);
     }
 
+    _clearCache(action, parameter) {
+        try {
+            let context = parameter.unpack();
+
+            if (context && this._plugins.has(context)) {
+                let plugin = this._plugins.get(context);
+
+                if (typeof plugin.cacheClear === 'function') {
+                    plugin.cacheClear();
+                }
+            }
+        } catch (e) {
+            logError(e, this.name);
+        }
+    }
+
     /**
      * Pair request handler
      *
@@ -859,36 +872,24 @@ var Device = GObject.registerClass({
     /**
      * Plugin Functions
      */
-    get_incoming_supported(type) {
-        let incoming = this.settings.get_strv('incoming-capabilities');
-        return incoming.includes(`kdeconnect.${type}`);
-    }
-
-    get_outgoing_supported(type) {
-        let outgoing = this.settings.get_strv('outgoing-capabilities');
-        return outgoing.includes(`kdeconnect.${type}`);
-    }
-
-    get_plugin_supported(name) {
-        return this.supported_plugins.includes(name);
-    }
-
-    get_plugin_allowed(name) {
-        return this.allowed_plugins.includes(name);
-    }
-
-    lookup_plugin(name) {
-        return this._plugins.get(name) || null;
-    }
-
-    _onDisabledPlugins(settings) {
+    async _onDisabledPlugins(settings) {
         let disabled = this.settings.get_strv('disabled-plugins');
-        disabled.map(name => this._unloadPlugin(name));
-        this.allowed_plugins.map(name => this._loadPlugin(name));
 
-        // Make sure we're change the contacts store if the plugin was disabled
-        if (!this.get_plugin_allowed('contacts')) {
+        // Unload disabled plugins
+        for (let name of disabled) {
+            await this._unloadPlugin(name);
+        }
+
+        // Make sure we change the contacts store if the plugin was disabled
+        if (disabled.includes('contacts')) {
             this.notify('contacts');
+        }
+
+        // Load allowed plugins
+        for (let name of this.settings.get_strv('supported-plugins')) {
+            if (!disabled.includes(name)) {
+                await this._loadPlugin(name);
+            }
         }
     }
 
@@ -897,8 +898,6 @@ var Device = GObject.registerClass({
 
         try {
             if (this.paired && !this._plugins.has(name)) {
-                debug(`loading '${name}' plugin`, this.name);
-
                 // Instantiate the handler
                 handler = imports.service.plugins[name];
                 plugin = new handler.Plugin(this);
@@ -920,8 +919,12 @@ var Device = GObject.registerClass({
     }
 
     async _loadPlugins() {
-        for (let name of this.allowed_plugins) {
-            await this._loadPlugin(name);
+        let disabled = this.settings.get_strv('disabled-plugins');
+
+        for (let name of this.settings.get_strv('supported-plugins')) {
+            if (!disabled.includes(name)) {
+                await this._loadPlugin(name);
+            }
         }
     }
 
@@ -930,8 +933,6 @@ var Device = GObject.registerClass({
 
         try {
             if (this._plugins.has(name)) {
-                debug(`unloading '${name}' plugin`, this.name);
-
                 // Unregister packet handlers
                 handler = imports.service.plugins[name];
                 plugin = this._plugins.get(name);

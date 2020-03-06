@@ -1,113 +1,143 @@
 const Clutter = imports.gi.Clutter;
-const Lang = imports.lang;
 const Meta = imports.gi.Meta;
 const St = imports.gi.St;
+
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Docking = Me.imports.docking;
+
+var SignalsHandlerFlags = {
+    NONE: 0,
+    CONNECT_AFTER: 1
+};
 
 /**
  * Simplify global signals and function injections handling
  * abstract class
  */
-const BasicHandler = new Lang.Class({
-    Name: 'DashToDock.BasicHandler',
+const BasicHandler = class DashToDock_BasicHandler {
 
-    _init: function() {
+    constructor() {
         this._storage = new Object();
-    },
+    }
 
-    add: function(/* unlimited 3-long array arguments */) {
+    add(/* unlimited 3-long array arguments */) {
         // Convert arguments object to array, concatenate with generic
         let args = Array.concat('generic', Array.slice(arguments));
         // Call addWithLabel with ags as if they were passed arguments
         this.addWithLabel.apply(this, args);
-    },
+    }
 
-    destroy: function() {
+    destroy() {
         for( let label in this._storage )
             this.removeWithLabel(label);
-    },
+    }
 
-    addWithLabel: function(label /* plus unlimited 3-long array arguments*/) {
+    addWithLabel(label /* plus unlimited 3-long array arguments*/) {
         if (this._storage[label] == undefined)
             this._storage[label] = new Array();
 
         // Skip first element of the arguments
         for (let i = 1; i < arguments.length; i++) {
             let item = this._storage[label];
-            item.push(this._create(arguments[i]));
+            try {
+                item.push(this._create(arguments[i]));
+            } catch (e) {
+                logError(e);
+            }
         }
-    },
+    }
 
-    removeWithLabel: function(label) {
+    removeWithLabel(label) {
         if (this._storage[label]) {
             for (let i = 0; i < this._storage[label].length; i++)
                 this._remove(this._storage[label][i]);
 
             delete this._storage[label];
         }
-    },
+    }
 
     // Virtual methods to be implemented by subclass
 
     /**
      * Create single element to be stored in the storage structure
      */
-    _create: function(item) {
-        throw new Error('no implementation of _create in ' + this);
-    },
+    _create(item) {
+        throw new GObject.NotImplementedError(`_create in ${this.constructor.name}`);
+    }
 
     /**
      * Correctly delete single element
      */
-    _remove: function(item) {
-        throw new Error('no implementation of _remove in ' + this);
+    _remove(item) {
+        throw new GObject.NotImplementedError(`_remove in ${this.constructor.name}`);
     }
-});
+};
 
 /**
  * Manage global signals
  */
-var GlobalSignalsHandler = new Lang.Class({
-    Name: 'DashToDock.GlobalSignalHandler',
-    Extends: BasicHandler,
+var GlobalSignalsHandler = class DashToDock_GlobalSignalHandler extends BasicHandler {
 
-    _create: function(item) {
+    _create(item) {
         let object = item[0];
         let event = item[1];
         let callback = item[2]
-        let id = object.connect(event, callback);
+        let flags = item.length > 3 ? item[3] : SignalsHandlerFlags.NONE;
+
+        if (!object)
+            throw new Error('Impossible to connect to an invalid object');
+
+        let after = flags == SignalsHandlerFlags.CONNECT_AFTER;
+        let connector = after ? object.connect_after : object.connect;
+
+        if (!connector) {
+            throw new Error(`Requested to connect to signal '${event}', ` +
+                `but no implementation for 'connect${after ? '_after' : ''}' `+
+                `found in ${object.constructor.name}`);
+        }
+
+        let id = connector.call(object, event, callback);
 
         return [object, id];
-    },
+    }
 
-    _remove: function(item) {
+    _remove(item) {
          item[0].disconnect(item[1]);
     }
-});
+};
 
 /**
  * Color manipulation utilities
   */
-var ColorUtils = {
+var ColorUtils = class DashToDock_ColorUtils {
 
     // Darken or brigthen color by a fraction dlum
     // Each rgb value is modified by the same fraction.
     // Return "#rrggbb" string
-    ColorLuminance: function(r, g, b, dlum) {
+    static ColorLuminance(r, g, b, dlum) {
         let rgbString = '#';
 
-        rgbString += Math.round(Math.min(Math.max(r*(1+dlum), 0), 255)).toString(16);
-        rgbString += Math.round(Math.min(Math.max(g*(1+dlum), 0), 255)).toString(16);
-        rgbString += Math.round(Math.min(Math.max(b*(1+dlum), 0), 255)).toString(16);
+        rgbString += ColorUtils._decimalToHex(Math.round(Math.min(Math.max(r*(1+dlum), 0), 255)), 2);
+        rgbString += ColorUtils._decimalToHex(Math.round(Math.min(Math.max(g*(1+dlum), 0), 255)), 2);
+        rgbString += ColorUtils._decimalToHex(Math.round(Math.min(Math.max(b*(1+dlum), 0), 255)), 2);
 
         return rgbString;
-    },
+    }
+
+    // Convert decimal to an hexadecimal string adding the desired padding
+    static _decimalToHex(d, padding) {
+        let hex = d.toString(16);
+        while (hex.length < padding)
+            hex = '0'+ hex;
+        return hex;
+    }
 
     // Convert hsv ([0-1, 0-1, 0-1]) to rgb ([0-255, 0-255, 0-255]).
     // Following algorithm in https://en.wikipedia.org/wiki/HSL_and_HSV
     // here with h = [0,1] instead of [0, 360]
     // Accept either (h,s,v) independently or  {h:h, s:s, v:v} object.
     // Return {r:r, g:g, b:b} object.
-    HSVtoRGB: function(h, s, v) {
+    static HSVtoRGB(h, s, v) {
         if (arguments.length === 1) {
             s = h.s;
             v = h.v;
@@ -138,14 +168,14 @@ var ColorUtils = {
             g: Math.round(g * 255),
             b: Math.round(b * 255)
         };
-    },
+    }
 
     // Convert rgb ([0-255, 0-255, 0-255]) to hsv ([0-1, 0-1, 0-1]).
     // Following algorithm in https://en.wikipedia.org/wiki/HSL_and_HSV
     // here with h = [0,1] instead of [0, 360]
     // Accept either (r,g,b) independently or {r:r, g:g, b:b} object.
     // Return {h:h, s:s, v:v} object.
-    RGBtoHSV: function (r, g, b) {
+    static RGBtoHSV(r, g, b) {
         if (arguments.length === 1) {
             r = r.r;
             g = r.g;
@@ -186,11 +216,9 @@ var ColorUtils = {
  * Manage function injection: both instances and prototype can be overridden
  * and restored
  */
-var InjectionsHandler = new Lang.Class({
-    Name: 'DashToDock.InjectionsHandler',
-    Extends: BasicHandler,
+var InjectionsHandler = class DashToDock_InjectionsHandler extends BasicHandler {
 
-    _create: function(item) {
+    _create(item) {
         let object = item[0];
         let name = item[1];
         let injectedFunction = item[2];
@@ -198,21 +226,21 @@ var InjectionsHandler = new Lang.Class({
 
         object[name] = injectedFunction;
         return [object, name, injectedFunction, original];
-    },
+    }
 
-    _remove: function(item) {
+    _remove(item) {
         let object = item[0];
         let name = item[1];
         let original = item[3];
         object[name] = original;
     }
-});
+};
 
 /**
  * Return the actual position reverseing left and right in rtl
  */
-function getPosition(settings) {
-    let position = settings.get_enum('dock-position');
+function getPosition() {
+    let position = Docking.DockManager.settings.get_enum('dock-position');
     if (Clutter.get_default_text_direction() == Clutter.TextDirection.RTL) {
         if (position == St.Side.LEFT)
             position = St.Side.RIGHT;
@@ -254,19 +282,3 @@ function drawRoundedLine(cr, x, y, width, height, isRoundLeft, isRoundRight, str
         cr.setSource(stroke);
     cr.stroke();
 }
-
-// This is wrapper to maintain compatibility with GNOME-Shell 3.30+ as well as
-// previous versions.
-var DisplayWrapper = {
-    getScreen: function() {
-        return global.screen || global.display;
-    },
-
-    getWorkspaceManager: function() {
-        return global.screen || global.workspace_manager;
-    },
-
-    getMonitorManager: function() {
-        return global.screen || Meta.MonitorManager.get();
-    }
-};

@@ -56,6 +56,7 @@ var Plugin = GObject.registerClass({
     _init(device) {
         super._init(device, 'contacts');
         this._store = new Contacts.Store(device.id);
+        this._store.fetch = this.requestUids.bind(this);
 
         // Notify when the store is ready
         this._contactsStoreReadyId = this._store.connect(
@@ -210,7 +211,7 @@ var Plugin = GObject.registerClass({
 
             // Say "chowdah" frenchie!
             } catch (e) {
-                warning(`Failed to decode UTF-8 VCard field "${input}"`);
+                debug(e, `Failed to decode UTF-8 VCard field ${input}`);
                 return input;
             }
         }
@@ -325,7 +326,7 @@ var Plugin = GObject.registerClass({
 
             return contact;
         } catch (e) {
-            warning(e, `Failed to parse VCard contact "${uid}"`);
+            debug(e, `Failed to parse VCard contact ${uid}`);
             return undefined;
         }
     }
@@ -378,7 +379,7 @@ var Plugin = GObject.registerClass({
 
             return contact;
         } catch (e) {
-            warning(e, `Failed to parse VCard contact "${uid}"`);
+            debug(e, `Failed to parse VCard contact ${uid}`);
             return undefined;
         }
     }

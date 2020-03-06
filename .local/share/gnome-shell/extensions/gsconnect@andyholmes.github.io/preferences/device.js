@@ -14,17 +14,17 @@ const DEVICE_PLUGINS = [];
 const DEVICE_SHORTCUTS = {};
 
 for (let name in imports.service.plugins) {
-    if (name === 'base') continue;
+    let module = imports.service.plugins[name];
 
-    // Plugins
-    DEVICE_PLUGINS.push(name);
+    if (module.Metadata !== undefined) {
+        // Plugins
+        DEVICE_PLUGINS.push(name);
 
-    // Shortcuts (GActions without parameters)
-    let meta = imports.service.plugins[name].Metadata;
-
-    for (let [name, action] of Object.entries(meta.actions)) {
-        if (action.parameter_type === null) {
-            DEVICE_SHORTCUTS[name] = [action.icon_name, action.label];
+        // Shortcuts (GActions without parameters
+        for (let [name, action] of Object.entries(module.Metadata.actions)) {
+            if (action.parameter_type === null) {
+                DEVICE_SHORTCUTS[name] = [action.icon_name, action.label];
+            }
         }
     }
 }
@@ -200,8 +200,11 @@ var DevicePreferences = GObject.registerClass({
 
         // GSettings
         this.settings = new Gio.Settings({
-            settings_schema: this.device.settings.settings_schema,
-            path: this.device.settings.path
+            settings_schema: gsconnect.gschema.lookup(
+                'org.gnome.Shell.Extensions.GSConnect.Device',
+                true
+            ),
+            path: '/org/gnome/shell/extensions/gsconnect/device/' + device.id + '/'
         });
 
         // Infobar
@@ -255,15 +258,14 @@ var DevicePreferences = GObject.registerClass({
         return this._menu;
     }
 
-    get supported_plugins() {
-        let supported = this.settings.get_strv('supported-plugins');
+    get_incoming_supported(type) {
+        let incoming = this.settings.get_strv('incoming-capabilities');
+        return incoming.includes(`kdeconnect.${type}`);
+    }
 
-        // Preempt mousepad plugin on Wayland
-        if (_WAYLAND) {
-            supported = supported.filter(name => (name !== 'mousepad'));
-        }
-
-        return supported;
+    get_outgoing_supported(type) {
+        let outgoing = this.settings.get_strv('outgoing-capabilities');
+        return outgoing.includes(`kdeconnect.${type}`);
     }
 
     _onKeynavFailed(widget, direction) {
@@ -368,6 +370,7 @@ var DevicePreferences = GObject.registerClass({
 
         settings = this.pluginSettings('notification');
         this.actions.add_action(settings.create_action('send-notifications'));
+        this.actions.add_action(settings.create_action('send-active'));
 
         settings = this.pluginSettings('photo');
         this.actions.add_action(settings.create_action('share-camera'));
@@ -421,7 +424,7 @@ var DevicePreferences = GObject.registerClass({
         // Visibility
         this.desktop_list.foreach(row => {
             let name = row.get_name();
-            row.visible = this.device.get_outgoing_supported(`${name}.request`);
+            row.visible = this.get_outgoing_supported(`${name}.request`);
         });
 
         // Separators & Sorting
@@ -477,7 +480,7 @@ var DevicePreferences = GObject.registerClass({
             this.battery_system_list.set_header_func(rowSeparators);
 
             // If the device can't handle statistics we're done
-            if (!this.device.get_incoming_supported('battery')) {
+            if (!this.get_incoming_supported('battery')) {
                 this.battery_system_label.visible = false;
                 this.battery_system.visible = false;
                 return;
@@ -678,6 +681,9 @@ var DevicePreferences = GObject.registerClass({
             'sensitive',
             Gio.SettingsBindFlags.DEFAULT
         );
+
+        // Separators & Sorting
+        this.notification_list.set_header_func(rowSeparators);
 
         // Scroll with keyboard focus
         let notification_box = this.notification_page.get_child().get_child();
@@ -917,7 +923,7 @@ var DevicePreferences = GObject.registerClass({
 
     get_plugin_allowed(name) {
         let disabled = this.settings.get_strv('disabled-plugins');
-        let supported = this.supported_plugins;
+        let supported = this.settings.get_strv('supported-plugins');
 
         return supported.filter(name => !disabled.includes(name)).includes(name);
     }
@@ -947,22 +953,23 @@ var DevicePreferences = GObject.registerClass({
         });
         grid.add(widget);
 
-        // if (plugin.Plugin.prototype.cacheClear) {
-        //     let button = new Gtk.Button({
-        //         image: new Gtk.Image({
-        //             icon_name: 'edit-clear-all-symbolic',
-        //             pixel_size: 16,
-        //             visible: true
-        //         }),
-        //         valign: Gtk.Align.CENTER,
-        //         vexpand: true,
-        //         visible: true
-        //     });
-        //     button.connect('clicked', this._clearPluginCache.bind(this, name));
-        //     button.get_style_context().add_class('flat');
-        //     widget.bind_property('active', button, 'sensitive', 2);
-        //     grid.add(button);
-        // }
+        if (plugin.Plugin.prototype.cacheClear) {
+            let button = new Gtk.Button({
+                action_name: 'device.clearCache',
+                action_target: GLib.Variant.new_string(name),
+                image: new Gtk.Image({
+                    icon_name: 'edit-clear-all-symbolic',
+                    pixel_size: 16,
+                    visible: true
+                }),
+                valign: Gtk.Align.CENTER,
+                vexpand: true,
+                visible: true
+            });
+            button.get_style_context().add_class('flat');
+            widget.bind_property('active', button, 'sensitive', 2);
+            grid.add(button);
+        }
 
         this.plugin_list.add(row);
 
@@ -976,16 +983,8 @@ var DevicePreferences = GObject.registerClass({
         }
     }
 
-    _clearPluginCache(name) {
-        try {
-            this.device.lookup_plugin(name).cacheClear();
-        } catch (e) {
-            warning(e, `${this.device.name}: ${this.name}`);
-        }
-    }
-
     _populatePlugins() {
-        let supported = this.supported_plugins;
+        let supported = this.settings.get_strv('supported-plugins');
 
         for (let row of this.plugin_list.get_children()) {
             let checkbutton = row.get_child().get_child_at(0, 0);

@@ -1,115 +1,127 @@
-const Gio = imports.gi.Gio;
-const Meta = imports.gi.Meta;
-const Clutter = imports.gi.Clutter;
-const St = imports.gi.St;
+const { GObject, Gio, Meta, Clutter, St, Shell } = imports.gi;
 const Lang = imports.lang;
 const Signals = imports.signals;
 const Mainloop = imports.mainloop;
-const Shell = imports.gi.Shell;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Convenience = Me.imports.convenience;
-const Config = imports.misc.config;
-
 const Gettext = imports.gettext.domain('miniview');
 const _ = Gettext.gettext;
 
-const MINIVIEW_SETTINGS_SCHEMA = 'org.gnome.shell.extensions.miniview';
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
 
-// get gnome shell version
-let _display;
-let [gsv_major, gsv_minor] = Config.PACKAGE_VERSION.split('.', 2)
-if ((gsv_major >= 3) && (gsv_minor >= 30)) {
-    _display = global.display;
-} else {
-    _display = global.screen;
-}
+let _uuid = Me.metadata.uuid;
+let _display = global.display;
+let _initTranslations = ExtensionUtils.initTranslations;
+let _getSettings = ExtensionUtils.getSettings;
 
-function WindowClone(miniview) {
-    this._init(miniview);
-}
-
-const Indicator = new Lang.Class({
-    Name: 'MiniviewMenu',
-    Extends: PanelMenu.Button,
-
-    _init: function(miniview) {
+let MiniviewIndicator = GObject.registerClass(
+class MiniviewIndicator extends PanelMenu.Button {
+    _init(miniview) {
         this._miniview = miniview;
 
         // get settings from schema
-        this._settings = Convenience.getSettings();
+        this._settings = _getSettings();
         this._showme = this._settings.get_boolean('showme');
         this._settings.connect('changed', Lang.bind(this, this._settingsChanged));
         Main.wm.addKeybinding('toggle-miniview', this._settings, Meta.KeyBindingFlags.NONE, Shell.ActionMode.NORMAL, Lang.bind(this, this._onToggled));
 
         // create menu ui
-        this.parent(St.Align.START);
-        this.label = new St.Label({ text:_("Mini"), y_align: Clutter.ActorAlign.CENTER });
-        this.actor.add_actor(this.label);
+        super._init(St.Align.START);
+        let box = new St.BoxLayout();
+        let icon = new St.Icon({ icon_name: 'emblem-photos-symbolic', style_class: 'system-status-icon emotes-icon'});
+
+        box.add(icon);
+        box.add(PopupMenu.arrowIcon(St.Side.BOTTOM));
+        this.add_child(box);
 
         // on/off toggle
-        this._tsToggle = new PopupMenu.PopupSwitchMenuItem(_("Enable Miniview"), false, { style_class: 'popup-subtitle-menu-item' });
+        this._tsToggle = new PopupMenu.PopupSwitchMenuItem(_('Enable Miniview'), false, { style_class: 'popup-subtitle-menu-item' });
         this._tsToggle.connect('toggled', Lang.bind(this, this._onToggled));
         this.menu.addMenuItem(this._tsToggle);
 
         // cycling through windows
-        this._tsNext = new PopupMenu.PopupMenuItem(_("Next Window"));
+        this._tsNext = new PopupMenu.PopupMenuItem(_('Next Window'));
         this._tsNext.connect('activate', Lang.bind(this, this._onNext));
         this.menu.addMenuItem(this._tsNext);
 
-        this._tsPrev = new PopupMenu.PopupMenuItem(_("Previous Window"));
+        this._tsPrev = new PopupMenu.PopupMenuItem(_('Previous Window'));
         this._tsPrev.connect('activate', Lang.bind(this, this._onPrev));
         this.menu.addMenuItem(this._tsPrev);
 
-        // reset opacity (in case miniview got lost :) )
-        this._tsResetOpacity = new PopupMenu.PopupMenuItem(_("Reset Opacity"));
-        this._tsResetOpacity.connect('activate', Lang.bind(this, this._onResetOpacity));
-        this.menu.addMenuItem(this._tsResetOpacity);
+        // reset ephemeral parameters (in case miniview got lost :) )
+        this._tsResetMiniview = new PopupMenu.PopupMenuItem(_('Reset Miniview'));
+        this._tsResetMiniview.connect('activate', Lang.bind(this, this._onResetMiniview));
+        this.menu.addMenuItem(this._tsResetMiniview);
+
+        // extension preferences
+        this._tsPreferences = new PopupMenu.PopupMenuItem(_('Preferences'));
+        this._tsPreferences.connect('activate', Lang.bind(this, this._onPreferences));
+        this.menu.addMenuItem(this._tsPreferences);
 
         // init ui
         this._reflectState();
-    },
+    }
 
-    _reflectState: function() {
+    _reflectState() {
         this._tsToggle.setToggleState(this._showme);
         if (this._showme) {
             this._miniview._showMiniview();
         } else {
             this._miniview._hideMiniview();
         }
-    },
+    }
 
-    _settingsChanged: function() {
+    _settingsChanged() {
         this._showme = this._settings.get_boolean('showme');
         this._reflectState();
-    },
+    }
 
-    _onToggled: function() {
+    _onToggled() {
         this._showme = !this._showme;
         this._settings.set_boolean('showme', this._showme);
         this._reflectState();
-    },
+    }
 
-    _onNext: function() {
+    _onNext() {
         this._miniview._goWindowDown();
-    },
+    }
 
-    _onPrev: function() {
+    _onPrev() {
         this._miniview._goWindowUp();
-    },
+    }
 
-    _onResetOpacity: function() {
+    _onResetMiniview() {
         this._miniview._clone.user_opacity = 255;
-        this._miniview._clone.actor.opacity = 255;
-    },
+        this._miniview._clone.opacity = 255;
+        this._miniview._clone.scale_x = 0.2;
+        this._miniview._clone.scale_y = 0.2;
+        this._miniview._clone.x = 100;
+        this._miniview._clone.y = 100;
+    }
+
+    _onPreferences() {
+        let _appSys = Shell.AppSystem.get_default();
+        let _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
+        if (_gsmPrefs.get_state() === _gsmPrefs.SHELL_APP_STATE_RUNNING) {
+            _gsmPrefs.activate();
+        } else {
+            let info = _gsmPrefs.get_app_info();
+            let timestamp = _display.get_current_time_roundtrip();
+            info.launch_uris([_uuid], global.create_app_launch_context(timestamp, -1));
+        }
+    }
 });
 
-WindowClone.prototype = {
-    _init : function(miniview) {
+let MiniviewClone = GObject.registerClass({
+    Signals: {
+        'scroll-up': {},
+        'scroll-down': {}
+    }
+}, class MiniviewClone extends Clutter.Group {
+    _init(miniview) {
         this._miniview = miniview;
         this._windowClone = new Clutter.Clone();
 
@@ -117,27 +129,23 @@ WindowClone.prototype = {
         // the invisible border; this is inconvenient; rather than trying
         // to compensate all over the place we insert a ClutterGroup into
         // the hierarchy that is sized to only the visible portion.
-        this.actor = new Clutter.Group({ reactive: true,
-                                         x: 100,
-                                         y: 100 });
+        super._init({ reactive: true, x: 100, y: 100 });
 
-        // We expect this.actor to be used for all interaction rather than
+        // We expect this to be used for all interaction rather than
         // this._windowClone; as the former is reactive and the latter
         // is not, this just works for most cases. However, for DND all
         // actors are picked, so DND operations would operate on the clone.
         // To avoid this, we hide it from pick.
         Shell.util_set_hidden_from_pick(this._windowClone, true);
 
-        this.actor.add_actor(this._windowClone);
+        this.add_actor(this._windowClone);
 
-        this.actor._delegate = this;
-
-        this.actor.connect('button-press-event', Lang.bind(this, this._onButtonPress));
-        this.actor.connect('button-release-event', Lang.bind(this, this._onButtonRelease));
-        this.actor.connect('motion-event', Lang.bind(this, this._onMouseMove));
-        this.actor.connect('scroll-event', Lang.bind(this, this._onScroll));
-        this.actor.connect('enter-event', Lang.bind(this, this._onMouseEnter));
-        this.actor.connect('leave-event', Lang.bind(this, this._onMouseLeave));
+        this.connect('button-press-event', Lang.bind(this, this._onButtonPress));
+        this.connect('button-release-event', Lang.bind(this, this._onButtonRelease));
+        this.connect('motion-event', Lang.bind(this, this._onMouseMove));
+        this.connect('scroll-event', Lang.bind(this, this._onScroll));
+        this.connect('enter-event', Lang.bind(this, this._onMouseEnter));
+        this.connect('leave-event', Lang.bind(this, this._onMouseLeave));
 
         // interface state
         this.inMove = false;
@@ -145,27 +153,23 @@ WindowClone.prototype = {
         this.inResizeCtrl = false;
 
         // initial size
-        this.actor.scale_x = 0.2;
-        this.actor.scale_y = 0.2;
-        this.actor.visible = false;
+        this.scale_x = 0.2;
+        this.scale_y = 0.2;
+        this.visible = false;
 
         // opacity values
         this.user_opacity = 255;
-    },
+    }
 
-    destroy: function () {
-        this.actor.destroy();
-    },
-
-    _onButtonPress: function(actor, event) {
+    _onButtonPress(actor, event) {
         // only allow one type of action at a time
         if (this.inMove || this.inResize || this.inResizeCtrl) {
             return true;
         }
 
         let [click_x, click_y] = event.get_coords();
-        this.offset_x = click_x - this.actor.x;
-        this.offset_y = click_y - this.actor.y;
+        this.offset_x = click_x - this.x;
+        this.offset_y = click_y - this.y;
 
         let button = event.get_button();
         let state = event.get_state();
@@ -183,14 +187,14 @@ WindowClone.prototype = {
             this.offset_norm = Math.sqrt(Math.pow(this.offset_x,2)
                                         +Math.pow(this.offset_y,2));
 
-            this.orig_scale_x = this.actor.scale_x;
-            this.orig_scale_y = this.actor.scale_y;
+            this.orig_scale_x = this.scale_x;
+            this.orig_scale_y = this.scale_y;
         }
 
         return true;
-    },
+    }
 
-    _onButtonRelease: function(actor, event) {
+    _onButtonRelease(actor, event) {
         let button = event.get_button();
 
         if (button == 1) {
@@ -212,32 +216,32 @@ WindowClone.prototype = {
         }
 
         return true;
-    },
+    }
 
-    _onMouseMove: function(actor, event) {
+    _onMouseMove(actor, event) {
         if (this.inMove || this.inResize || this.inResizeCtrl) {
             let [pos_x,pos_y] = event.get_coords();
 
             if (this.inMove) {
-                this.actor.x = pos_x - this.offset_x;
-                this.actor.y = pos_y - this.offset_y;
+                this.x = pos_x - this.offset_x;
+                this.y = pos_y - this.offset_y;
             }
 
             if (this.inResize || this.inResizeCtrl) {
-                let new_offset_x = pos_x - this.actor.x;
-                let new_offset_y = pos_y - this.actor.y;
+                let new_offset_x = pos_x - this.x;
+                let new_offset_y = pos_y - this.y;
                 let new_offset_norm =  Math.sqrt(Math.pow(new_offset_x,2)
                                                 +Math.pow(new_offset_y,2));
 
-                this.actor.scale_x = this.orig_scale_x*new_offset_norm/this.offset_norm;
-                this.actor.scale_y = this.orig_scale_y*new_offset_norm/this.offset_norm;
+                this.scale_x = this.orig_scale_x*new_offset_norm/this.offset_norm;
+                this.scale_y = this.orig_scale_y*new_offset_norm/this.offset_norm;
             }
         }
 
         return true;
-    },
+    }
 
-    _onScroll: function(actor, event) {
+    _onScroll(actor, event) {
         // only allow one type of action at a time
         if (this.inMove || this.inResize || this.inResizeCtrl) {
             return true;
@@ -260,7 +264,7 @@ WindowClone.prototype = {
                 this.user_opacity = 35;
             }
 
-            this.actor.opacity = this.user_opacity;
+            this.opacity = this.user_opacity;
         } else {
             if (direction == Clutter.ScrollDirection.UP) {
                 this.emit('scroll-up');
@@ -268,38 +272,37 @@ WindowClone.prototype = {
                 this.emit('scroll-down');
             }
         }
-    },
+    }
 
-    _onMouseEnter: function(actor, event) {
+    _onMouseEnter(actor, event) {
         // decrease opacity a little bit
-        this.actor.opacity = Math.trunc(this.user_opacity * 0.8);
-    },
+        this.opacity = Math.trunc(this.user_opacity * 0.8);
+    }
 
-    _onMouseLeave: function(actor, event) {
+    _onMouseLeave(actor, event) {
         if (this.inMove) {
             let [pos_x,pos_y] = event.get_coords();
-            this.actor.x = pos_x - this.offset_x;
-            this.actor.y = pos_y - this.offset_y;
+            this.x = pos_x - this.offset_x;
+            this.y = pos_y - this.offset_y;
+        } else if (this.inResize) {
+            this.inResize = false;
+        } else if (this.inResizeCtrl) {
+            this.inResizeCtrl = false;
         }
         else {
             // set opacity back to user value
-            this.actor.opacity = this.user_opacity;
+            this.opacity = this.user_opacity;
         }
-    },
-
-    setSource: function(win) {
-        this._metaWin = win.meta_window;
-        this._windowClone.set_source(win.get_texture());
     }
-};
-Signals.addSignalMethods(WindowClone.prototype);
 
-function Miniview(state) {
-  this._init(state);
-}
+    setSource(win) {
+        this._metaWin = win.meta_window;
+        this._windowClone.set_source(win);
+    }
+});
 
-Miniview.prototype = {
-    _init: function(state) {
+class Miniview {
+    constructor(state) {
         this._state = state;
         this._stateTimeout = null;
 
@@ -315,13 +318,13 @@ Miniview.prototype = {
             }
         }
 
-        this._clone = new WindowClone(this);
+        this._clone = new MiniviewClone(this);
         this._clone.connect('scroll-up', Lang.bind(this, this._goWindowUp));
         this._clone.connect('scroll-down', Lang.bind(this, this._goWindowDown));
 
         this._overviewShowingId = Main.overview.connect('showing',Lang.bind(this, this._overviewEnter));
         this._overviewHiddenId = Main.overview.connect('hidden', Lang.bind(this, this._overviewLeave));
-        Main.layoutManager.addChrome(this._clone.actor);
+        Main.layoutManager.addChrome(this._clone);
 
         this._winIdx = null;
         this._metaWin = null;
@@ -329,14 +332,14 @@ Miniview.prototype = {
 
         if (this._windowList.length > 0) {
             this.setIndex(0);
-            this._clone.actor.visible = true;
+            this._clone.visible = true;
         }
 
         this._windowEnteredMonitorId = _display.connect('window-entered-monitor', Lang.bind(this, this._windowEnteredMonitor));
         this._windowLeftMonitorId = _display.connect('window-left-monitor', Lang.bind(this, this._windowLeftMonitor));
-    },
+    }
 
-    destroy: function() {
+    destroy() {
         Main.overview.disconnect(this._overviewShowingId);
         Main.overview.disconnect(this._overviewHiddenId);
 
@@ -350,18 +353,18 @@ Miniview.prototype = {
         if (this._clone) {
             this._clone.destroy();
         }
-    },
+    }
 
-    lookupIndex: function (metaWin) {
+    lookupIndex(metaWin) {
         for (let i = 0; i < this._windowList.length; i++) {
             if (this._windowList[i] == metaWin) {
                 return i;
             }
         }
         return -1;
-    },
+    }
 
-    setIndex: function(idx) {
+    setIndex(idx) {
         // global.log(`miniview: setIndex: index=${idx}, current=${this._winIdx}, total=${this._windowList.length}`);
 
         if ((idx >= 0) && (idx < this._windowList.length)) {
@@ -381,34 +384,34 @@ Miniview.prototype = {
                 }
             ));
         }
-    },
+    }
 
-    _goWindowUp: function() {
+    _goWindowUp() {
         let idx = this._winIdx + 1;
         if (idx >= this._windowList.length) {
             idx = 0;
         }
         this.setIndex(idx);
-    },
+    }
 
-    _goWindowDown: function() {
+    _goWindowDown() {
         let idx = this._winIdx - 1;
         if (idx < 0) {
             idx = this._windowList.length - 1;
         }
         this.setIndex(idx);
-    },
+    }
 
-    _windowEnteredMonitor : function(metaScreen, monitorIndex, metaWin) {
+    _windowEnteredMonitor(metaScreen, monitorIndex, metaWin) {
         if (metaWin.get_window_type() == Meta.WindowType.NORMAL) {
             // let title = metaWin.get_title();
             // let index = this._windowList.length;
             // global.log(`miniview: _windowEnteredMonitor: index=${index}, current=${this._winIdx}, total=${this._windowList.length}, title=${title}`);
             this._insertWindow(metaWin);
         }
-    },
+    }
 
-    _insertWindow : function(metaWin) {
+    _insertWindow(metaWin) {
         let win = metaWin.get_compositor_private();
 
         if (!win) {
@@ -448,20 +451,20 @@ Miniview.prototype = {
         // got our first window
         if (this._shouldShow && (this._windowList.length == 1)) {
             this.setIndex(0);
-            this._clone.actor.visible = true;
+            this._clone.visible = true;
         }
-    },
+    }
 
-    _windowLeftMonitor : function(metaScreen, monitorIndex, metaWin) {
+    _windowLeftMonitor(metaScreen, monitorIndex, metaWin) {
         if (metaWin.get_window_type() == Meta.WindowType.NORMAL) {
             // let title = metaWin.get_title();
             // let index = this.lookupIndex(metaWin);
             // global.log(`miniview: _windowLeftMonitor   : index=${index}, current=${this._winIdx}, total=${this._windowList.length}, title=${title}`);
             this._removeWindow(metaWin);
         }
-    },
+    }
 
-    _removeWindow: function(metaWin) {
+    _removeWindow(metaWin) {
         let index = this.lookupIndex(metaWin);
 
         // not in list?
@@ -490,7 +493,7 @@ Miniview.prototype = {
         // hide if no windows
         if (this._windowList.length == 0) {
             this._winIdx == null;
-            this._clone.actor.visible = false;
+            this._clone.visible = false;
             return;
         }
 
@@ -499,43 +502,43 @@ Miniview.prototype = {
             var idx = index % this._windowList.length;
             this.setIndex(idx); // update the window
         } else if (index < this._winIdx) {
-            self._winIdx -= 1; // only the index, not the window itself
+            this._winIdx -= 1; // only the index, not the window itself
         }
-    },
+    }
 
     // Tests if @win should be shown in the Overview
-    _isOverviewWindow: function (metaWin) {
+    _isOverviewWindow(metaWin) {
         let tracker = Shell.WindowTracker.get_default();
         return tracker.is_window_interesting(metaWin);
-    },
+    }
 
-    _showMiniview: function() {
+    _showMiniview() {
         this._shouldShow = true;
         this._realizeMiniview();
-    },
+    }
 
-    _hideMiniview: function() {
+    _hideMiniview() {
         this._shouldShow = false;
         this._realizeMiniview();
-    },
+    }
 
-    _toggleMiniview: function() {
+    _toggleMiniview() {
         if (this._shouldShow) {
             this._hideMiniview();
         } else {
             this._showMiniview();
         }
-    },
+    }
 
-    _overviewEnter: function() {
-        this._clone.actor.visible = false;
-    },
+    _overviewEnter() {
+        this._clone.visible = false;
+    }
 
-    _overviewLeave: function() {
+    _overviewLeave() {
         this._realizeMiniview();
-    },
+    }
 
-    _realizeMiniview: function() {
+    _realizeMiniview() {
         if (this._shouldShow) {
             if (this._windowList.length > 0) {
                 let idx = this._winIdx;
@@ -543,17 +546,17 @@ Miniview.prototype = {
                     idx = 0;
                 }
                 this.setIndex(idx);
-                this._clone.actor.visible = true;
+                this._clone.visible = true;
             }
         } else {
-            this._clone.actor.visible = false;
+            this._clone.visible = false;
         }
-    },
+    }
 }
 
 // one time initializations
 function init(meta) {
-    Convenience.initTranslations('miniview');
+    _initTranslations('miniview');
 }
 
 // top level ui elements
@@ -574,8 +577,8 @@ function enable() {
     // global.log(`miniview: enable`)
 
     _miniview = new Miniview(state);
-    _indicator = new Indicator(_miniview);
-    Main.panel.addToStatusArea('miniview',_indicator);
+    _indicator = new MiniviewIndicator(_miniview);
+    Main.panel.addToStatusArea('miniview', _indicator);
 
     if (state.metaWin != null) {
         let idx = _miniview.lookupIndex(state.metaWin);
@@ -586,30 +589,30 @@ function enable() {
         _miniview.setIndex(idx);
     }
     if (state.pos_x != null) {
-        _miniview._clone.actor.x = state.pos_x;
+        _miniview._clone.x = state.pos_x;
     }
     if (state.pos_y != null) {
-        _miniview._clone.actor.y = state.pos_y;
+        _miniview._clone.y = state.pos_y;
     }
     if (state.size_x != null) {
-        _miniview._clone.actor.scale_x = state.size_x;
+        _miniview._clone.scale_x = state.size_x;
     }
     if (state.size_y != null) {
-        _miniview._clone.actor.scale_y = state.size_y;
+        _miniview._clone.scale_y = state.size_y;
     }
     if (state.opacity != null) {
         _miniview._clone.user_opacity = state.opacity;
-        _miniview._clone.actor.opacity = state.opacity;
+        _miniview._clone.opacity = state.opacity;
     }
 }
 
 function disable() {
     // global.log('miniview: disable')
 
-    state.pos_x = _miniview._clone.actor.x;
-    state.pos_y = _miniview._clone.actor.y;
-    state.size_x = _miniview._clone.actor.scale_x;
-    state.size_y = _miniview._clone.actor.scale_y;
+    state.pos_x = _miniview._clone.x;
+    state.pos_y = _miniview._clone.y;
+    state.size_x = _miniview._clone.scale_x;
+    state.size_y = _miniview._clone.scale_y;
     state.opacity = _miniview._clone.user_opacity;
 
     Main.wm.removeKeybinding('toggle-miniview');

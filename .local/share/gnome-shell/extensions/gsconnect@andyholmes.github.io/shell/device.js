@@ -8,6 +8,7 @@ const St = imports.gi.St;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
+// eslint-disable-next-line no-redeclare
 const _ = gsconnect._;
 const GMenu = imports.shell.gmenu;
 const Tooltip = imports.shell.tooltip;
@@ -37,7 +38,8 @@ var Battery = GObject.registerClass({
 
         // Battery Icon
         this.icon = new St.Icon({
-            fallback_icon_name: 'battery-missing-symbolic'
+            fallback_icon_name: 'battery-missing-symbolic',
+            icon_size: 16
         });
         this.add_child(this.icon);
 
@@ -223,10 +225,17 @@ var Indicator = class Indicator extends PanelMenu.Button {
 
         // Device Icon
         let icon = new St.Icon({
-            gicon: gsconnect.get_gicon(`${this.device.icon_name}-symbolic`),
+            gicon: gsconnect.get_gicon(this.device.icon_name),
             style_class: 'system-status-icon gsconnect-device-indicator'
         });
-        this.actor.add_child(icon);
+        this._icon = icon;
+
+        // TODO: remove after 3.34+
+        if (gsconnect.shell_version >= 34) {
+            this.add_child(icon);
+        } else {
+            this.actor.add_child(icon);
+        }
 
         // Menu
         let menu = new Menu({
@@ -234,6 +243,10 @@ var Indicator = class Indicator extends PanelMenu.Button {
             menu_type: 'icon'
         });
         this.menu.addMenuItem(menu);
+    }
+
+    update_icon(icon_name) {
+        this._icon.gicon = gsconnect.get_gicon(icon_name);
     }
 };
 
