@@ -64,3 +64,4 @@ function man() {
 
 eval $(thefuck --alias)
 unsetopt extended_history
+fpath=($fpath "/home/pante/.zfunctions")

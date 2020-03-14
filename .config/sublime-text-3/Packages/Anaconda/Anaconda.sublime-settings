@@ -341,7 +341,7 @@
     "use_pylint": false,
 
     // Set this to false to turn pep8 checking off completely.
-    "pep8": false,
+    "pep8": true,
 
     /*
         If set, the given file will be used as configuration for pep8.

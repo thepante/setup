@@ -1,4 +1,4 @@
-# 22/10/2018
+# 14/02/2020
 
 function commit () { 
     git add . && noglob git commit -m "$*"
@@ -9,12 +9,11 @@ alias -g python='noglob python'
 alias -g python3='noglob python3'
 alias -g tb='noglob tb'
 alias apagar='sudo shutdown -P'
-#alias ls='colorls -A --group-directories-first'
-#alias lsl='colorls -l --group-directories-first'
 alias n='nnn'
 alias taskbook='tb'
 alias push='git push'
 alias rmi='rm -i'
+alias trash='trash-put'
 alias neth='sudo nethogs'
 alias streamv='acestream-launcher -p vlc'
 alias stream='acestream-launcher'

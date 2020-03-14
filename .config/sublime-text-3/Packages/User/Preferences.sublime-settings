@@ -1,11 +1,12 @@
 {
-	"color_scheme": "Packages/ayu/ayu-dark.sublime-color-scheme",
+	"color_scheme": "Packages/ayu/ayu-mirage.sublime-color-scheme",
 	"font_face": "SF Mono Semibold",
 	"font_options": "subpixel_antialias",
 	"font_size": 11,
 	"ignored_packages":
 	[
+		"Markdown",
 		"Vintage"
 	],
-	"theme": "ayu-dark.sublime-theme"
+	"theme": "ayu-mirage.sublime-theme"
 }

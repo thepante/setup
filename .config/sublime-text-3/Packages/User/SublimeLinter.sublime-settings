@@ -1,0 +1,9 @@
+// SublimeLinter Settings - User
+{
+	"linters": {
+		"flake8": {
+			"disable": true,
+		    "args": ["--ignore", "E501"]
+		}
+	}
+}

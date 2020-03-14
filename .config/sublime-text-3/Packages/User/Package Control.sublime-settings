@@ -15,11 +15,14 @@
 		"ColorPicker",
 		"Git",
 		"GitGutter",
+		"Javascript Beautify",
+		"MarkdownEditing",
 		"MarkdownPreview",
 		"Oceanic Next Color Scheme",
 		"Package Control",
 		"SideBarEnhancements",
 		"sublime-github",
+		"SublimeLinter",
 		"Terminality",
 		"Terminus"
 	]
