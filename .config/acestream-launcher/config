@@ -1,3 +1,7 @@
+[DEFAULT]
+player = mpv
+verbose = true
+timeout = 60
 
 [tty]
 engine = acestreamplayer.engine --client-console

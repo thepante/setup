@@ -5,8 +5,8 @@ function commit () {
 }
 
 alias -g apt='apt-fast'
-alias -g python='noglob python'
-alias -g python3='noglob python3'
+# alias -g python='noglob python'
+# alias -g python3='noglob python3'
 alias -g tb='noglob tb'
 alias apagar='sudo shutdown -P'
 alias n='nnn'
