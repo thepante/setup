@@ -1,5 +1,5 @@
 {
-	"color_scheme": "Packages/ayu/ayu-mirage.sublime-color-scheme",
+	"color_scheme": "Packages/Color Scheme - Default/Monokai.tmTheme",
 	"font_face": "SF Mono Semibold",
 	"font_options": "subpixel_antialias",
 	"font_size": 11,
@@ -8,5 +8,5 @@
 		"Markdown",
 		"Vintage"
 	],
-	"theme": "ayu-mirage.sublime-theme"
+	"theme": "Adaptive.sublime-theme"
 }
