@@ -76,7 +76,7 @@ function getFgRGBA(rgba) {
  *
  * @param {string} path - A local file path
  */
-function getPixbufForPath(path, size = null) {
+function getPixbufForPath(path, size = null, scale) {
     let data, loader, pixbuf;
 
     // Catch missing avatar files
@@ -98,18 +98,20 @@ function getPixbufForPath(path, size = null) {
 
     pixbuf = loader.get_pixbuf();
 
-    // Scale if requested
-    if (size !== null) {
-        return pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.HYPER);
-    } else {
-        return pixbuf;
-    }
+    // Scale to monitor
+    size = size * scale;
+    return pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.HYPER);
 }
 
-function getPixbufForIcon(name, size, bgColor) {
+function getPixbufForIcon(name, size, scale, bgColor) {
     let color = getFgRGBA(bgColor);
     let theme = Gtk.IconTheme.get_default();
-    let info = theme.lookup_icon(name, size, Gtk.IconLookupFlags.FORCE_SYMBOLIC);
+    let info = theme.lookup_icon_for_scale(
+        name,
+        size,
+        scale,
+        Gtk.IconLookupFlags.FORCE_SYMBOLIC
+    );
 
     return info.load_symbolic(color, null, null, null)[0];
 }
@@ -161,11 +163,11 @@ function getDisplayNumber(contact, address) {
         let cnumber = contactNumber.value.toPhoneNumber();
 
         if (number.endsWith(cnumber) || cnumber.endsWith(number)) {
-            return contactNumber.value;
+            return GLib.markup_escape_text(contactNumber.value, -1);
         }
     }
 
-    return address;
+    return GLib.markup_escape_text(address, -1);
 }
 
 
@@ -182,10 +184,23 @@ var Avatar = GObject.registerClass({
         super._init({
             height_request: 32,
             width_request: 32,
+            valign: Gtk.Align.CENTER,
             visible: true
         });
 
         this.contact = contact;
+    }
+
+    get rgba() {
+        if (this._rgba === undefined) {
+            if (this.contact) {
+                this._rgba = randomRGBA(this.contact.name);
+            } else {
+                this._rgba = randomRGBA(GLib.uuid_string_random());
+            }
+        }
+
+        return this._rgba;
     }
 
     get contact() {
@@ -201,12 +216,17 @@ var Avatar = GObject.registerClass({
             this._contact = contact;
 
             this._surface = undefined;
-            this._bgRGBA = null;
+            this._rgba = undefined;
             this._offset = 0;
         }
     }
 
     _loadSurface() {
+        // Get the monitor scale
+        let display = Gdk.Display.get_default();
+        let monitor = display.get_monitor_at_window(this.get_window());
+        let scale = monitor.get_scale_factor();
+
         // If there's a contact with an avatar, try to load it
         if (this.contact && this.contact.avatar) {
             // Check the cache
@@ -216,7 +236,8 @@ var Avatar = GObject.registerClass({
             if (!this._surface) {
                 let pixbuf = getPixbufForPath(
                     this.contact.avatar,
-                    this.width_request
+                    this.width_request,
+                    scale
                 );
 
                 if (pixbuf) {
@@ -232,23 +253,20 @@ var Avatar = GObject.registerClass({
 
         // If we still don't have a surface, load a fallback
         if (!this._surface) {
-            let colorSalt, iconName;
+            let iconName;
 
             // If we were given a contact, it's direct message
             if (this.contact) {
-                colorSalt = this.contact.name;
                 iconName = 'avatar-default-symbolic';
             // Otherwise it's a group message
             } else {
-                colorSalt = GLib.uuid_string_random();
                 iconName = 'group-avatar-symbolic';
             }
 
-            this._bgRGBA = randomRGBA(colorSalt);
             this._offset = (this.width_request - 24) / 2;
 
             // Load the fallback
-            let pixbuf = getPixbufForIcon(iconName, 24, this._bgRGBA);
+            let pixbuf = getPixbufForIcon(iconName, 24, scale, this.rgba);
 
             this._surface = Gdk.cairo_surface_create_from_pixbuf(
                 pixbuf,
@@ -270,7 +288,7 @@ var Avatar = GObject.registerClass({
 
         // Fill the background if the the surface is offset
         if (this._offset > 0) {
-            Gdk.cairo_set_source_rgba(cr, this._bgRGBA);
+            Gdk.cairo_set_source_rgba(cr, this.rgba);
             cr.fill();
         }
 
@@ -313,7 +331,6 @@ var ContactChooser = GObject.registerClass({
 }, class ContactChooser extends Gtk.Grid {
 
     _init(params) {
-        this.connectTemplate();
         super._init(params);
 
         // Setup the contact list
@@ -417,7 +434,6 @@ var ContactChooser = GObject.registerClass({
 
     _onDestroy(chooser) {
         chooser.store = null;
-        chooser.disconnectTemplate();
     }
 
     _onSearchChanged(entry) {
@@ -542,7 +558,7 @@ var ContactChooser = GObject.registerClass({
             grid.attach(avatar, 0, 0, 1, 2);
 
             let nameLabel = new Gtk.Label({
-                label: contact.name,
+                label: GLib.markup_escape_text(contact.name, -1),
                 halign: Gtk.Align.START,
                 hexpand: true,
                 visible: true

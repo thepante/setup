@@ -29,22 +29,27 @@ const Prefs = imports.preferences;
 const Enums = imports.enums;
 const DBusUtils = imports.dbusUtils;
 const AskNamePopup = imports.askNamePopup;
+const AskRenamePopup = imports.askRenamePopup;
+const AskConfirmPopup = imports.askConfirmPopup;
+const ShowErrorPopup = imports.showErrorPopup;
 
 const Gettext = imports.gettext.domain('ding');
 
 const _ = Gettext.gettext;
 
 var DesktopManager = class {
-    constructor(appUuid, desktopList, scale, codePath, asDesktop) {
+    constructor(appUuid, desktopList, codePath, asDesktop) {
 
-        Gtk.init(null);
         DBusUtils.init();
+        this._codePath = codePath;
         this._asDesktop = asDesktop;
         this._desktopList = desktopList;
+        this._desktops = [];
         this._appUuid = appUuid;
-        this._scale = scale;
         this._desktopFilesChanged = false;
         this._readingDesktopFiles = true;
+        this._toDelete = [];
+        this._deletingFilesRecursively = false;
         this._desktopDir = DesktopIconsUtil.getDesktopDir();
         this._updateWritableByOthers();
         this._monitorDesktopDir = this._desktopDir.monitor_directory(Gio.FileMonitorFlags.WATCH_MOVES, null);
@@ -62,142 +67,54 @@ var DesktopManager = class {
                 this._updateDesktop();
             }
         });
+        this._nautilusSettingsId = Prefs.nautilusSettings.connect('changed', (obj, key) => {
+            if (key == 'show-image-thumbnails') {
+                this._updateDesktop();
+            }
+        });
 
-        this._rubberBand = false;
+        this.rubberBand = false;
 
         let cssProvider = new Gtk.CssProvider();
         cssProvider.load_from_file(Gio.File.new_for_path(GLib.build_filenamev([codePath, "stylesheet.css"])));
         Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), cssProvider, 600);
 
         this._configureSelectionColor();
-
-        this._x1 = desktopList[0].x;
-        this._x2 = desktopList[0].x + desktopList[0].w;
-        this._y1 = desktopList[0].y;
-        this._y2 = desktopList[0].y + desktopList[0].h;
-        for(let desktop of desktopList) {
-            if (this._x1 > desktop.x) {
-                this._x1 = desktop.x;
-            }
-            if (this._y1 > desktop.y) {
-                this._y1 = desktop.y;
-            }
-            if (this._x2 < (desktop.x + desktop.w)) {
-                this._x2 = desktop.x + desktop.w;
-            }
-            if (this._y2 < (desktop.y + desktop.h)) {
-                this._y2 = desktop.y + desktop.h;
-            }
-        }
-
-        this._window = new Gtk.Window();
-        if (asDesktop) {
-            if (appUuid) {
-                this._window.set_title(appUuid);
-            }
-            this._window.set_decorated(false);
-            this._window.set_deletable(false);
-            // If we are under X11, manage everything from here
-            if (Gdk.Display.get_default().constructor.$gtype.name === 'GdkX11Display') {
-                this._window.set_type_hint(Gdk.WindowTypeHint.DESKTOP);
-                this._window.stick();
-                this._window.move(this._x1, this._y1);
-            }
-        } else {
-            this._window.set_title('Desktop Icons');
-        }
-        this._window.set_resizable(false);
-        this._window.connect('delete-event', () => {
-            if (this._asDesktop) {
-                // Do not destroy window when closing if the instance is working as desktop
-                return true;
-            } else {
-                // Exit if this instance is working as an stand-alone window
-                Gtk.main_quit();
-            }
-        });
-
-        this._eventBox = new Gtk.EventBox({ visible: true });
-        this._window.add(this._eventBox);
-        this._container = new Gtk.Fixed();
-        this._eventBox.add(this._container);
-
-        this.setDropDestination(this._eventBox);
-
-        this._window.set_app_paintable(true);
-        // Transparent background, but only if this instance is working as desktop
-        if (asDesktop) {
-            let screen = this._window.get_screen();
-            let visual = screen.get_rgba_visual();
-            if (visual && screen.is_composited()) {
-                this._window.set_visual(visual);
-                this._window.connect('draw', (widget, cr) => {
-                    Gdk.cairo_set_source_rgba(cr, new Gdk.RGBA({red: 0.0, green: 0.0, blue: 0.0, alpha: 0.0}));
-                    cr.paint();
-                    return false;
-                });
-            }
-        }
-        this._container.connect('draw', (widget, cr) => {
-            if (!this._asDesktop) {
-                let colorNumber = 0;
-                for(let desktop of desktopList) {
-                    colorNumber++;
-                    if (colorNumber > 7) {
-                        colorNumber = 1; // avoid black
-                    }
-                    Gdk.cairo_set_source_rgba(cr, new Gdk.RGBA({red: (colorNumber&0x02) ? 1.0 : 0.0,
-                                                            green: (colorNumber&0x04) ? 1.0 : 0.0,
-                                                            blue: (colorNumber&0x01) ? 1.0 : 0.0,
-                                                            alpha: 1.0}));
-                    cr.rectangle(desktop.x - this._x1, desktop.y - this._y1, desktop.w, desktop.h);
-                    cr.fill();
-                }
-            }
-            this._doDrawRubberBand(cr);
-        });
+        this._createDesktopBackgroundMenu();
         this._createGrids();
 
-        this._window.show_all();
-        this._window.set_size_request(this._x2 - this._x1, this._y2 - this._y1);
-        this._window.resize(this._x2 - this._x1, this._y2 - this._y1);
-        this._eventBox.add_events(Gdk.EventMask.BUTTON_MOTION_MASK |
-                                  Gdk.EventMask.BUTTON_PRESS_MASK |
-                                  Gdk.EventMask.BUTTON_RELEASE_MASK |
-                                  Gdk.EventMask.KEY_RELEASE_MASK);
-        this._eventBox.connect('button-press-event', (actor, event) => this._onPressButton(actor, event));
-        this._eventBox.connect('motion-notify-event', (actor, event) => this._onMotion(actor, event));
-        this._eventBox.connect('button-release-event', (actor, event) => this._onReleaseButton(actor, event));
-        this._window.connect('key-release-event', (actor, event) => this._onKeyPress(actor, event));
-        this._eventBox.connect('drag-motion', (widget, context, x, y) => {
-            this._xDestination = x;
-            this._yDestination = y;
-        });
-        this._createDesktopBackgroundMenu();
         DBusUtils.NautilusFileOperationsProxy.connect('g-properties-changed', this._undoStatusChanged.bind(this));
         this._fileList = [];
         this._readFileList();
-    }
 
-    _createGrids() {
-        this._desktops = [];
-        for(let desktop of this._desktopList) {
-            this._desktops.push(new DesktopGrid.DesktopGrid(this, this._container, desktop.x, desktop.y, desktop.w, desktop.h, this._x1, this._y1, this._scale));
+        // Check if Nautilus is available
+        try {
+            DesktopIconsUtil.trySpawn(null, ["nautilus", "--version"]);
+        } catch (e) {
+            this._errorWindow = new ShowErrorPopup.ShowErrorPopup(_("Nautilus File Manager not found"),
+                                                                  _("The Nautilus File Manager is mandatory to work with Desktop Icons NG."),
+                                                                  null,
+                                                                  true);
         }
     }
 
-    _doDrawRubberBand(cr) {
-        if (this._rubberBand) {
-            cr.rectangle(this._rubberBandInitX,
-                         this._rubberBandInitY,
-                         this._mouseX - this._rubberBandInitX,
-                         this._mouseY - this._rubberBandInitY);
-            Gdk.cairo_set_source_rgba(cr, new Gdk.RGBA({
-                                                        red: this._selectColor.red,
-                                                        green: this._selectColor.green,
-                                                        blue: this._selectColor.blue,
-                                                        alpha: 0.6}));
-            cr.fill();
+    _createGrids() {
+        for(let desktop of this._desktops) {
+            desktop.destroy();
+        }
+        this._desktops = [];
+        for(let desktopIndex in this._desktopList) {
+            let desktop = this._desktopList[desktopIndex];
+            if (this._asDesktop) {
+                if (this._appUuid) {
+                    var desktopName = `${this._appUuid} ${desktopIndex}`;
+                } else {
+                    var desktopName = `${desktopIndex}`;
+                }
+            } else {
+                var desktopName = `DING ${desktopIndex}`;
+            }
+            this._desktops.push(new DesktopGrid.DesktopGrid(this, desktopName, desktop, this._asDesktop));
         }
     }
 
@@ -217,9 +134,9 @@ var DesktopManager = class {
     }
 
     _setSelectionColor() {
-        this._selectColor = this._styleContext.get_background_color(Gtk.StateFlags.SELECTED);
+        this.selectColor = this._styleContext.get_background_color(Gtk.StateFlags.SELECTED);
         let style = `.desktop-icons-selected {
-            background-color: rgba(${this._selectColor.red * 255},${this._selectColor.green * 255}, ${this._selectColor.blue * 255}, 0.6);
+            background-color: rgba(${this.selectColor.red * 255},${this.selectColor.green * 255}, ${this.selectColor.blue * 255}, 0.6);
         }`;
         this._cssProviderSelection.load_from_data(style);
         Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(), this._cssProviderSelection, 600);
@@ -242,29 +159,21 @@ var DesktopManager = class {
         }
     }
 
-    setDropDestination(dropDestination) {
-        dropDestination.drag_dest_set(Gtk.DestDefaults.ALL, null, Gdk.DragAction.MOVE);
-        let targets = new Gtk.TargetList(null);
-        targets.add(Gdk.atom_intern('x-special/ding-icon-list', false), Gtk.TargetFlags.SAME_APP, 0);
-        targets.add(Gdk.atom_intern('x-special/gnome-icon-list', false), 0, 1);
-        targets.add(Gdk.atom_intern('text/uri-list', false), 0, 2);
-        dropDestination.drag_dest_set_target_list(targets);
-        dropDestination.connect('drag-data-received', (widget, context, x, y, selection, info, time) => {
-            if ((info == 1) || (info == 2)) {
-                let fileList = DesktopIconsUtil.getFilesFromNautilusDnD(selection, info);
-                if (fileList.length != 0) {
-                    this.clearFileCoordinates(fileList, `${x},${y}`);
-                    DBusUtils.NautilusFileOperationsProxy.MoveURIsRemote(
-                        fileList,
-                        "file://" + GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP),
-                        (result, error) => {
-                            if (error)
-                                throw new Error('Error moving files: ' + error.message);
-                            }
-                    );
-                }
+    onDragDataReceived(x, y, selection, info) {
+        if ((info == 1) || (info == 2)) {
+            let fileList = DesktopIconsUtil.getFilesFromNautilusDnD(selection, info);
+            if (fileList.length != 0) {
+                this.clearFileCoordinates(fileList, `${x},${y}`);
+                DBusUtils.NautilusFileOperationsProxy.MoveURIsRemote(
+                    fileList,
+                    "file://" + GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP),
+                    (result, error) => {
+                        if (error)
+                            throw new Error('Error moving files: ' + error.message);
+                        }
+                );
             }
-        });
+        }
     }
 
     fillDragDataGet(info) {
@@ -297,11 +206,10 @@ var DesktopManager = class {
         return [atom, data];
     }
 
-    _onPressButton(actor, event) {
-        let button = event.get_button()[1];
-        let [a, x, y] = event.get_coords();
-        let state = event.get_state()[1];
+    onPressButton(x, y, event, window) {
 
+        let button = event.get_button()[1];
+        let state = event.get_state()[1];
         if (button == 1) {
             let shiftPressed = !!(state & Gdk.ModifierType.SHIFT_MASK);
             let controlPressed = !!(state & Gdk.ModifierType.CONTROL_MASK);
@@ -313,7 +221,6 @@ var DesktopManager = class {
             }
             this._startRubberband(x, y);
         }
-
         if (button == 3) {
             this._menu.popup_at_pointer(event);
             this._syncUndoRedo();
@@ -324,8 +231,6 @@ var DesktopManager = class {
                 this._pasteMenuItem.set_sensitive(valid);
             });
         }
-
-        return false;
     }
 
     _syncUndoRedo() {
@@ -368,7 +273,7 @@ var DesktopManager = class {
         );
     }
 
-    _onKeyPress(actor, event) {
+    onKeyPress(event) {
         let symbol = event.get_keyval()[1];
         let isCtrl = (event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK) != 0;
         let isShift = (event.get_state()[1] & Gdk.ModifierType.SHIFT_MASK) != 0;
@@ -394,7 +299,11 @@ var DesktopManager = class {
                 return true;
             }
         } else if (symbol == Gdk.KEY_Delete) {
-            this.doTrash();
+            if (isShift) {
+                this.doDeletePermanently();
+            } else {
+                this.doTrash();
+            }
             return true;
         } else if (symbol == Gdk.KEY_F2) {
             let selection = this.getCurrentSelection(false);
@@ -476,7 +385,7 @@ var DesktopManager = class {
 
     _onOpenTerminalClicked() {
         let desktopPath = this._desktopDir.get_path();
-        DesktopIconsUtil.launchTerminal(desktopPath);
+        DesktopIconsUtil.launchTerminal(desktopPath, null);
     }
 
     _doPaste() {
@@ -530,16 +439,17 @@ var DesktopManager = class {
         return [true, isCut, files];
     }
 
-    _onMotion(actor, event) {
-        if (this._rubberBand) {
-            let [a, x, y] = event.get_coords();
-            this._mouseX = x;
-            this._mouseY = y;
-            this._window.queue_draw();
-            let x1 = Math.min(x, this._rubberBandInitX);
-            let x2 = Math.max(x, this._rubberBandInitX);
-            let y1 = Math.min(y, this._rubberBandInitY);
-            let y2 = Math.max(y, this._rubberBandInitY);
+    onMotion(x, y) {
+        if (this.rubberBand) {
+            this.mouseX = x;
+            this.mouseY = y;
+            for(let grid of this._desktops) {
+                grid.queue_draw();
+            }
+            let x1 = Math.min(x, this.rubberBandInitX);
+            let x2 = Math.max(x, this.rubberBandInitX);
+            let y1 = Math.min(y, this.rubberBandInitY);
+            let y2 = Math.max(y, this.rubberBandInitY);
             for(let item of this._fileList) {
                 item.updateRubberband(x1, y1, x2, y2);
             }
@@ -547,23 +457,25 @@ var DesktopManager = class {
         return false;
     }
 
-    _onReleaseButton(actor, event) {
-        if (this._rubberBand) {
-            this._rubberBand = false;
+    onReleaseButton() {
+        if (this.rubberBand) {
+            this.rubberBand = false;
             for(let item of this._fileList) {
                 item.endRubberband();
             }
         }
-        this._window.queue_draw();
+        for(let grid of this._desktops) {
+            grid.queue_draw();
+        }
         return false;
     }
 
     _startRubberband(x, y) {
-        this._rubberBandInitX = x;
-        this._rubberBandInitY = y;
-        this._mouseX = x;
-        this._mouseY = y;
-        this._rubberBand = true;
+        this.rubberBandInitX = x;
+        this.rubberBandInitY = y;
+        this.mouseX = x;
+        this.mouseY = y;
+        this.rubberBand = true;
         for(let item of this._fileList) {
             item.startRubberband(x, y);
         }
@@ -597,7 +509,7 @@ var DesktopManager = class {
             }
             break;
         case Enums.Selection.ENTER:
-            if (this._rubberBand) {
+            if (this.rubberBand) {
                 fileItem.setSelected();
             }
             break;
@@ -647,7 +559,7 @@ var DesktopManager = class {
                                     newFolder,
                                     newFolder.query_info(Enums.DEFAULT_ATTRIBUTES, Gio.FileQueryInfoFlags.NONE, null),
                                     extras,
-                                    this._scale
+                                    this._codePath
                                 )
                             );
                         }
@@ -659,7 +571,7 @@ var DesktopManager = class {
                                 fileEnum.get_child(info),
                                 info,
                                 Enums.FileType.NONE,
-                                this._scale
+                                this._codePath
                             );
                             if (fileItem.isHidden && !showHidden) {
                                 /* if there are hidden files in the desktop and the user doesn't want to
@@ -844,6 +756,88 @@ var DesktopManager = class {
         }
     }
 
+    _deleteRecursively() {
+        if (this._deletingFilesRecursively || (this._toDelete.length == 0)) {
+            return;
+        }
+        this._deletingFilesRecursively = true;
+        let nextFileToDelete = this._toDelete.shift();
+        if (nextFileToDelete.query_file_type(Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, null) == Gio.FileType.DIRECTORY) {
+            nextFileToDelete.enumerate_children_async(Enums.DEFAULT_ATTRIBUTES, Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS, GLib.PRIORITY_DEFAULT, null, (source, res) => {
+                let fileEnum = source.enumerate_children_finish(res);
+                // insert again the folder at the beginning
+                this._toDelete.unshift(source);
+                let info;
+                let hasChilds = false;
+                while ((info = fileEnum.next_file(null))) {
+                    let file = fileEnum.get_child(info);
+                    // insert the children to the beginning of the array, to be deleted first
+                    this._toDelete.unshift(file);
+                    hasChilds = true;
+                }
+                if (!hasChilds) {
+                    // the folder is empty, so it can be deleted
+                    this._toDelete.shift().delete_async(GLib.PRIORITY_DEFAULT, null, (source, res) => {
+                        try {
+                            source.delete_finish(res);
+                        } catch(e) {
+                            let windowError = new ShowErrorPopup.ShowErrorPopup(_("Error while deleting files"),
+                                                                                _("There was an error while trying to permanently delete the folder {:}.").replace('{:}', source.get_parse_name()),
+                                                                                null,
+                                                                                false);
+                            windowError.run();
+                            return;
+                        }
+                        // continue with the next file
+                        this._deletingFilesRecursively = false;
+                        this._deleteRecursively();
+                    }); // remove it from the list (yes, again)
+                }
+                // continue processing the list
+                this._deletingFilesRecursively = false;
+                this._deleteRecursively();
+            });
+        } else {
+            nextFileToDelete.delete_async(GLib.PRIORITY_DEFAULT, null, (source, res) => {
+                try {
+                    source.delete_finish(res);
+                } catch(e) {
+                    let windowError = new ShowErrorPopup.ShowErrorPopup(_("Error while deleting files"),
+                                                                        _("There was an error while trying to permanently delete the file {:}.").replace('{:}', source.get_parse_name()),
+                                                                        null,
+                                                                        false);
+                    windowError.run();
+                    return;
+                }
+                // continue with the next file
+                this._deletingFilesRecursively = false;
+                this._deleteRecursively();
+            });
+        }
+    }
+
+    doDeletePermanently() {
+        let filelist = "";
+        for(let fileItem of this._fileList) {
+            if (fileItem.isSelected) {
+                if (filelist != "") {
+                    filelist += ", "
+                }
+                filelist += `"${fileItem.fileName}"`;
+            }
+        }
+        let renameWindow = new AskConfirmPopup.AskConfirmPopup(_("Are you sure you want to permanently delete these items?"), `${_("If you delete an item, it will be permanently lost.")}\n\n${filelist}`, null);
+        if (renameWindow.run()) {
+            this._permanentDeleteError = false;
+            for(let fileItem of this._fileList) {
+                if (fileItem.isSelected) {
+                    this._toDelete.push(fileItem.file);
+                }
+            }
+            this._deleteRecursively();
+        }
+    }
+
     doEmptyTrash() {
         DBusUtils.NautilusFileOperationsProxy.EmptyTrashRemote( (source, error) => {
             if (error)
@@ -852,8 +846,17 @@ var DesktopManager = class {
     }
 
     doMoveWithDragAndDrop(fileItem, xOrigin, yOrigin) {
-        let deltaX = this._xDestination - xOrigin;
-        let deltaY = this._yDestination - yOrigin;
+        // Find the grid where the destination lies
+        for(let desktop of this._desktops) {
+            let grid = desktop.getGridAt(this.xDestination, this.yDestination);
+            if (grid !== null) {
+                this.xDestination = grid[0];
+                this.yDestination = grid[1];
+                break;
+            }
+        }
+        let deltaX = this.xDestination - xOrigin;
+        let deltaY = this.yDestination - yOrigin;
         let fileItems = [fileItem];
         fileItem.removeFromGrid();
         let [x, y, a, b, c] = fileItem.getCoordinates();
@@ -911,24 +914,14 @@ var DesktopManager = class {
         for(let fileItem2 of this._fileList) {
             fileItem2.unsetSelected();
         }
-        let renameWindow = new AskNamePopup.AskNamePopup(fileItem.fileName, _("Rename"), this._window);
-        let newName = renameWindow.run();
-        if (newName) {
-            DBusUtils.NautilusFileOperationsProxy.RenameFileRemote(fileItem.file.get_uri(),
-                                                                   newName,
-                (result, error) => {
-                    if (error)
-                        throw new Error('Error renaming file: ' + error.message);
-                }
-            );
-        }
+        this._renameWindow = new AskRenamePopup.AskRenamePopup(fileItem);
     }
 
     doOpenWith() {
         let fileItems = this.getCurrentSelection(false);
         if (fileItems) {
             let mimetype = Gio.content_type_guess(fileItems[0].fileName, null)[0];
-            let chooser = Gtk.AppChooserDialog.new_for_content_type(this._window,
+            let chooser = Gtk.AppChooserDialog.new_for_content_type(null,
                                                                     Gtk.DialogFlags.MODAL + Gtk.DialogFlags.USE_HEADER_BAR,
                                                                     mimetype);
             chooser.show_all();
@@ -948,11 +941,11 @@ var DesktopManager = class {
         }
     }
 
-    _newFolder() {
+    _newFolder(window) {
         for(let fileItem of this._fileList) {
             fileItem.unsetSelected();
         }
-        let newFolderWindow = new AskNamePopup.AskNamePopup(null, _("New folder"), this._window);
+        let newFolderWindow = new AskNamePopup.AskNamePopup(null, _("New folder"), null);
         let newName = newFolderWindow.run();
         if (newName) {
             let dir = DesktopIconsUtil.getDesktopDir().get_child(newName);

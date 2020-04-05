@@ -6,18 +6,12 @@ const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 
 
+const SESSION_TIMEOUT = 15;
+
+
 const RemoteSession = GObject.registerClass({
     GTypeName: 'GSConnectRemoteSession',
     Implements: [Gio.DBusInterface],
-    Properties: {
-        'session-id': GObject.ParamSpec.string(
-            'session-id',
-            'SessionId',
-            'The unique session ID',
-            GObject.ParamFlags.READABLE,
-            null
-        )
-    },
     Signals: {
         'closed': {
             flags: GObject.SignalFlags.RUN_FIRST
@@ -30,8 +24,11 @@ const RemoteSession = GObject.registerClass({
             g_bus_type: Gio.BusType.SESSION,
             g_name: 'org.gnome.Mutter.RemoteDesktop',
             g_object_path: objectPath,
-            g_interface_name: 'org.gnome.Mutter.RemoteDesktop.Session'
+            g_interface_name: 'org.gnome.Mutter.RemoteDesktop.Session',
+            g_flags: Gio.DBusProxyFlags.DO_NOT_LOAD_PROPERTIES
         });
+
+        this._started = false;
     }
 
     vfunc_g_signal(sender_name, signal_name, parameters) {
@@ -40,34 +37,16 @@ const RemoteSession = GObject.registerClass({
         }
     }
 
-    get session_id() {
-        if (this._id === undefined) {
-            this._id = this.get_cached_property('SessionId').unpack();
-        }
-
-        return this._id;
-    }
-
     _call(name, parameters = null) {
-        this.call(
-            name,
-            parameters,
-            Gio.DBusCallFlags.NONE,
-            -1,
-            null,
-            (proxy, res) => {
-                try {
-                    proxy.call_finish(res);
-                } catch (e) {
-                    Gio.DBusError.strip_remote_error(e);
-                    logError(e);
-                }
-            }
-        );
+        if (!this._started) return;
+
+        this.call(name, parameters, Gio.DBusCallFlags.NONE, -1, null, null);
     }
 
     async start() {
         try {
+            if (this._started) return;
+
             // Initialize the proxy
             await new Promise((resolve, reject) => {
                 this.init_async(
@@ -78,7 +57,6 @@ const RemoteSession = GObject.registerClass({
                             proxy.init_finish(res);
                             resolve();
                         } catch (e) {
-                            Gio.DBusError.strip_remote_error(e);
                             reject(e);
                         }
                     }
@@ -97,15 +75,25 @@ const RemoteSession = GObject.registerClass({
                         try {
                             resolve(proxy.call_finish(res));
                         } catch (e) {
-                            Gio.DBusError.strip_remote_error(e);
                             reject(e);
                         }
                     }
                 );
             });
+
+            this._started = true;
         } catch (e) {
             this.destroy();
+
+            Gio.DBusError.strip_remote_error(e);
             throw e;
+        }
+    }
+
+    stop() {
+        if (this._started) {
+            this._started = false;
+            this.call('Stop', null, Gio.DBusCallFlags.NONE, -1, null, null);
         }
     }
 
@@ -262,67 +250,57 @@ const RemoteSession = GObject.registerClass({
 
 const Controller = class Controller {
     constructor() {
-        this._controller = null;
         this._nameAppearedId = 0;
+        this._session = null;
         this._sessionCloseId = 0;
+        this._sessionExpiry = 0;
+        this._sessionExpiryId = 0;
+        this._sessionStarting = false;
 
-        this._prepareController();
-    }
-
-    async _prepareController() {
-        try {
-            // Check for Mutter's remote desktop interface
-            if (this._mutter === undefined) {
-                let names = await this._listNames();
-                this._mutter = names.includes('org.gnome.Mutter.RemoteDesktop');
-            }
-
-            // Prefer the newer remote desktop interface
-            if (this._mutter) {
-                debug('Using Mutter RemoteDesktop');
-
-                if (this._nameAppearedId === 0) {
-                    this._nameAppearedId = Gio.bus_watch_name_on_connection(
-                        this.connection,
-                        'org.gnome.Mutter.RemoteDesktop',
-                        Gio.BusNameWatcherFlags.NONE,
-                        this._onNameAppeared.bind(this),
-                        this._onNameVanished.bind(this)
-                    );
-                }
-
-            // Fallback to Atspi
-            } else {
-                debug('Falling back to Atspi');
-
-                let fallback = imports.service.components.atspi;
-                this._controller = new fallback.Controller();
-            }
-        } catch (e) {
-            this._mutter = false;
-            debug(e);
-        }
+        // Watch for the RemoteDesktop portal
+        this._nameWatcherId = Gio.bus_watch_name(
+            Gio.BusType.SESSION,
+            'org.gnome.Mutter.RemoteDesktop',
+            Gio.BusNameWatcherFlags.NONE,
+            this._onNameAppeared.bind(this),
+            this._onNameVanished.bind(this)
+        );
     }
 
     get connection() {
         if (this._connection === undefined) {
-            let service = Gio.Application.get_default();
-            this._connection = service.get_dbus_connection();
+            this._connection = null;
         }
 
         return this._connection;
     }
 
-    async _onNameAppeared(connection, name, name_owner) {
-        try {
-            let objectPath = await this._createSession();
-            this._controller = new RemoteSession(objectPath);
-            this._controller.start();
+    _checkWayland() {
+        if (_WAYLAND) {
+            // eslint-disable-next-line no-global-assign
+            HAVE_REMOTEINPUT = false;
+            let service = Gio.Application.get_default();
 
-            this._sessionClosedId = this._controller.connect(
-                'closed',
-                this._onSessionClosed.bind(this)
-            );
+            // First we're going to disabled the mousepad plugin on all devices
+            for (let device of service.devices) {
+                let supported = device.settings.get_strv('supported-plugins');
+                supported = supported.splice(supported.indexOf('mousepad'), 1);
+                device.settings.set_strv('supported-plugins', supported);
+            }
+
+            // Second we need to amend the service identity and broadcast
+            service._identity = undefined;
+            service._identify();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    _onNameAppeared(connection, name, name_owner) {
+        try {
+            this._connection = connection;
         } catch (e) {
             logError(e);
         }
@@ -330,48 +308,58 @@ const Controller = class Controller {
 
     _onNameVanished(connection, name) {
         try {
-            // Ensure we're disconnected from the session
-            if (this._controller && this._sessionClosedId > 0) {
-                this._controller.disconnect(this._sessionClosedId);
-                this._sessionClosedId = 0;
-            }
-
-            // Destroy the session
-            if (this._controller) {
-                this._controller.destroy();
-                this._controller = null;
+            if (this._session !== null) {
+                this._onSessionClosed(this._session);
             }
         } catch (e) {
             logError(e);
         }
     }
 
-    _listNames() {
-        return new Promise((resolve, reject) => {
-            this.connection.call(
-                'org.freedesktop.DBus',
-                '/org/freedesktop/DBus',
-                'org.freedesktop.DBus',
-                'ListNames',
-                null,
-                null,
-                Gio.DBusCallFlags.NONE,
-                -1,
-                null,
-                (connection, res) => {
-                    try {
-                        res = connection.call_finish(res);
-                        resolve(res.deep_unpack()[0]);
-                    } catch (e) {
-                        reject(e);
-                    }
-                }
+    _onSessionClosed(session) {
+        // Disconnect from the session
+        if (this._sessionClosedId > 0) {
+            session.disconnect(this._sessionClosedId);
+            this._sessionClosedId = 0;
+        }
+
+        // Destroy the session
+        session.destroy();
+        this._session = null;
+    }
+
+    _onSessionExpired() {
+        // If the session has been used recently, schedule a new expiry
+        let remainder = Math.floor(this._sessionExpiry - (Date.now() / 1000));
+
+        if (remainder > 0) {
+            this._sessionExpiryId = GLib.timeout_add_seconds(
+                GLib.PRIORITY_DEFAULT,
+                remainder,
+                this._onSessionExpired.bind(this)
             );
-        });
+
+            return GLib.SOURCE_REMOVE;
+        }
+
+        // Otherwise if there's an active session, close it
+        if (this._session !== null) {
+            this._session.stop();
+        }
+
+        // Reset the GSource Id
+        this._sessionExpiryId = 0;
+
+        return GLib.SOURCE_REMOVE;
     }
 
     _createSession() {
         return new Promise((resolve, reject) => {
+            if (this.connection === null) {
+                reject(new Error('No DBus connection'));
+                return;
+            }
+
             this.connection.call(
                 'org.gnome.Mutter.RemoteDesktop',
                 '/org/gnome/Mutter/RemoteDesktop',
@@ -394,75 +382,179 @@ const Controller = class Controller {
         });
     }
 
-    // FIXME
-    _onSessionClosed(session) {
-        // Ensure we're disconnected from the session
-        if (this._sessionClosedId > 0) {
-            session.disconnect(this._sessionClosedId);
-            this._sessionClosedId = 0;
+    async _ensureAdapter() {
+        try {
+            // Update the timestamp of the last event
+            this._sessionExpiry = Math.floor((Date.now() / 1000) + SESSION_TIMEOUT);
+
+            // Session is active
+            if (this._session !== null) return;
+
+            // Mutter's RemoteDesktop is not available, fall back to Atspi
+            if (this.connection === null) {
+                debug('Falling back to Atspi');
+
+                // If we got here in Wayland, we need to re-adjust and bail
+                if (this._checkWayland()) return;
+
+                let fallback = imports.service.components.atspi;
+                this._session = new fallback.Controller();
+
+            // Mutter is available and there isn't another session starting
+            } else if (this._sessionStarting === false) {
+                this._sessionStarting = true;
+
+                debug('Creating Mutter RemoteDesktop session');
+
+                let objectPath = await this._createSession();
+                this._session = new RemoteSession(objectPath);
+                await this._session.start();
+
+                this._sessionClosedId = this._session.connect(
+                    'closed',
+                    this._onSessionClosed.bind(this)
+                );
+
+                if (this._sessionExpiryId === 0) {
+                    this._sessionExpiryId = GLib.timeout_add_seconds(
+                        GLib.PRIORITY_DEFAULT,
+                        SESSION_TIMEOUT,
+                        this._onSessionExpired.bind(this)
+                    );
+                }
+
+                this._sessionStarting = false;
+            }
+        } catch (e) {
+            logError(e);
+
+            if (this._session !== null) {
+                this._session.destroy();
+                this._session = null;
+            }
+
+            this._sessionStarting = false;
         }
-
-        // Destroy the session
-        session.destroy();
-        this._controller = undefined;
-
-        // Prepare a new session
-        this._prepareController();
     }
 
     /**
      * Pointer Events
      */
     movePointer(dx, dy) {
-        this._controller.movePointer(dx, dy);
+        try {
+            if (dx === 0 && dy === 0) return;
+
+            this._ensureAdapter();
+            this._session.movePointer(dx, dy);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     pressPointer(button) {
-        this._controller.pressPointer(button);
+        try {
+            this._ensureAdapter();
+            this._session.pressPointer(button);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     releasePointer(button) {
-        this._controller.releasePointer(button);
+        try {
+            this._ensureAdapter();
+            this._session.releasePointer(button);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     clickPointer(button) {
-        this._controller.clickPointer(button);
+        try {
+            this._ensureAdapter();
+            this._session.clickPointer(button);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     doubleclickPointer(button) {
-        this._controller.doubleclickPointer(button);
+        try {
+            this._ensureAdapter();
+            this._session.doubleclickPointer(button);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     scrollPointer(dx, dy) {
-        this._controller.scrollPointer(dx, dy);
+        if (dx === 0 && dy === 0) return;
+
+        try {
+            this._ensureAdapter();
+            this._session.scrollPointer(dx, dy);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     /**
      * Keyboard Events
      */
     pressKeysym(keysym) {
-        this._controller.pressKeysym(keysym);
+        try {
+            this._ensureAdapter();
+            this._session.pressKeysym(keysym);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     releaseKeysym(keysym) {
-        this._controller.releaseKeysym(keysym);
+        try {
+            this._ensureAdapter();
+            this._session.releaseKeysym(keysym);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     pressreleaseKeysym(keysym) {
-        this._controller.pressreleaseKeysym(keysym);
+        try {
+            this._ensureAdapter();
+            this._session.pressreleaseKeysym(keysym);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     /**
      * High-level keyboard input
      */
     pressKey(input, modifiers) {
-        this._controller.pressKey(input, modifiers);
+        try {
+            this._ensureAdapter();
+            this._session.pressKey(input, modifiers);
+        } catch (e) {
+            debug(e);
+        }
     }
 
     destroy() {
-        if (this._controller !== undefined) {
-            this._controller.destroy();
-            this._controller = undefined;
+        if (this._session !== null) {
+            // Disconnect from the session
+            if (this._sessionClosedId > 0) {
+                this._session.disconnect(this._sessionClosedId);
+                this._sessionClosedId = 0;
+            }
+
+            this._session.destroy();
+            this._session = null;
+        }
+
+        if (this._nameWatcherId > 0) {
+            Gio.bus_unwatch_name(this._nameWatcherId);
+            this._nameWatcherId = 0;
         }
     }
 };

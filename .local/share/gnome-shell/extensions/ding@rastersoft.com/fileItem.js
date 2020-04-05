@@ -39,9 +39,9 @@ const _ = Gettext.gettext;
 
 var FileItem = class {
 
-    constructor(desktopManager, file, fileInfo, fileExtra, scaleFactor) {
+    constructor(desktopManager, file, fileInfo, fileExtra, codePath) {
+        this._codePath = codePath;
         this._desktopManager = desktopManager;
-        this._scaleFactor = scaleFactor;
         this._fileExtra = fileExtra;
         this._loadThumbnailDataCancellable = null;
         this._thumbnailScriptWatch = 0;
@@ -67,11 +67,12 @@ var FileItem = class {
         this._icon = new Gtk.Image();
         this._iconContainer = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
         this._container.pack_start(this._iconContainer, false, false, 0);
-        this._iconContainer.set_size_request(Prefs.get_desired_width(this._scaleFactor), Prefs.get_icon_size(this._scaleFactor));
+        this._iconContainer.set_size_request(Prefs.get_desired_width(), Prefs.get_icon_size());
         this._iconContainer.pack_start(this._icon, true, true, 0);
         this._iconContainer.set_baseline_position(Gtk.BaselinePosition.CENTER);
 
-        this._label = new MyLabel({label: fileInfo.get_display_name()});
+        this._label = new MyLabel();
+        this._setFileName(fileInfo.get_display_name());
 
         this._container.pack_start(this._label, false, true, 0);
 
@@ -125,6 +126,16 @@ var FileItem = class {
             });
         }
         this.actor.show_all();
+        this._updateName();
+    }
+
+    _setFileName(text) {
+        this._currentFileName = text;
+        this._eventBox.set_tooltip_text(text);
+        for (let character of ".,-_@:") {
+            text = text.split(character).join(character + '\u200B');
+        }
+        this._label.label = text;
     }
 
     _readCoordinatesFromAttribute(fileInfo, attribute) {
@@ -160,7 +171,7 @@ var FileItem = class {
         this._dragSource.connect('drag-data-get', (widget, context, data, info, time) => {
             switch(info) {
                 case 0: // x-special/ding-icon-list
-                    this._desktopManager.doMoveWithDragAndDrop(this, this._x1 + this._xOrigin, this._y1 + this._yOrigin);
+                    this._desktopManager.doMoveWithDragAndDrop(this, this._x1, this._y1);
                     break;
                 case 1: // x-special/gnome-icon-list
                 case 2: //
@@ -193,7 +204,7 @@ var FileItem = class {
                                     (result, error) => {
                                         if (error)
                                             throw new Error('Error moving files: ' + error.message);
-                                        }
+                                    }
                                 );
                             } else {
                                 DBusUtils.NautilusFileOperationsProxy.TrashFilesRemote(fileList,
@@ -215,14 +226,20 @@ var FileItem = class {
         }
     }
 
-    setCoordinates(x, y, width, height, grid) {
+
+    setCoordinates(x, y, width, height, margin, zoom, grid) {
         this._x1 = x;
         this._y1 = y;
-        this._x2 = x + width - 1;
-        this._y2 = y + height - 1;
+        this._zoom = zoom;
+        this._x2 = x + (width * zoom) - 1;
+        this._y2 = y + (height * zoom) - 1;
         this._grid = grid;
         this._container.set_size_request(width, height);
-        this._label.setMaximumHeight(height - Prefs.get_icon_size(this._scaleFactor));
+        this._label.margin_start = margin;
+        this._label.margin_end = margin;
+        this._label.margin_bottom = margin;
+        this._iconContainer.margin_top = margin;
+        this._label.setMaximumHeight(height - Prefs.get_icon_size() - 2 * margin);
     }
 
     getCoordinates() {
@@ -275,6 +292,7 @@ var FileItem = class {
                     if (rebuild) {
                         this._updateIcon();
                     }
+                    this._updateName();
                 } catch(error) {
                     if (!error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
                         print("Error getting the file info: " + error);
@@ -286,7 +304,7 @@ var FileItem = class {
     _updateMetadataFromFileInfo(fileInfo) {
         this._fileInfo = fileInfo;
 
-        let oldLabelText = this._label.text;
+        let oldLabelText = this._currentFileName;
 
         this._displayName = fileInfo.get_attribute_as_string('standard::display-name');
         this._attributeCanExecute = fileInfo.get_attribute_boolean('access::can-execute');
@@ -312,7 +330,7 @@ var FileItem = class {
         }
 
         if (this.displayName != oldLabelText) {
-            this._label.text = this.displayName;
+            this._setFileName(this.displayName);
         }
 
         this._fileType = fileInfo.get_file_type();
@@ -344,15 +362,16 @@ var FileItem = class {
         }
 
         let thumbnailFactory = GnomeDesktop.DesktopThumbnailFactory.new(GnomeDesktop.DesktopThumbnailSize.LARGE);
-        if (thumbnailFactory.can_thumbnail(this._file.get_uri(),
+        if ((Prefs.nautilusSettings.get_string('show-image-thumbnails') != 'never') &&
+            (thumbnailFactory.can_thumbnail(this._file.get_uri(),
                                            this._attributeContentType,
-                                           this._modifiedTime)) {
+                                           this._modifiedTime))) {
             let thumbnail = thumbnailFactory.lookup(this._file.get_uri(), this._modifiedTime);
             if (thumbnail == null) {
                 if (!thumbnailFactory.has_valid_failed_thumbnail(this._file.get_uri(),
                                                                  this._modifiedTime)) {
                     let argv = [];
-                    argv.push(GLib.build_filenamev(['.', 'createThumbnail.js']));
+                    argv.push(GLib.build_filenamev([this._codePath, 'createThumbnail.js']));
                     argv.push(this._file.get_path());
                     let [success, pid] = GLib.spawn_async(null, argv, null,
                                                           GLib.SpawnFlags.SEARCH_PATH | GLib.SpawnFlags.DO_NOT_REAP_CHILD, null);
@@ -385,16 +404,15 @@ var FileItem = class {
                             let thumbnailPixbuf = GdkPixbuf.Pixbuf.new_from_stream(thumbnailStream, null);
 
                             if (thumbnailPixbuf != null) {
-                                let width = Prefs.get_desired_width(this._scaleFactor);
-                                let height = Prefs.get_icon_size() * this._scaleFactor;
+                                let width = Prefs.get_desired_width();
+                                let height = Prefs.get_icon_size();
                                 let aspectRatio = thumbnailPixbuf.width / thumbnailPixbuf.height;
                                 if ((width / height) > aspectRatio)
                                     width = height * aspectRatio;
                                 else
                                     height = width / aspectRatio;
-                                this._xOrigin = Math.floor((Prefs.get_desired_width(this._scaleFactor) - width) / 2);
-                                this._yOrigin = Math.floor(((Prefs.get_icon_size() * this._scaleFactor) - height) / 2);
                                 let pixbuf = thumbnailPixbuf.scale_simple(Math.floor(width), Math.floor(height), GdkPixbuf.InterpType.BILINEAR);
+                                pixbuf = this._addEmblemsToPixbufIfNeeded(pixbuf);
                                 this._icon.set_from_pixbuf(pixbuf);
                                 this._dragSource.drag_source_set_icon_pixbuf(pixbuf);
                             }
@@ -421,6 +439,59 @@ var FileItem = class {
         }
         this._icon.set_from_pixbuf(pixbuf);
         this._dragSource.drag_source_set_icon_pixbuf(pixbuf);
+    }
+
+    _copyAndResizeIfNeeded(pixbuf) {
+        /**
+         * If the pixbuf is the original from the theme, copies it into a new one, to be able
+         * to paint the emblems without altering the cached pixbuf in the theme object.
+         * Also, ensures that the copied pixbuf is, at least, as big as the desired icon size,
+         * to ensure that the emblems fit.
+         */
+
+        if (this._copiedPixbuf) {
+            return pixbuf;
+        }
+
+        this._copiedPixbuf = true;
+        let minsize = Prefs.get_icon_size();
+        if ((pixbuf.width < minsize) || (pixbuf.height < minsize)) {
+            let width = (pixbuf.width < minsize) ? minsize : pixbuf.width;
+            let height = (pixbuf.height < minsize) ? minsize : pixbuf.height;
+            let newpixbuf = GdkPixbuf.Pixbuf.new(pixbuf.colorspace, true, pixbuf.bits_per_sample, width, height);
+            newpixbuf.fill(0);
+            let x = Math.floor((width - pixbuf.width) / 2);
+            let y = Math.floor((height - pixbuf.height) / 2);
+            pixbuf.composite(newpixbuf, x, y, pixbuf.width, pixbuf.height, x, y, 1, 1,  GdkPixbuf.InterpType.NEAREST, 255);
+            return newpixbuf;
+        } else {
+            return pixbuf.copy();
+        }
+    }
+
+    _addEmblemsToPixbufIfNeeded(pixbuf) {
+        this._copiedPixbuf = false;
+        let emblem = null;
+        let finalSize = Math.floor(Prefs.get_icon_size() / 3);
+        if (this._isSymlink) {
+            if (this._isBrokenSymlink)
+                emblem = Gio.ThemedIcon.new('emblem-unreadable');
+            else
+                emblem = Gio.ThemedIcon.new('emblem-symbolic-link');
+            pixbuf = this._copyAndResizeIfNeeded(pixbuf);
+            let theme = Gtk.IconTheme.get_default();
+            let emblemIcon = theme.lookup_by_gicon(emblem, finalSize, Gtk.IconLookupFlags.FORCE_SIZE).load_icon();
+            emblemIcon.composite(pixbuf, pixbuf.width - finalSize, pixbuf.height - finalSize, finalSize, finalSize, pixbuf.width - finalSize, pixbuf.height - finalSize, 1, 1, GdkPixbuf.InterpType.BILINEAR, 255);
+        }
+
+        if (this.trustedDesktopFile) {
+            pixbuf = this._copyAndResizeIfNeeded(pixbuf);
+            let theme = Gtk.IconTheme.get_default();
+            emblem = Gio.ThemedIcon.new('emblem-default');
+            let emblemIcon = theme.lookup_by_gicon(emblem, finalSize, Gtk.IconLookupFlags.FORCE_SIZE).load_icon();
+            emblemIcon.composite(pixbuf, 0, 0, finalSize, finalSize, 0, 0, 1, 1, GdkPixbuf.InterpType.BILINEAR, 255);
+        }
+        return pixbuf;
     }
 
     _refreshTrashIcon() {
@@ -467,28 +538,13 @@ var FileItem = class {
 
         let itemIcon = null;
         try {
-            itemIcon = theme.lookup_by_gicon(icon, Prefs.get_icon_size() * this._scaleFactor, Gtk.IconLookupFlags.FORCE_SIZE).load_icon();
+            itemIcon = theme.lookup_by_gicon(icon, Prefs.get_icon_size(), Gtk.IconLookupFlags.FORCE_SIZE).load_icon();
         } catch (e) {
-            itemIcon = theme.load_icon("text-x-generic", Prefs.get_icon_size() * this._scaleFactor, Gtk.IconLookupFlags.FORCE_SIZE);
+            itemIcon = theme.load_icon("text-x-generic", Prefs.get_icon_size(), Gtk.IconLookupFlags.FORCE_SIZE);
         }
 
-        let emblem = null;
-        if (this._isSymlink) {
-            if (this._isBrokenSymlink)
-                emblem = Gio.ThemedIcon.new('emblem-unreadable');
-            else
-                emblem = Gio.ThemedIcon.new('emblem-symbolic-link');
-        } else if (this.trustedDesktopFile) {
-            emblem = Gio.ThemedIcon.new('emblem-symbolic-link');
-        }
+        itemIcon = this._addEmblemsToPixbufIfNeeded(itemIcon);
 
-        if (emblem != null) {
-            let finalSize = (Prefs.get_icon_size() * this._scaleFactor) / 3;
-            let emblemIcon = theme.lookup_by_gicon(emblem, finalSize, Gtk.IconLookupFlags.FORCE_SIZE).load_icon();
-            emblemIcon.copy_area(0, 0, finalSize, finalSize, itemIcon, 0, 0);
-        }
-        this._xOrigin = Math.floor((Prefs.get_desired_width(this._scaleFactor) - (Prefs.get_icon_size() * this._scaleFactor)) / 2);
-        this._yOrigin = 0;
         return itemIcon;
     }
 
@@ -512,10 +568,18 @@ var FileItem = class {
             return;
         }
 
-        if (this._attributeCanExecute && !this._isDirectory && !this._isValidDesktopFile && DesktopIconsUtil.isExecutable(this._attributeContentType)) {
-            if (this._execLine)
-                DesktopIconsUtil.spawnCommandLine(this._execLine);
-            return;
+        if (this._attributeCanExecute && !this._isDirectory && !this._isValidDesktopFile && this._execLine) {
+            let action =  DesktopIconsUtil.isExecutable(this._attributeContentType, this.file.get_basename());
+            switch (action) {
+            case Gtk.ResponseType.CANCEL:
+                return;
+            case Enums.WhatToDoWithExecutable.EXECUTE:
+                DesktopIconsUtil.spawnCommandLine(`"${this._execLine}"`);
+                return;
+            case Enums.WhatToDoWithExecutable.EXECUTE_IN_TERMINAL:
+                DesktopIconsUtil.launchTerminal(this.file.get_parent().get_path(), this._execLine);
+                return;
+            }
         }
 
         Gio.AppInfo.launch_default_for_uri_async(this.file.get_uri(),
@@ -581,6 +645,14 @@ var FileItem = class {
         });
     }
 
+    _updateName() {
+        if (this._isValidDesktopFile && !this._desktopManager.writableByOthers && !this._writableByOthers && this.trustedDesktopFile) {
+            this._setFileName(this._desktopFile.get_locale_string("Name"));
+        } else {
+            this._setFileName(this._fileInfo.get_display_name());
+        }
+    }
+
     _onAllowDisallowLaunchingClicked() {
         this.metadataTrusted = !this.trustedDesktopFile;
 
@@ -597,6 +669,7 @@ var FileItem = class {
                                       Gio.FileQueryInfoFlags.NONE,
                                       null);
         }
+        this._updateName();
     }
 
     canRename() {
@@ -638,6 +711,11 @@ var FileItem = class {
             this._actionTrash = new Gtk.MenuItem({label:_('Move to Trash')});
             this._actionTrash.connect('activate', () => {this._desktopManager.doTrash();});
             this._menu.add(this._actionTrash);
+            if (Prefs.nautilusSettings.get_boolean('show-delete-permanently')) {
+                this._actionDelete = new Gtk.MenuItem({label:_('Delete permanently')});
+                this._actionDelete.connect('activate', () => {this._desktopManager.doDeletePermanently();});
+                this._menu.add(this._actionDelete);
+            }
             if (this._isValidDesktopFile && !this._desktopManager.writableByOthers && !this._writableByOthers) {
                 this._menu.add(new Gtk.SeparatorMenuItem());
                 this._allowLaunchingMenuItem = new Gtk.MenuItem({label: this._allowLaunchingText});
@@ -671,7 +749,7 @@ var FileItem = class {
     }
 
     _onOpenTerminalClicked () {
-        DesktopIconsUtil.launchTerminal(this.file.get_path());
+        DesktopIconsUtil.launchTerminal(this.file.get_path(), null);
     }
 
     _onPressButton(actor, event) {
@@ -771,6 +849,12 @@ var FileItem = class {
             this._styleContext.add_class('file-item-hover');
             this._label.showAllLines();
         }
+        if (Prefs.CLICK_POLICY_SINGLE) {
+            let window = this._eventBox.get_window();
+            if (window) {
+                window.set_cursor(Gdk.Cursor.new_from_name(Gdk.Display.get_default(), "hand"));
+            }
+        }
         return false;
     }
 
@@ -779,6 +863,12 @@ var FileItem = class {
         if (this._styleContext.has_class('file-item-hover')) {
             this._styleContext.remove_class('file-item-hover');
             this._label.restoreLines();
+        }
+        if (Prefs.CLICK_POLICY_SINGLE) {
+            let window = this._eventBox.get_window();
+            if (window) {
+                window.set_cursor(Gdk.Cursor.new_from_name(Gdk.Display.get_default(), "default"));
+            }
         }
         return false;
     }
@@ -904,11 +994,13 @@ var MyLabel = GObject.registerClass({
         this._maximumHeight = null;
         this.set_ellipsize(Pango.EllipsizeMode.END);
         this.set_line_wrap(true);
-        this.set_line_wrap_mode(Pango.WrapMode.CHAR);
+        this.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
         this.set_yalign(0.0);
+        this.set_justify(Gtk.Justification.CENTER);
         this.set_lines(this._numberOfLines);
 
-        this._drawId = this.connect_after('draw', () => {
+        this._drawId = this.connect_after('draw', (widget, cr) => {
+            cr.$dispose();
             if (this._maximumHeight) {
                 if (this._currentHeight == this.get_allocated_height()) {
                     /*

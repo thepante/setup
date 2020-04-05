@@ -29,7 +29,6 @@ let desktops = [];
 let lastCommand = null;
 let codePath = '.';
 let errorFound = false;
-let zoom = 1.0;
 let asDesktop = false;
 for(let arg of ARGV) {
     if (lastCommand == null) {
@@ -48,7 +47,6 @@ for(let arg of ARGV) {
             break;
         case '-P':
         case '-D':
-        case '-Z':
             lastCommand = arg;
             break;
         default:
@@ -67,10 +65,7 @@ for(let arg of ARGV) {
         break;
     case '-D':
         let data = arg.split(":");
-        desktops.push({x:parseInt(data[0]), y:parseInt(data[1]), w:parseInt(data[2]), h:parseInt(data[3])});
-        break;
-    case '-Z':
-        zoom = parseFloat(arg);
+        desktops.push({x:parseInt(data[0]), y:parseInt(data[1]), width:parseInt(data[2]), height:parseInt(data[3]), zoom:parseInt(data[4])});
         break;
     }
     lastCommand = null;
@@ -80,7 +75,7 @@ if (desktops.length == 0) {
     /* if no desktop list is provided, like when launching the program in stand-alone mode,
      * configure a 1280x720 desktop
      */
-    desktops.push({x:0, y:0, w: 1280, h: 720});
+    desktops.push({x:0, y:0, width: 1280, height: 720, zoom: 1});
 }
 
 // this allows to import files from the current folder
@@ -95,8 +90,9 @@ Gettext.bindtextdomain("ding", GLib.build_filenamev([codePath, "locale"]));
 const DesktopManager = imports.desktopManager;
 
 if (!errorFound) {
+    Gtk.init(null);
     Prefs.init(codePath);
-    var desktopManager = new DesktopManager.DesktopManager(appUuid, desktops, zoom, codePath, asDesktop);
+    var desktopManager = new DesktopManager.DesktopManager(appUuid, desktops, codePath, asDesktop);
     Gtk.main();
     // return value
     0;

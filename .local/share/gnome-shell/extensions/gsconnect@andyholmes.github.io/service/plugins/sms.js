@@ -254,30 +254,13 @@ var Plugin = GObject.registerClass({
         }
     }
 
-    cacheClear() {
+    clearCache() {
         this.threads = {};
         this.__cache_write();
         this.notify('threads');
     }
 
     cacheLoaded() {
-        // Backwards compatibility with single-address format
-        let threads = Object.values(this.threads);
-
-        if (threads.length > 0 && threads[0][0].address) {
-            for (let t = 0, n_threads = threads.length; t < n_threads; t++) {
-                let thread = n_threads[t];
-
-                for (let m = 0, n_msgs = thread.length; m < n_msgs; m++) {
-                    let message = thread[m];
-
-                    message.addresses = [{address: message.address}];
-                    message.thread_id = parseInt(message.thread_id, 10);
-                    delete message.address;
-                }
-            }
-        }
-
         this.notify('threads');
     }
 
@@ -394,25 +377,27 @@ var Plugin = GObject.registerClass({
             // If messages is empty there's nothing to do...
             if (messages.length === 0) return;
 
-            // TODO: Backwards compatibility kdeconnect-android <= ???
-            if (messages[0].address) {
-                this._version = 1;
+            let thread_ids = [];
 
-                for (let i = 0, len = messages.length; i < len; i++) {
-                    let message = messages[i];
+            // Perform some modification of the messages
+            for (let i = 0, len = messages.length; i < len; i++) {
+                let message = messages[i];
 
-                    message.addresses = [{address: message.address}];
-                    message.thread_id = parseInt(message.thread_id, 10);
-                    delete message.address;
+                // COERCION: thread_id's to strings
+                message.thread_id = `${message.thread_id}`;
+                thread_ids.push (message.thread_id);
+
+                // TODO: Remove bogus `insert-address-token` entries
+                let a = message.addresses.length;
+
+                while (a--) {
+                    if (message.addresses[a].address === undefined ||
+                        message.addresses[a].address === 'insert-address-token')
+                        message.addresses.splice(a, 1);
                 }
-            } else {
-                this._version = 2;
             }
 
             // If there's multiple thread_id's it's a summary of threads
-            // COERCION: thread_id's to strings
-            let thread_ids = messages.map(msg => `${msg.thread_id}`);
-
             if (thread_ids.some(id => id !== thread_ids[0])) {
                 this._handleDigest(messages, thread_ids);
 

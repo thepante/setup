@@ -1,0 +1,20 @@
+window > headerbar,
+window > .titlebar,
+window > headerbar > headerbar,
+window > .titlebar > .titlebar,
+window > .titlebar > stack > headerbar,
+window headerbar:last-child,
+window .titlebar:last-child {
+  padding-right: 0;
+}
+
+window headerbar > box.right,
+window .titlebar > box.right {
+  margin: 0 -200px 0 0;
+  opacity: 0;
+}
+
+window .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
+}

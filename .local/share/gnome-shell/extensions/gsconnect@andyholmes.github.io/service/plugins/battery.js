@@ -111,6 +111,15 @@ var Plugin = GObject.registerClass({
         );
     }
 
+    clearCache() {
+        this._chargeState = [54, 0, -1];
+        this._dischargeState = [864, 0, -1];
+        this._thresholdLevel = 25;
+        this._estimateTime();
+
+        this.__cache_write();
+    }
+
     cacheLoaded() {
         this._estimateTime();
         this.connected();
@@ -259,7 +268,7 @@ var Plugin = GObject.registerClass({
             return;
         }
 
-        let upower = this.service.get('upower');
+        let upower = this.service.components.get('upower');
 
         if (upower) {
             this.device.sendPacket({
@@ -360,6 +369,10 @@ var Plugin = GObject.registerClass({
         }
     }
 
+    /**
+     * Calculate and update the estimated time remaining, without affecting the
+     * (dis)charge rate.
+     */
     _estimateTime() {
         // elision (rate, time, level)
         let [rate,, level] = this.charging ? this._chargeState : this._dischargeState;

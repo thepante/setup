@@ -241,7 +241,7 @@ const ThreadRow = GObject.registerClass({
 
     set message(message) {
         this._message = message;
-        this._sender = message.addresses[0].address;
+        this._sender = message.addresses[0].address || 'unknown';
 
         // Contact Name
         let nameLabel = _('Unknown Contact');
@@ -249,7 +249,7 @@ const ThreadRow = GObject.registerClass({
         // Update avatar for single-recipient messages
         if (message.addresses.length === 1) {
             this._avatar.contact = this.contacts[this._sender];
-            nameLabel = this._avatar.contact.name;
+            nameLabel = GLib.markup_escape_text(this._avatar.contact.name, -1);
         } else {
             this._avatar.contact = null;
             nameLabel = _('Group Message');
@@ -326,7 +326,6 @@ const ConversationWidget = GObject.registerClass({
 }, class ConversationWidget extends Gtk.Grid {
 
     _init(params) {
-        this.connectTemplate();
         super._init({
             device: params.device,
             plugin: params.plugin
@@ -361,10 +360,6 @@ const ConversationWidget = GObject.registerClass({
         this.list.set_sort_func(this._sortMessages);
         this._populateMessages();
 
-        // HACK: This property was added in gtk-3.24; if it's not present this
-        // will just become a useless JS variable instead of choking
-        this.entry.enable_emoji_completion = true;
-
         // Cleanup on ::destroy
         this.connect('destroy', this._onDestroy);
     }
@@ -393,6 +388,15 @@ const ConversationWidget = GObject.registerClass({
             this.contacts[address] = this.device.contacts.query({
                 number: address
             });
+        }
+
+        // TODO: Mark the entry as insensitive for group messages
+        if (this.addresses.length > 1) {
+            this.entry.placeholder_text = _('Not available');
+            this.entry.secondary_icon_name = null;
+            this.entry.secondary_icon_tooltip_text = null;
+            this.entry.sensitive = false;
+            this.entry.tooltip_text = null;
         }
     }
 
@@ -441,8 +445,6 @@ const ConversationWidget = GObject.registerClass({
     }
 
     _onDestroy(conversation) {
-        conversation.disconnectTemplate();
-
         conversation.device.disconnect(conversation._connectedId);
 
         conversation.list.foreach(message => {
@@ -481,7 +483,7 @@ const ConversationWidget = GObject.registerClass({
         // Sort properties
         row.date = message.date;
         row.type = message.type;
-        row.sender = message.addresses[0].address;
+        row.sender = message.addresses[0].address || 'unknown';
 
         row.grid = new Gtk.Grid({
             can_focus: false,
@@ -498,16 +500,14 @@ const ConversationWidget = GObject.registerClass({
 
         // Add avatar for incoming messages
         if (incoming) {
-            let address = message.addresses[0].address;
-
             // Ensure we have a contact
-            if (!this.contacts[address]) {
-                this.contacts[address] = this.device.contacts.query({
-                    number: address
+            if (this.contacts[row.sender] === undefined) {
+                this.contacts[row.sender] = this.device.contacts.query({
+                    number: row.sender
                 });
             }
 
-            row.avatar = new Contacts.Avatar(this.contacts[address]);
+            row.avatar = new Contacts.Avatar(this.contacts[row.sender]);
             row.avatar.valign = Gtk.Align.END;
             row.grid.attach(row.avatar, 0, 0, 1, 1);
         }
@@ -580,21 +580,23 @@ const ConversationWidget = GObject.registerClass({
 
     // GtkListBox::size-allocate
     _onMessageLogged(listbox, allocation) {
-        let vadj = this.scrolled.vadjustment;
+        let vadj = this.scrolled.get_vadjustment();
+        let upper = vadj.get_upper();
+        let pageSize = vadj.get_page_size();
 
         // Try loading more messages if there's room
-        if (vadj.get_upper() <= vadj.get_page_size()) {
+        if (upper <= pageSize) {
             this.logPrevious();
             this.scrolled.get_child().check_resize();
 
         // We've been asked to hold the position
         } else if (this.__pos) {
-            vadj.set_value(vadj.get_upper() - this.__pos);
+            vadj.set_value(upper - this.__pos);
             this.__pos = 0;
 
         // Otherwise scroll to the bottom
         } else {
-            vadj.set_value(vadj.get_upper() - vadj.get_page_size());
+            vadj.set_value(upper - pageSize);
         }
     }
 
@@ -669,12 +671,6 @@ const ConversationWidget = GObject.registerClass({
      * Send the contents of the message entry to the address
      */
     sendMessage(entry, signal_id, event) {
-        // TODO: removed when multi-target messages are supported
-        if (this.addresses.length > 1) {
-            this.entry.get_style_context().add_class('error');
-            return;
-        }
-
         // Don't send empty texts
         if (!this.entry.text.trim()) return;
 
@@ -742,7 +738,6 @@ var Window = GObject.registerClass({
 }, class Window extends Gtk.ApplicationWindow {
 
     _init(params) {
-        this.connectTemplate();
         super._init(params);
         this.headerbar.subtitle = this.device.name;
 
@@ -857,10 +852,8 @@ var Window = GObject.registerClass({
         let contact = this.device.contacts.query({number: address});
 
         if (addresses.length === 1) {
-            // Set the header bar title/subtitle
             this.headerbar.title = contact.name;
             this.headerbar.subtitle = Contacts.getDisplayNumber(contact, address);
-
         } else {
             let otherLength = addresses.length - 1;
 
@@ -879,7 +872,6 @@ var Window = GObject.registerClass({
     }
 
     _onDestroy(window) {
-        window.disconnectTemplate();
         GLib.source_remove(window._timestampThreadsId);
         window.contact_chooser.disconnect(window._numberSelectedId);
         window.plugin.disconnect(window._threadsChangedId);
@@ -926,9 +918,9 @@ var Window = GObject.registerClass({
             // If it's an existing conversation, update it
             if (message) {
                 // Ensure there's a contact mapping
-                let sender = message.addresses[0].address;
+                let sender = message.addresses[0].address || 'unknown';
 
-                if (!row.contacts[sender]) {
+                if (row.contacts[sender] === undefined) {
                     row.contacts[sender] = this.device.contacts.query({
                         number: sender
                     });

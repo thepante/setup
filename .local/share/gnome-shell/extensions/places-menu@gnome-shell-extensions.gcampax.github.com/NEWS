@@ -1,3 +1,26 @@
+3.34.2
+======
+* window-list, workspace-indicator: Exclude DESKTOP windows from previews
+  [Florian; !93]
+* screenshot-window-sizer: Fix cycling through all valid sizes [Willy; !97]
+
+Contributors:
+  Florian Müllner, Willy Stadnick
+
+Translators:
+  Stas Solovey [ru], Umarzuki Bin Mochlis Moktar [ms]
+
+3.34.1
+======
+* Adjust to gnome-settings-daemon plugin removals [Xiaoguang; !94]
+
+Contributors:
+  Florian Müllner, Xiaoguang Wang
+
+Translators:
+  Nathan Follens [nl], Dušan Kazik [sk], Ask Hjorth Larsen [da],
+  Yi-Jyun Pan [zh_TW]
+
 3.34.0
 ======
 

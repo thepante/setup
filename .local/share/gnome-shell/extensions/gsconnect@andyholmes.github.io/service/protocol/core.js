@@ -93,6 +93,21 @@ var Packet = class Packet {
     toString() {
         return `${this}`;
     }
+
+    /**
+     * Check if the packet has a payload.
+     *
+     * @returns (boolean} - %true if @packet has a payload
+     */
+    hasPayload() {
+        if (!this.hasOwnProperty('payloadSize'))
+            return false;
+
+        if (!this.hasOwnProperty('payloadTransferInfo'))
+            return false;
+
+        return (Object.keys(this.payloadTransferInfo).length > 0);
+    }
 };
 
 
@@ -169,6 +184,14 @@ var Channel = GObject.registerClass({
 
     set input_stream(stream) {
         this._input_stream = stream;
+    }
+
+    get output_queue() {
+        if (this._output_queue === undefined) {
+            this._output_queue = [];
+        }
+
+        return this._output_queue;
     }
 
     get output_stream() {

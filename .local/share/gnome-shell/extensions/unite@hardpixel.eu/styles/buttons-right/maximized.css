@@ -1,0 +1,20 @@
+.maximized > headerbar,
+.maximized > .titlebar,
+.maximized > headerbar > headerbar,
+.maximized > .titlebar > .titlebar,
+.maximized > .titlebar > stack > headerbar,
+.maximized headerbar:last-child,
+.maximized .titlebar:last-child {
+  padding-right: 0;
+}
+
+.maximized headerbar > box.right,
+.maximized .titlebar > box.right {
+  margin: 0 -200px 0 0;
+  opacity: 0;
+}
+
+.maximized .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
+}

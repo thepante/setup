@@ -11,9 +11,11 @@
     "3.24", 
     "3.26", 
     "3.28", 
-    "3.30"
+    "3.30", 
+    "3.34", 
+    "3.32"
   ], 
   "url": "https://github.com/biji/simplenetspeed", 
   "uuid": "simplenetspeed@biji.extension", 
-  "version": 16
+  "version": 17
 }

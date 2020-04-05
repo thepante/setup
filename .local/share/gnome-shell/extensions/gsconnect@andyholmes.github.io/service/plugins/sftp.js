@@ -113,6 +113,7 @@ var Plugin = GObject.registerClass({
     _parseInfo(info) {
         this._info = info;
 
+        this.info.ip = this.device.channel.host;
         this.info.directories = {};
         this.info.mount = null;
         this.info.regex = new RegExp(
@@ -185,7 +186,7 @@ var Plugin = GObject.registerClass({
                         // There's a good chance this is a host key verification
                         // error; regardless we'll remove the key for security.
                         } else {
-                            this._removeHostKey();
+                            this._removeHostKey(this.info.ip);
                             reject(e);
                         }
                     }

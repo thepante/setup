@@ -103,10 +103,14 @@ var Device = GObject.registerClass({
             path: '/org/gnome/shell/extensions/gsconnect/device/' + this.id + '/'
         });
 
-        // Watch for plugins changes
-        this._disabledPluginsId = this.settings.connect(
+        // Watch for changes to supported and disabled plugins
+        this._disabledPluginsChangedId = this.settings.connect(
             'changed::disabled-plugins',
-            this._onDisabledPlugins.bind(this)
+            this._onAllowedPluginsChanged.bind(this)
+        );
+        this._supportedPluginsChangedId = this.settings.connect(
+            'changed::supported-plugins',
+            this._onAllowedPluginsChanged.bind(this)
         );
 
         // Parse identity if initialized with a proper packet
@@ -145,6 +149,14 @@ var Device = GObject.registerClass({
         this._loadPlugins();
     }
 
+    get channel() {
+        if (this._channel === undefined) {
+            this._channel = null;
+        }
+
+        return this._channel;
+    }
+
     get connected () {
         if (this._connected === undefined) {
             this._connected = false;
@@ -165,7 +177,7 @@ var Device = GObject.registerClass({
         if (contacts && contacts.settings.get_boolean('contacts-source')) {
             return contacts._store;
         } else {
-            return this.service.contacts;
+            return this.service.components.get('contacts');
         }
     }
 
@@ -276,6 +288,9 @@ var Device = GObject.registerClass({
         let supported = [];
 
         for (let name in imports.service.plugins) {
+            // Don't report mousepad support in Ubuntu Wayland sessions
+            if (name === 'mousepad' && !HAVE_REMOTEINPUT) continue;
+
             let meta = imports.service.plugins[name].Metadata;
 
             if (!meta) continue;
@@ -433,7 +448,7 @@ var Device = GObject.registerClass({
         // Preference helpers
         let clearCache = new Gio.SimpleAction({
             name: 'clearCache',
-            parameter_type: new GLib.VariantType('s')
+            parameter_type: null
         });
         clearCache.connect('activate', this._clearCache.bind(this));
         this.add_action(clearCache);
@@ -671,7 +686,7 @@ var Device = GObject.registerClass({
      * @param {Core.Packet} packet - A packet
      */
     async rejectTransfer(packet) {
-        if (!packet || !packet.payloadTransferInfo) return;
+        if (!packet || !packet.hasPayload()) return;
 
         try {
             let transfer = this.createTransfer(Object.assign({
@@ -694,14 +709,8 @@ var Device = GObject.registerClass({
 
     _clearCache(action, parameter) {
         try {
-            let context = parameter.unpack();
-
-            if (context && this._plugins.has(context)) {
-                let plugin = this._plugins.get(context);
-
-                if (typeof plugin.cacheClear === 'function') {
-                    plugin.cacheClear();
-                }
+            for (let plugin of this._plugins.values()) {
+                plugin.clearCache();
             }
         } catch (e) {
             logError(e, this.name);
@@ -872,24 +881,26 @@ var Device = GObject.registerClass({
     /**
      * Plugin Functions
      */
-    async _onDisabledPlugins(settings) {
+    _onAllowedPluginsChanged(settings) {
         let disabled = this.settings.get_strv('disabled-plugins');
+        let supported = this.settings.get_strv('supported-plugins');
+        let allowed = supported.filter(name => !disabled.includes(name));
 
-        // Unload disabled plugins
-        for (let name of disabled) {
-            await this._unloadPlugin(name);
-        }
+        // Unload any plugins that are disabled or unsupported
+        this._plugins.forEach(plugin => {
+            if (!allowed.includes(plugin.name)) {
+                this._unloadPlugin(plugin.name);
+            }
+        });
 
         // Make sure we change the contacts store if the plugin was disabled
-        if (disabled.includes('contacts')) {
+        if (!allowed.includes('contacts')) {
             this.notify('contacts');
         }
 
         // Load allowed plugins
-        for (let name of this.settings.get_strv('supported-plugins')) {
-            if (!disabled.includes(name)) {
-                await this._loadPlugin(name);
-            }
+        for (let name of allowed) {
+            this._loadPlugin(name);
         }
     }
 
@@ -976,7 +987,8 @@ var Device = GObject.registerClass({
         this.service.objectManager.unexport(this._dbus_object.g_object_path);
 
         // Dispose GSettings
-        this.settings.disconnect(this._disabledPluginsId);
+        this.settings.disconnect(this._disabledPluginsChangedId);
+        this.settings.disconnect(this._supportedPluginsChangedId);
         this.settings.run_dispose();
 
         this.run_dispose();

@@ -1,0 +1,20 @@
+.tiled > headerbar,
+.tiled > .titlebar,
+.tiled > headerbar > headerbar,
+.tiled > .titlebar > .titlebar,
+.tiled > .titlebar > stack > headerbar,
+.tiled headerbar:last-child,
+.tiled .titlebar:last-child {
+  padding-right: 0;
+}
+
+.tiled headerbar > box.right,
+.tiled .titlebar > box.right {
+  margin: 0 -200px 0 0;
+  opacity: 0;
+}
+
+.tiled .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
+}

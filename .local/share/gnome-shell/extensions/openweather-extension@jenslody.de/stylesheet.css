@@ -32,19 +32,6 @@ padding: 0px;
 padding: 0px;
 spacing: 12px;
 }
-.openweather-button-box-38:ltr{
-padding-left: 24px;
-}
-
-.openweather-button-box-38:rtl{
-padding-right: 24px;
-}
-
-.openweather-provider {
-border-width: 0px;
-border-radius:5px;
-padding:5px;
-}
 
 .openweather-current-summarybox,
 .openweather-forecast-icon,
@@ -125,4 +112,23 @@ padding-right: 5px;
 .openweather-build-icon {
 padding-left: 15px;
 padding-right: 5px;
+}
+
+.openweather-button-action {
+-st-icon-style: symbolic;
+border-radius: 32px;
+margin: 0px;
+min-height: 22px;
+min-width: 22px;
+padding: 10px;
+font-size: 100%;
+}
+.openweather-button-action:hover,
+.openweather-button-action:focus {
+border: none;
+padding: 11px;
+}
+
+.openweather-button-action > StIcon {
+icon-size: 16px;
 }

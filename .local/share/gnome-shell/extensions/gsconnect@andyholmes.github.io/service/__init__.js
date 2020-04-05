@@ -13,6 +13,7 @@ const ByteArray = imports.byteArray;
  * https://wiki.gnome.org/Accessibility/Wayland#Bugs.2FIssues_We_Must_Address
  */
 window._WAYLAND = GLib.getenv('XDG_SESSION_TYPE') === 'wayland';
+window.HAVE_REMOTEINPUT = GLib.getenv('GDMSESSION') !== 'ubuntu-wayland';
 
 
 /**
@@ -72,22 +73,14 @@ JSON.load = function (file, sync = false) {
     if (sync) {
         let contents = file.load_contents(null)[1];
 
-        if (contents instanceof Uint8Array) {
-            contents = ByteArray.toString(contents);
-        }
-
-        return JSON.parse(contents);
+        return JSON.parse(ByteArray.toString(contents));
     } else {
         return new Promise((resolve, reject) => {
             file.load_contents_async(null, (file, res) => {
                 try {
                     let contents = file.load_contents_finish(res)[1];
 
-                    if (contents instanceof Uint8Array) {
-                        contents = ByteArray.toString(contents);
-                    }
-
-                    resolve(JSON.parse(contents));
+                    resolve(JSON.parse(ByteArray.toString(contents)));
                 } catch (e) {
                     reject(e);
                 }
@@ -279,20 +272,6 @@ Gio.File.rm_rf = function(file) {
 
 
 /**
- * Polyfill for GLib.uuid_string_random() (GLib v2.52+)
- *
- * Source: https://gist.github.com/jed/982883
- */
-if (typeof GLib.uuid_string_random !== 'function') {
-    GLib.uuid_string_random = function() {
-        return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (salt) => {
-            return (salt ^ Math.random() * 16 >> salt / 4).toString(16);
-        });
-    };
-}
-
-
-/**
  * Extend GLib.Variant with a static method to recursively pack a variant
  *
  * @param {*} [obj] - May be a GLib.Variant, Array, standard Object or literal.
@@ -314,7 +293,7 @@ function _full_pack(obj) {
         case (type === 'boolean'):
             return GLib.Variant.new('b', obj);
 
-        case (obj instanceof ByteArray.ByteArray):
+        case (obj instanceof Uint8Array):
             return GLib.Variant.new('ay', obj);
 
         case (obj === null):
@@ -367,7 +346,7 @@ function _full_unpack(obj) {
         case (obj instanceof GLib.Variant):
             return _full_unpack(obj.deep_unpack());
 
-        case (obj instanceof ByteArray.ByteArray):
+        case (obj instanceof Uint8Array):
             return obj;
 
         case (typeof obj.map === 'function'):

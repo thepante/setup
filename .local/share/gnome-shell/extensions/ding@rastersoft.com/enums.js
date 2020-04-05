@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var ICON_SIZE = { 'small': 48, 'standard': 64, 'large': 96 };
-var ICON_WIDTH = { 'small': 112, 'standard': 120, 'large': 120 };
-var ICON_HEIGHT = { 'small': 90, 'standard': 106, 'large': 138 };
+var ICON_SIZE = { 'tiny': 36, 'small': 48, 'standard': 64, 'large': 96 };
+var ICON_WIDTH = { 'tiny': 70, 'small': 90, 'standard': 120, 'large': 130 };
+var ICON_HEIGHT = { 'tiny': 70, 'small': 90, 'standard': 106, 'large': 138 };
 
 var FileType = {
     NONE: null,
@@ -53,6 +53,13 @@ var FileExistOperation = {
     OVERWRITE: 1,
     RENAME: 2,
     SKIP: 3
+};
+
+var WhatToDoWithExecutable = {
+    EXECUTE: 0,
+    EXECUTE_IN_TERMINAL: 1,
+    DISPLAY: 2,
+    CANCEL: 3
 };
 
 var DEFAULT_ATTRIBUTES = 'metadata::*,standard::*,access::*,time::modified,unix::mode';

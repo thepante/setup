@@ -31,17 +31,16 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Gettext = imports.gettext.domain(Me.metadata['gettext-domain']);
 const _ = Gettext.gettext;
-const Convenience = Me.imports.convenience;
 const Keys = Me.imports.keys;
 const Readme = Me.imports.readme;
 const GioSSS = Gio.SettingsSchemaSource;
 const DEFAULT_ICO = Me.path + Keys.ICON_FILE;
 const THEME_SCHEMA = 'org.gnome.shell.extensions.user-theme';
-const COMMIT = "Commit: 236e2ba1736ebdc54f98b5abcd38254399faa4fa";
+const COMMIT = "Commit: 5dcc1b7b9266be09eabc0f109cccc6856f6dabcc";
 const TILE_OFF = 'tile-max-effect-off';
 
 function init() {
-    Convenience.initTranslations();
+    ExtensionUtils.initTranslations();
 }
 
 const ActivitiesConfiguratorSettingsWidget = GObject.registerClass(
@@ -50,7 +49,7 @@ class ActivitiesConfiguratorSettingsWidget extends Gtk.Grid {
     _init(params) {
         super._init(params)
 
-        this._settings = Convenience.getSettings();
+        this._settings = ExtensionUtils.getSettings();
         let version = '[ v' + this._settings.get_string(Keys.EPVERSION) +
             ' GS ' + this._settings.get_string(Keys.GSPVERSION) + ' ]';
 

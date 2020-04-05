@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist gettext-domain="ding">
     <enum id="org.gnome.shell.extension.ding.ZoomLevel">
+        <value value="3" nick="tiny"/>
         <value value="0" nick="small"/>
         <value value="1" nick="standard"/>
         <value value="2" nick="large"/>

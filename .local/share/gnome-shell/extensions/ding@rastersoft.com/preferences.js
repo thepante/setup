@@ -86,7 +86,7 @@ function showPreferences() {
     frame.set_spacing(10);
     frame.set_border_width(10);
 
-    frame.add(buildSelector(desktopSettings, 'icon-size', _("Size for the desktop icons"), { 'small': _("Small"), 'standard': _("Standard"), 'large': _("Large") }));
+    frame.add(buildSelector(desktopSettings, 'icon-size', _("Size for the desktop icons"), {'tiny': _("Tiny"), 'small': _("Small"), 'standard': _("Standard"), 'large': _("Large") }));
     frame.add(buildSwitcher(desktopSettings, 'show-home', _("Show the personal folder in the desktop")));
     frame.add(buildSwitcher(desktopSettings, 'show-trash', _("Show the trash icon in the desktop")));
 
@@ -100,6 +100,21 @@ function showPreferences() {
 
     nautilusBox.add(buildSelector(nautilusSettings, 'click-policy', _("Click type for open files"), { 'single': _("Single click"), 'double': _("Double click"), }));
     nautilusBox.add(buildSwitcher(gtkSettings, 'show-hidden', _("Show hidden files")));
+    nautilusBox.add(buildSwitcher(nautilusSettings, 'show-delete-permanently', _("Show a context menu item to delete permanently")));
+    nautilusBox.add(buildSelector(nautilusSettings,
+                                  'executable-text-activation',
+                                  _("Action to do when launching a program from the desktop"), {
+                                      'display': _("Display the content of the file"),
+                                      'launch': _("Launch the file"),
+                                      'ask': _("Ask what to do")
+                                   }));
+    nautilusBox.add(buildSelector(nautilusSettings,
+                                  'show-image-thumbnails',
+                                  _("Show image thumbnails"), {
+                                      'never': _("Never"),
+                                      'local-only': _("Local files only"),
+                                      'always': _("Always")
+                                   }));
     window.show_all();
 }
 
@@ -143,14 +158,13 @@ function _onNautilusSettingsChanged() {
 }
 
 function get_icon_size() {
-    // this one doesn't need scaling because Gnome Shell automagically scales the icons
     return Enums.ICON_SIZE[desktopSettings.get_string('icon-size')];
 }
 
-function get_desired_width(scale_factor) {
-    return Enums.ICON_WIDTH[desktopSettings.get_string('icon-size')] * scale_factor;
+function get_desired_width() {
+    return Enums.ICON_WIDTH[desktopSettings.get_string('icon-size')];
 }
 
-function get_desired_height(scale_factor) {
-    return Enums.ICON_HEIGHT[desktopSettings.get_string('icon-size')] * scale_factor;
+function get_desired_height() {
+    return Enums.ICON_HEIGHT[desktopSettings.get_string('icon-size')];
 }

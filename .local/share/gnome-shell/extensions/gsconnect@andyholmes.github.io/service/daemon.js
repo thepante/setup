@@ -116,6 +116,9 @@ const Service = GObject.registerClass({
             });
 
             for (let name in imports.service.plugins) {
+                // Don't report mousepad support in Ubuntu Wayland sessions
+                if (name === 'mousepad' && !HAVE_REMOTEINPUT) continue;
+
                 let meta = imports.service.plugins[name].Metadata;
 
                 if (!meta) continue;
@@ -140,11 +143,7 @@ const Service = GObject.registerClass({
         try {
             let type = GLib.file_get_contents('/sys/class/dmi/id/chassis_type')[1];
 
-            if (type instanceof Uint8Array) {
-                type = imports.byteArray.toString(type);
-            }
-
-            type = Number(type);
+            type = Number(imports.byteArray.toString(type));
 
             if ([8, 9, 10, 14].includes(type)) {
                 return 'laptop';
@@ -570,20 +569,10 @@ const Service = GObject.registerClass({
             logError(error);
 
             // Create an new notification
-            let id, title, body, icon, priority, time;
+            let id, title, body, icon, priority;
             let notif = new Gio.Notification();
 
             switch (error.name) {
-                // A TLS certificate failure
-                case 'AuthenticationError':
-                    id = `"${error.deviceName}"@${error.deviceHost}`;
-                    title = _('Authentication Failure');
-                    time = GLib.DateTime.new_now_local().format('%F %R');
-                    body = `"${error.deviceName}"@${error.deviceHost} (${time})`;
-                    icon = new Gio.ThemedIcon({name: 'dialog-error'});
-                    priority = Gio.NotificationPriority.URGENT;
-                    break;
-
                 case 'LanError':
                     id = error.name;
                     title = _('Network Error');
@@ -599,7 +588,7 @@ const Service = GObject.registerClass({
                     body = _('Discovery has been disabled due to the number of devices on this network.');
                     icon = new Gio.ThemedIcon({name: 'dialog-warning'});
                     priority = Gio.NotificationPriority.NORMAL;
-                    notif.set_default_action('app.settings');
+                    notif.set_default_action('app.preferences');
                     break;
 
                 default:
@@ -679,6 +668,9 @@ const Service = GObject.registerClass({
     }
 
     vfunc_dbus_register(connection, object_path) {
+        if (!super.vfunc_dbus_register(connection, object_path))
+            return false;
+
         this.objectManager = new Gio.DBusObjectManagerServer({
             connection: connection,
             object_path: object_path
@@ -930,6 +922,15 @@ const Service = GObject.registerClass({
             _('Share Link'),
             '<URL>'
         );
+
+        this.add_main_option(
+            'share-text',
+            null,
+            GLib.OptionFlags.NONE,
+            GLib.OptionArg.STRING,
+            _('Share Text'),
+            '<text>'
+        );
         
         /*
          * Misc
@@ -1020,7 +1021,7 @@ const Service = GObject.registerClass({
             body = options.lookup_value('notification-body', null).unpack();
         }
 
-        if (options.contains('notification-app')) {
+        if (options.contains('notification-appname')) {
             appName = options.lookup_value('notification-appname', null).unpack();
         }
 
@@ -1047,14 +1048,10 @@ const Service = GObject.registerClass({
     _cliShareFile(device, options) {
         let files = options.lookup_value('share-file', null);
 
-        debug(files.print(true));
-
         files = files.deep_unpack();
 
         files.map(file => {
-            if (file instanceof Uint8Array) {
-                file = imports.byteArray.toString(file);
-            }
+            file = imports.byteArray.toString(file);
 
             this._cliAction(device, 'shareFile', GLib.Variant.new('(sb)', [file, false]));
         });
@@ -1064,12 +1061,16 @@ const Service = GObject.registerClass({
         let uris = options.lookup_value('share-link', null).deep_unpack();
 
         uris.map(uri => {
-            if (uri instanceof Uint8Array) {
-                uri = imports.byteArray.toString(uri);
-            }
+            uri = imports.byteArray.toString(uri);
             
             this._cliAction(device, 'shareUri', GLib.Variant.new_string(uri));
         });
+    }
+
+    _cliShareText(device, options) {
+        let text = options.lookup_value('share-text', null).unpack();
+
+        this._cliAction(device, 'shareText', GLib.Variant.new_string(text));
     }
 
     vfunc_handle_local_options(options) {
@@ -1135,7 +1136,7 @@ const Service = GObject.registerClass({
             }
 
             if (options.contains('share-link')) {
-                this._cliShareFile(id, options);
+                this._cliShareLink(id, options);
             }
 
             return 0;

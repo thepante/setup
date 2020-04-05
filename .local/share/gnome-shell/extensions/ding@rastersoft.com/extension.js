@@ -26,6 +26,7 @@ const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
 const ExtensionUtils = imports.misc.extensionUtils;
+const Config = imports.misc.config;
 const Mainloop = imports.mainloop;
 
 // This object will contain all the global variables
@@ -58,7 +59,7 @@ function init() {
     data.isEnabled = false;
     data.launchDesktopId = 0;
     data.currentProcess = null;
-    data.desktopWindow = null;
+    data.desktopWindows = [];
     data.reloadTime = 100;
     // Ensure that there aren't "rogue" processes
     doKillAllOldDesktopProcesses();
@@ -73,16 +74,6 @@ function init() {
  */
 function removeDesktopWindowFromList(windowList) {
 
-    /*
-     * Although the Gnome documentation says that a replaced method must be
-     * restored when the extension is disabled, it is a very risky operation,
-     * because if another extension also replaces the same methods, when this
-     * extension is disabled the other one will fail.
-     *
-     * The secure way of doing a method replacement is to make it inalterable,
-     * and just return the value of the old method without altering it when the
-     * extension is disabled.
-     */
     if (!data.currentProcess) {
         return windowList;
     }
@@ -140,18 +131,36 @@ function newListWindows() {
 function enable() {
     // If the desktop is still starting up, we wait until it is ready
     if (Main.layoutManager._startingUp) {
-        data.startupPreparedId = Main.layoutManager.connect('startup-complete', () => innerEnable());
+        data.startupPreparedId = Main.layoutManager.connect('startup-complete', () => { innerEnable(true); });
     } else {
-        innerEnable();
+        innerEnable(false);
+    }
+}
+
+/**
+ * Extracts the desktop number from the window title, no matter if it has an UUID or not
+ * @param {string} title The window title
+ * @returns The desktop number, or -1 if there is no valid number
+ */
+function getDesktopNumber(title) {
+    try {
+        let pos = title.indexOf(" ");
+        if (pos == -1) {
+            return parseInt(title);
+        } else {
+            return parseInt(title.substring(pos+1));
+        }
+    } catch(e) {
+        return -1;
     }
 }
 
 /**
  * The true code that configures everything and launches the desktop program
  */
-function innerEnable() {
+function innerEnable(removeId) {
 
-    if (data.startupPreparedId) {
+    if (removeId) {
         Main.layoutManager.disconnect(data.startupPreparedId);
         data.startupPreparedId = null;
     }
@@ -163,10 +172,12 @@ function innerEnable() {
         replaceMethod(Meta.Workspace, 'list_windows', newListWindows);
 
         data.idMap = global.window_manager.connect_after('map', (obj, windowActor) => {
-            if (data.desktopWindow) {
-                data.desktopWindow.lower();
+            for (let desktopWindow of data.desktopWindows) {
+                try {
+                    desktopWindow.lower();
+                } catch {}
             }
-            if (data.windowUpdated || !data.currentProcess) {
+            if (!data.currentProcess) {
                 return false;
             }
             let window = windowActor.get_meta_window();
@@ -191,29 +202,29 @@ function innerEnable() {
                 * course, that value isn't fixed, but calculated automatically each time the
                 * desktop geometry changes, so a bigger top bar will work fine.
                 */
-                window.move_frame(false,
-                                  data.minx,
-                                  data.miny);
-                // Show the window in all desktops, and send it to the bottom
-                window.stick();
-                window.lower();
-                data.windowUpdated = true;
-                data.desktopWindow = window;
-                // keep the window at the bottom when the user clicks on it
-                window.connect_after('raised', () => {
-                    window.lower();
-                });
-                // Don't allow to move it with Alt+F7 or other special keys
-                window.connect('position-changed', () => {
+                let desktopNumber = getDesktopNumber(window.get_title());
+                if ((desktopNumber >= 0) && (desktopNumber < data.desktopCoordinates.length)) {
                     window.move_frame(false,
-                                      data.minx,
-                                      data.miny);
-                });
-                // If the window disappears, prepare to launch a new process
-                window.connect('unmanaged', () => {
-                    data.desktopWindow = null;
-                    data.windowUpdated = false;
-                });
+                                      data.desktopCoordinates[desktopNumber].x,
+                                      data.desktopCoordinates[desktopNumber].y);
+                    // Show the window in all desktops, and send it to the bottom
+                    window.stick();
+                    window.lower();
+                    data.desktopWindows.push(window);
+                    // keep the window at the bottom when the user clicks on it
+                    window.connect_after('raised', () => {
+                        window.lower();
+                    });
+                    // Don't allow to move it with Alt+F7 or other special keys
+                    window.connect('position-changed', () => {
+                        let desktopNumber = getDesktopNumber(window.get_title());
+                        window.move_frame(false,
+                                          data.desktopCoordinates[desktopNumber].x,
+                                          data.desktopCoordinates[desktopNumber].y);
+                    });
+                } else {
+                    global.log(`Desktop number not valid: ${desktopNumber}`);
+                }
             }
             return false;
         });
@@ -222,8 +233,10 @@ function innerEnable() {
              * If the user switches to another workspace, ensure that the desktop window
              * is sent to the bottom, thus giving the focus to any window that is there
              */
-            if (data.desktopWindow) {
-                data.desktopWindow.lower();
+            for (let desktopWindow of data.desktopWindows) {
+                try {
+                    desktopWindow.lower();
+                } catch {}
             }
         });
     }
@@ -233,27 +246,37 @@ function innerEnable() {
      * we kill the desktop program. It will be relaunched automatically with the new geometry,
      * thus adapting to it on-the-fly.
      */
-    try {
-        data.monitorsChangedId = Main.layoutManager.connect_after('monitors-changed', () => {
-            data.reloadTime = 1000; // give more time in this case, to ensure that everything has changed
+    data.monitorsChangedId = Main.layoutManager.connect('monitors-changed', () => {
+        data.reloadTime = 3000; // give more time in this case, to ensure that everything has changed
+        killCurrentProcess();
+    });
+
+    data.desktopCoordinates = [];
+
+    /*
+     * This callback allows to detect a change in the working area (like when changing the Zoom value)
+     */
+    data.sizeChangedId = global.window_manager.connect('size-changed', () => {
+        if (data.desktopCoordinates.length != Main.layoutManager.monitors.length) {
             killCurrentProcess();
-        });
-    } catch(e) {
-        // compatibility with 3.30
-        data.monitorsChangedId = Main.layoutManager.connect('monitors-changed', () => {
-            data.reloadTime = 2000; // give more time in this case, to ensure that everything has changed
-            killCurrentProcess();
-        });
-    }
+            return;
+        }
+        for(let monitorIndex = 0; monitorIndex < Main.layoutManager.monitors.length; monitorIndex++) {
+            let ws = global.workspace_manager.get_workspace_by_index(0);
+            let area = ws.get_work_area_for_monitor(monitorIndex);
+            let area2 = data.desktopCoordinates[monitorIndex];
+            if ((area.width != area2.width) || (area.height != area2.height)) {
+                killCurrentProcess();
+                return;
+            }
+        }
+    });
+
     data.isEnabled = true;
     if (data.launchDesktopId) {
         GLib.source_remove(data.launchDesktopId);
     }
-    data.launchDesktopId = Mainloop.timeout_add(1000, () => {
-        data.launchDesktopId = 0;
-        launchDesktop();
-        return false;
-    });
+    launchDesktop();
 }
 
 /**
@@ -285,6 +308,9 @@ function disable() {
     if (data.monitorsChangedId) {
         Main.layoutManager.disconnect(data.monitorsChangedId);
     }
+    if (data.sizeChangedId) {
+        global.window_manager.disconnect(data.sizeChangedId);
+    }
     killCurrentProcess();
 }
 
@@ -306,7 +332,7 @@ function killCurrentProcess() {
     }
 
     // kill the desktop program. It will be reloaded automatically.
-    data.desktopWindow = null;
+    data.desktopWindows = [];
     data.appUUID = null;
     if (data.currentProcess && data.currentProcess.subprocess) {
         data.currentProcess.subprocess.force_exit();
@@ -378,12 +404,21 @@ function launchDesktop() {
 
     let first = true;
 
+    data.desktopCoordinates = [];
+
+    let scale;
     for(let monitorIndex = 0; monitorIndex < Main.layoutManager.monitors.length; monitorIndex++) {
         let ws = global.workspace_manager.get_workspace_by_index(0);
         let area = ws.get_work_area_for_monitor(monitorIndex);
         // send the working area of each monitor in the desktop
         argv.push('-D');
-        argv.push(area.x + ':' + area.y+':' + area.width + ':' + area.height);
+        if (ExtensionUtils.versionCheck(['3.30'], Config.PACKAGE_VERSION)) {
+            scale = St.ThemeContext.get_for_stage(global.stage).scale_factor;
+        } else {
+            scale = Main.layoutManager.monitors[monitorIndex].geometry_scale;
+        }
+        argv.push(`${area.x}:${area.y}:${area.width}:${area.height}:${scale}`);
+        data.desktopCoordinates.push({x: area.x, y: area.y, width: area.width, height: area.height, zoom: scale})
         if (first || (area.x < data.minx)) {
             data.minx = area.x;
         }
@@ -399,13 +434,8 @@ function launchDesktop() {
         first = false;
     }
 
-    let scaleFactor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
-    argv.push('-Z');
-    argv.push(scaleFactor.toString());
-
-    data.windowUpdated = false;
     data.currentProcess = new LaunchSubprocess(0, "DING", "-U");
-    data.currentProcess.set_cwd(ExtensionUtils.getCurrentExtension().path);
+    data.currentProcess.set_cwd(GLib.get_home_dir());
     data.currentProcess.spawnv(argv);
 
     /*
@@ -426,7 +456,7 @@ function launchDesktop() {
         } else {
             data.reloadTime = 1000;
         }
-        data.desktopWindow = null;
+        data.desktopWindows = [];
         data.currentProcess = null;
         if (data.isEnabled) {
             if (data.launchDesktopId) {
@@ -528,6 +558,6 @@ var LaunchSubprocess = class {
         if (!this.process_running) {
             throw new Error ("No process running");
         }
-        return (window.get_title() == this._UUID);
+        return (window.get_title().startsWith(this._UUID));
     }
 }

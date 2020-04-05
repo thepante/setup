@@ -4,7 +4,6 @@ const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Gtk = imports.gi.Gtk;
 
-const Config = imports.misc.config;
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
@@ -12,14 +11,14 @@ const AggregateMenu = Main.panel.statusArea.aggregateMenu;
 
 // Bootstrap
 window.gsconnect = {
-    extdatadir: imports.misc.extensionUtils.getCurrentExtension().path,
-    shell_version: parseInt(Config.PACKAGE_VERSION.split('.')[1], 10)
+    extdatadir: imports.misc.extensionUtils.getCurrentExtension().path
 };
 imports.searchPath.unshift(gsconnect.extdatadir);
 imports._gsconnect;
 
 // eslint-disable-next-line no-redeclare
 const _ = gsconnect._;
+const Clipboard = imports.shell.clipboard;
 const Device = imports.shell.device;
 const DoNotDisturb = imports.shell.donotdisturb;
 const Keybindings = imports.shell.keybindings;
@@ -29,29 +28,54 @@ const Remote = imports.shell.remote;
 
 /**
  * A function to fetch a GIcon with fallback support for getting unthemed icons
- * from our GResource in gnome-shell >= 3.32
+ * from our GResource
  */
-function get_gicon(name) {
-    if (get_gicon.icons === undefined) {
-        get_gicon.icons = {};
-        get_gicon.theme = Gtk.IconTheme.get_default();
-    }
-
-    if (gsconnect.shell_version <= 30 || get_gicon.theme.has_icon(name))
-        return new Gio.ThemedIcon({name: name});
-
-    if (!get_gicon.icons[name]) {
-        get_gicon.icons[name] = new Gio.FileIcon({
-            file: Gio.File.new_for_uri(
-                `resource://org/gnome/Shell/Extensions/GSConnect/icons/${name}.svg`
-            )
+gsconnect.getIcon = function(name) {
+    if (gsconnect.getIcon._extension === undefined) {
+        // Setup the desktop icons
+        let settings = imports.gi.St.Settings.get();
+        gsconnect.getIcon._desktop = new Gtk.IconTheme();
+        gsconnect.getIcon._desktop.set_custom_theme(settings.gtk_icon_theme);
+        settings.connect('notify::gtk-icon-theme', (settings) => {
+            gsconnect.getIcon._desktop.set_custom_theme(settings.gtk_icon_theme);
         });
+
+        // Preload our fallbacks
+        let basePath = 'resource://org/gnome/Shell/Extensions/GSConnect/icons/';
+        let iconNames = [
+            'org.gnome.Shell.Extensions.GSConnect',
+            'org.gnome.Shell.Extensions.GSConnect-symbolic',
+            'computer-symbolic',
+            'laptop-symbolic',
+            'smartphone-symbolic',
+            'tablet-symbolic',
+            'tv-symbolic',
+            'phonelink-ring-symbolic',
+            'sms-symbolic'
+        ];
+
+        gsconnect.getIcon._extension = {};
+
+        for (let iconName of iconNames) {
+            gsconnect.getIcon._extension[iconName] = new Gio.FileIcon({
+                file: Gio.File.new_for_uri(`${basePath}${iconName}.svg`)
+            });
+        }
     }
 
-    return get_gicon.icons[name];
-}
+    // Check the desktop icon theme
+    if (gsconnect.getIcon._desktop.has_icon(name)) {
+        return new Gio.ThemedIcon({name: name});
+    }
 
-gsconnect.get_gicon = get_gicon;
+    // Check our GResource
+    if (gsconnect.getIcon._extension[name] !== undefined) {
+        return gsconnect.getIcon._extension[name];
+    }
+
+    // Fallback to hoping it's in the theme somewhere
+    return new Gio.ThemedIcon({name: name});
+};
 
 
 /**
@@ -106,7 +130,7 @@ class ServiceIndicator extends PanelMenu.SystemIndicator {
 
         // Service Indicator
         this._indicator = this._addIndicator();
-        this._indicator.gicon = gsconnect.get_gicon(
+        this._indicator.gicon = gsconnect.getIcon(
             'org.gnome.Shell.Extensions.GSConnect-symbolic'
         );
         this._indicator.visible = false;
@@ -155,7 +179,11 @@ class ServiceIndicator extends PanelMenu.SystemIndicator {
 
     async _initService() {
         try {
-            await this.service.reload();
+            if (this.settings.get_boolean('enabled')) {
+                await this.service.start();
+            } else {
+                await this.service.reload();
+            }
         } catch (e) {
             logError(e, 'GSConnect');
         }
@@ -203,13 +231,7 @@ class ServiceIndicator extends PanelMenu.SystemIndicator {
             let isAvailable = available.includes(device);
             let indicator = Main.panel.statusArea[device.g_object_path];
 
-            // TODO: remove after 3.34+
-            if (gsconnect.shell_version >= 34) {
-                indicator.visible = panelMode && isAvailable;
-            } else {
-                indicator.actor.visible = panelMode && isAvailable;
-            }
-
+            indicator.visible = panelMode && isAvailable;
             indicator.update_icon(device.icon_name);
 
             let menu = this._menus[device.g_object_path];
@@ -431,11 +453,6 @@ var serviceIndicator = null;
 
 
 function init() {
-    // This is only relevant on gnome-shell <= 3.30
-    if (gsconnect.shell_version <= 30) {
-        Gtk.IconTheme.get_default().add_resource_path('/org/gnome/Shell/Extensions/GSConnect/icons');
-    }
-
     // If installed as a user extension, this will install the Desktop entry,
     // DBus and systemd service files necessary for DBus activation and
     // GNotifications. Since there's no uninit()/uninstall() hook for extensions
@@ -448,6 +465,10 @@ function init() {
     // to leave them applied.
     Notification.patchGSConnectNotificationSource();
     Notification.patchGtkNotificationDaemon();
+
+    // This watches for the service to start and exports a custom clipboard
+    // portal for use on Wayland
+    Clipboard.watchService();
 }
 
 

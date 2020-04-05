@@ -21,6 +21,9 @@ const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Prefs = imports.preferences;
 const Enums = imports.enums;
+const Gettext = imports.gettext.domain('ding');
+
+const _ = Gettext.gettext;
 
 function getDesktopDir() {
     let desktopPath = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP);
@@ -36,14 +39,18 @@ function spawnCommandLine(command_line) {
         let [success, argv] = GLib.shell_parse_argv(command_line);
         trySpawn(null, argv);
     } catch (err) {
-        _handleSpawnError(command_line, err);
+        print(`${command_line} failed with ${err}`);
     }
 }
 
-function launchTerminal(workdir) {
+function launchTerminal(workdir, command) {
     let terminalSettings = new Gio.Settings({ schema_id: Enums.TERMINAL_SCHEMA });
     let exec = terminalSettings.get_string(Enums.EXEC_KEY);
     let argv = [exec, `--working-directory=${workdir}`];
+    if (command) {
+        argv.push('-e');
+        argv.push(command);
+    }
     trySpawn(workdir, argv);
 }
 
@@ -141,17 +148,43 @@ function getFilesFromNautilusDnD(selection, type) {
 }
 
 
-function isExecutable(mimetype) {
-    let executableMimetypes = ['application/x-sharedlib',
-                               'application/x-shellscript',
-                               'text/x-python3',
-                               'text/x-python',
-                               'application/x-python-bytecode',
-                               'application/x-perl.xml'];
+function isExecutable(mimetype, file_name) {
 
-    if (-1 == executableMimetypes.indexOf(mimetype)) {
-        return false;
+    if (Gio.content_type_can_be_executable(mimetype)) {
+        switch (Prefs.nautilusSettings.get_string('executable-text-activation')) {
+            default: // display
+                return Enums.WhatToDoWithExecutable.DISPLAY;
+            case 'launch':
+                return Enums.WhatToDoWithExecutable.EXECUTE;
+            case 'ask':
+                let dialog = new Gtk.MessageDialog({
+                    text: _("Do you want to run “{0}”, or display its contents?").replace('{0}', file_name),
+                    secondary_text: _("“{0}” is an executable text file.").replace('{0}', file_name),
+                    message_type: Gtk.MessageType.QUESTION,
+                    buttons: Gtk.ButtonsType.NONE
+                });
+                dialog.add_button(_("Execute in a terminal"),
+                                  Enums.WhatToDoWithExecutable.EXECUTE_IN_TERMINAL);
+                dialog.add_button(_("Show"),
+                                  Enums.WhatToDoWithExecutable.DISPLAY);
+                dialog.add_button(_("Cancel"),
+                                  Gtk.ResponseType.CANCEL);
+                dialog.add_button(_("Execute"),
+                                  Enums.WhatToDoWithExecutable.EXECUTE);
+                dialog.set_default_response(Gtk.ResponseType.CANCEL);
+
+                dialog.show_all();
+                let result = dialog.run();
+                dialog.destroy();
+                if ((result != Enums.WhatToDoWithExecutable.EXECUTE) &&
+                    (result != Enums.WhatToDoWithExecutable.EXECUTE_IN_TERMINAL) &&
+                    (result != Enums.WhatToDoWithExecutable.DISPLAY)) {
+                        return Gtk.ResponseType.CANCEL;
+                } else {
+                        return result;
+                }
+        }
     } else {
-        return true;
+        return Enums.WhatToDoWithExecutable.DISPLAY;
     }
 }

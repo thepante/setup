@@ -129,7 +129,7 @@ var Controller = class {
     scrollPointer(dx, dy) {
         if (dy > 0) {
             this.clickPointer(4);
-        } else if (dy > 0) {
+        } else if (dy < 0) {
             this.clickPointer(5);
         }
     }
