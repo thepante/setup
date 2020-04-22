@@ -17,9 +17,10 @@ SPACESHIP_GIT_STATUS_AHEAD=""
 SPACESHIP_GIT_STATUS_BEHIND=""
 
 HISTFILE=~/.zsh_history
-HISTSIZE=100
+HISTSIZE=500
 SAVEHIST=500
 HISTDUP=erase
+setopt histignoredups
 setopt appendhistory
 setopt sharehistory
 
