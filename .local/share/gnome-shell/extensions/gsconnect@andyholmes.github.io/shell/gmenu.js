@@ -8,7 +8,9 @@ const St = imports.gi.St;
 
 const PopupMenu = imports.ui.popupMenu;
 
-const Tooltip = imports.shell.tooltip;
+const Extension = imports.misc.extensionUtils.getCurrentExtension();
+
+const Tooltip = Extension.imports.shell.tooltip;
 
 
 /**
@@ -90,7 +92,6 @@ var ListBox = class ListBox extends PopupMenu.PopupMenuSection {
         // Submenu Container
         this.sub = new St.BoxLayout({
             clip_to_allocation: true,
-            style_class: 'popup-sub-menu',
             vertical: false,
             visible: false,
             x_expand: true
@@ -281,7 +282,8 @@ var ListBox = class ListBox extends PopupMenu.PopupMenuSection {
             // Prepend an "<= Go Back" item, bold with a unicode arrow
             let prev = new PopupMenu.PopupMenuItem(this.submenu_for.label.text);
             prev.label.style = 'font-weight: bold;';
-            prev._ornamentLabel.text = '\u25C2';
+            let prevArrow = PopupMenu.arrowIcon(St.Side.LEFT);
+            prev.replace_child(prev._ornamentLabel, prevArrow);
             this.addMenuItem(prev, 0);
 
             // Modify the ::activate callback to close the submenu
@@ -383,7 +385,7 @@ var IconButton = GObject.registerClass({
 
     _init(params) {
         super._init({
-            style_class: 'system-menu-action gsconnect-icon-button',
+            style_class: 'gsconnect-icon-button',
             can_focus: true
         });
         Object.assign(this, params);
@@ -485,7 +487,6 @@ var IconBox = class IconBox extends PopupMenu.PopupMenuSection {
         // Submenu Container
         this.sub = new St.BoxLayout({
             clip_to_allocation: true,
-            style_class: 'popup-sub-menu',
             vertical: true,
             x_expand: true
         });

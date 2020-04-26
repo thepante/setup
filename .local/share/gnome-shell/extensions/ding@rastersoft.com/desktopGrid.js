@@ -35,7 +35,7 @@ var elementSpacing = 2;
 
 var DesktopGrid = class {
 
-    constructor(desktopManager, UUID, desktopDescription, asDesktop) {
+    constructor(desktopManager, desktopName, desktopDescription, asDesktop) {
 
         this._destroying = false;
         this._desktopManager = desktopManager;
@@ -45,14 +45,12 @@ var DesktopGrid = class {
         this._y = desktopDescription.y;
         this._width = Math.floor(desktopDescription.width / this._zoom);
         this._height = Math.floor(desktopDescription.height / this._zoom);
-        this._UUID = UUID;
         this._maxColumns = Math.floor(this._width / (Prefs.get_desired_width() + 4 * elementSpacing));
         this._maxRows =  Math.floor(this._height / (Prefs.get_desired_height() + 4 * elementSpacing));
         this._elementWidth = Math.floor(this._width / this._maxColumns);
         this._elementHeight = Math.floor(this._height / this._maxRows);
 
-        this._window = new Gtk.Window();
-        this._window.set_title(this._UUID);
+        this._window = new Gtk.Window({"title": desktopName});
         if (asDesktop) {
             this._window.set_decorated(false);
             this._window.set_deletable(false);
@@ -122,7 +120,7 @@ var DesktopGrid = class {
         this._eventBox.connect('button-press-event', (actor, event) => {
             let [a, x, y] = event.get_coords();
             [x, y] = this._coordinatesLocalToGlobal(x, y);
-            this._desktopManager.onPressButton(x, y, event, this._window);
+            this._desktopManager.onPressButton(x, y, event, this);
             return false;
         });
         this._eventBox.connect('motion-notify-event', (actor, event) => {
@@ -131,15 +129,10 @@ var DesktopGrid = class {
             this._desktopManager.onMotion(x, y);
         });
         this._eventBox.connect('button-release-event', (actor, event) => {
-            this._desktopManager.onReleaseButton();
+            this._desktopManager.onReleaseButton(this);
         });
         this._window.connect('key-press-event', (actor, event) => {
-            this._desktopManager.onKeyPress(event);
-        });
-        this._eventBox.connect('drag-motion', (widget, context, x, y) => {
-            [x, y] = this._coordinatesLocalToGlobal(x, y);
-            this._desktopManager.xDestination = x;
-            this._desktopManager.yDestination = y;
+            this._desktopManager.onKeyPress(event, this);
         });
     }
 
@@ -287,6 +280,8 @@ var DesktopGrid = class {
         let placeX = Math.round(x * this._maxColumns / this._width);
         let placeY = Math.round(y * this._maxRows / this._height);
 
+        let cornerInversion = Prefs.get_start_corner();
+
         placeX = DesktopIconsUtil.clamp(placeX, 0, this._maxColumns - 1);
         placeY = DesktopIconsUtil.clamp(placeY, 0, this._maxRows - 1);
         if (this._isEmptyAt(placeX, placeY)) {
@@ -296,8 +291,19 @@ var DesktopGrid = class {
         let resColumn = null;
         let resRow = null;
         let minDistance = Infinity;
-        for (let column = 0; column < this._maxColumns; column++) {
-            for (let row = 0; row < this._maxRows; row++) {
+        let column, row;
+        for (let tmp_column = 0; tmp_column < this._maxColumns; tmp_column++) {
+            if (cornerInversion[0]) {
+                column = this._maxColumns - tmp_column - 1;
+            } else {
+                column = tmp_column;
+            }
+            for (let tmp_row = 0; tmp_row < this._maxRows; tmp_row++) {
+                if (cornerInversion[1]) {
+                    row = this._maxRows - tmp_row - 1;
+                } else {
+                    row = tmp_row;
+                }
                 if (!this._isEmptyAt(column, row)) {
                     continue;
                 }

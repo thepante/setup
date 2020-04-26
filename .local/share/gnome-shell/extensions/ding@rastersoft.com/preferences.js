@@ -89,6 +89,14 @@ function showPreferences() {
     frame.add(buildSelector(desktopSettings, 'icon-size', _("Size for the desktop icons"), {'tiny': _("Tiny"), 'small': _("Small"), 'standard': _("Standard"), 'large': _("Large") }));
     frame.add(buildSwitcher(desktopSettings, 'show-home', _("Show the personal folder in the desktop")));
     frame.add(buildSwitcher(desktopSettings, 'show-trash', _("Show the trash icon in the desktop")));
+    frame.add(buildSelector(desktopSettings,
+                            'start-corner',
+                            _("New icons alignment"),
+                            {'top-left': _("Top-left corner"),
+                             'top-right': _("Top-right corner"),
+                             'bottom-left': _("Bottom-left corner"),
+                             'bottom-right': _("Bottom-right corner")
+                            }));
 
     frame.add(new Gtk.Separator({ orientation: Gtk.Orientation.HORIZONTAL }));
 
@@ -167,4 +175,8 @@ function get_desired_width() {
 
 function get_desired_height() {
     return Enums.ICON_HEIGHT[desktopSettings.get_string('icon-size')];
+}
+
+function get_start_corner() {
+    return Enums.START_CORNER[desktopSettings.get_string('start-corner')];
 }

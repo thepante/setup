@@ -230,7 +230,7 @@ class OpenweatherMenuButton extends PanelMenu.Button {
         this.menu.addMenuItem(item);
 
         this._selectCity = new PopupMenu.PopupSubMenuMenuItem("");
-        this._selectCity.set_height(0);
+        this._selectCity.actor.set_height(0);
         this._selectCity._triangle.set_height(0);
 
         this._buttonMenu = new PopupMenu.PopupBaseMenuItem({
@@ -920,9 +920,9 @@ class OpenweatherMenuButton extends PanelMenu.Button {
         }
 
         if (cities.length == 1)
-            this._selectCity.hide();
+            this._selectCity.actor.hide();
         else
-            this._selectCity.show();
+            this._selectCity.actor.show();
 
     }
 
@@ -965,7 +965,14 @@ class OpenweatherMenuButton extends PanelMenu.Button {
 
     _onPreferencesActivate() {
         this.menu.actor.hide();
-        Util.spawn(["gnome-shell-extension-prefs", "openweather-extension@jenslody.de"]);
+        if (typeof ExtensionUtils.openPrefs === 'function') {
+            ExtensionUtils.openPrefs();
+        } else {
+            Util.spawn([
+                "gnome-shell-extension-prefs",
+                Me.uuid
+            ]);
+        }
         return 0;
     }
 

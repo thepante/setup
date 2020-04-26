@@ -8,7 +8,7 @@ const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
 
 const Device = imports.preferences.device;
-const Remote = imports.shell.remote;
+const Remote = imports.utils.remote;
 
 /*
  * Header for support logs
@@ -97,7 +97,7 @@ var ConnectDialog = GObject.registerClass({
     Template: 'resource:///org/gnome/Shell/Extensions/GSConnect/ui/connect.ui',
     Children: [
         'cancel-button', 'connect-button',
-        'lan-radio', 'lan-grid', 'lan-ip', 'lan-port'
+        'lan-grid', 'lan-ip', 'lan-port'
     ]
 }, class ConnectDialog extends Gtk.Dialog {
 
@@ -341,7 +341,7 @@ var Window = GObject.registerClass({
         });
 
         // Size
-        let [width, height] = this._windowState.get_value('window-size').deep_unpack();
+        let [width, height] = this._windowState.get_value('window-size').deepUnpack();
 
         if (width && height) {
             this.set_default_size(width, height);

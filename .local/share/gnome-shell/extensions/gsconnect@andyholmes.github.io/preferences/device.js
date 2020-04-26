@@ -569,7 +569,7 @@ var DevicePreferences = GObject.registerClass({
                     (connection, res) => {
                         try {
                             let variant = connection.call_finish(res);
-                            let value = variant.deep_unpack()[0];
+                            let value = variant.deepUnpack()[0];
                             let isPresent = value.get_boolean();
 
                             resolve(isPresent);
@@ -598,8 +598,7 @@ var DevicePreferences = GObject.registerClass({
 
         // Local Command List
         let settings = this.pluginSettings('runcommand');
-        this._commands = settings.get_value('command-list').full_unpack();
-        this._commands = (typeof this._commands === 'string') ? {} : this._commands;
+        this._commands = settings.get_value('command-list').recursiveUnpack();
 
         this.command_list.set_sort_func(this._sortCommands);
         this.command_list.set_header_func(rowSeparators);
@@ -912,7 +911,7 @@ var DevicePreferences = GObject.registerClass({
     }
 
     _setPluginKeybindings() {
-        let keybindings = this.settings.get_value('keybindings').deep_unpack();
+        let keybindings = this.settings.get_value('keybindings').deepUnpack();
 
         this.shortcuts_actions_list.foreach(row => {
             if (keybindings[row.action]) {
@@ -925,7 +924,7 @@ var DevicePreferences = GObject.registerClass({
     }
 
     _onResetActionShortcuts(button) {
-        let keybindings = this.settings.get_value('keybindings').deep_unpack();
+        let keybindings = this.settings.get_value('keybindings').deepUnpack();
 
         for (let action in keybindings) {
             if (!action.includes('::')) {
@@ -941,7 +940,7 @@ var DevicePreferences = GObject.registerClass({
 
     async _onShortcutRowActivated(box, row) {
         try {
-            let keybindings = this.settings.get_value('keybindings').deep_unpack();
+            let keybindings = this.settings.get_value('keybindings').deepUnpack();
             let accelerator = await Keybindings.get_accelerator(
                 row.title,
                 keybindings[row.action]

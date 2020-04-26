@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-05 14:53-0500\n"
+"POT-Creation-Date: 2020-03-25 16:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,15 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:593
+#: extension.js:537
 msgid "Missing Icon:"
 msgstr ""
 
-#: extension.js:759
+#: extension.js:702
 msgid "Conflict with hidden rounded corners."
 msgstr ""
 
-#: extension.js:924
+#: extension.js:703 extension.js:867
 msgid "Conflict Detected:"
 msgstr ""
 

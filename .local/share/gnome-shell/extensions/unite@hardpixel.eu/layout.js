@@ -176,9 +176,9 @@ var LayoutManager = GObject.registerClass(
 
       if (VERSION < 36 && fonts) {
         const font = GtkSettings.gtk_font_name.replace(/\s\d+$/, '')
-        this.styles.addWidgetStyle('uiGroup', Main.uiGroup, `font-family: ${font};`)
 
-        Main.panel._addStyleClassName('system-fonts')
+        this.styles.addWidgetStyle('uiGroup', Main.uiGroup, `font-family: ${font};`)
+        this.styles.addWidgetStyle('panel', Main.panel, 'font-size: 11.25pt;')
       }
 
       if (space) {
@@ -189,9 +189,7 @@ var LayoutManager = GObject.registerClass(
         Main.panel._addStyleClassName('extra-spacing')
       }
 
-      if (fonts || space) {
-        this.styles.addWidgetStyle('panel', Main.panel, 'font-size: 11.25pt;')
-      }
+      this._syncStyles()
     }
 
     _resetNotifications() {
@@ -222,12 +220,24 @@ var LayoutManager = GObject.registerClass(
     }
 
     _resetStyles() {
-      Main.panel._removeStyleClassName('system-fonts')
       Main.panel._removeStyleClassName('small-spacing')
       Main.panel._removeStyleClassName('extra-spacing')
 
       this.styles.deleteStyle('uiGroup')
       this.styles.deleteStyle('panel')
+    }
+
+    // Fix for panel spacing not applied until mouse-over
+    // Issue: https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/1708
+    _syncStyles() {
+      const space = this.settings.get('reduce-panel-spacing')
+
+      if (VERSION >= 34 && space) {
+        Object.values(Main.panel.statusArea).forEach((item) => {
+          item.add_style_pseudo_class('hover')
+          item.remove_style_pseudo_class('hover')
+        })
+      }
     }
 
     activate() {
@@ -246,6 +256,7 @@ var LayoutManager = GObject.registerClass(
       this._resetAggMenuArrow()
       this._resetDropdownArrows()
       this._resetStyles()
+      this._syncStyles()
 
       this.signals.disconnectAll()
       this.settings.disconnectAll()

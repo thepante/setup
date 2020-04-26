@@ -1,5 +1,7 @@
 'use strict';
 
+const Tweener = imports.tweener.tweener;
+
 const Gdk = imports.gi.Gdk;
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
@@ -9,6 +11,7 @@ const Pango = imports.gi.Pango;
 
 const Contacts = imports.service.ui.contacts;
 const Sms = imports.service.plugins.sms;
+const URI = imports.utils.uri;
 
 
 /**
@@ -128,7 +131,7 @@ var MessageLabel = GObject.registerClass({
         let incoming = (message.type === Sms.MessageBox.INBOX);
 
         super._init({
-            label: message.body.linkify(message.date),
+            label: URI.linkify(message.body, message.date),
             halign: incoming ? Gtk.Align.START : Gtk.Align.END,
             selectable: true,
             tooltip_text: getTime(message.date),
@@ -355,6 +358,13 @@ const ConversationWidget = GObject.registerClass({
             GObject.BindingFlags.DEFAULT | GObject.BindingFlags.SYNC_CREATE
         );
 
+        // Auto-scrolling
+        this._vadj = this.scrolled.get_vadjustment();
+        this._scrolledId = this._vadj.connect(
+            'value-changed',
+            this._holdPosition.bind(this)
+        );
+
         // Message List
         this.list.set_header_func(this._headerMessages);
         this.list.set_sort_func(this._sortMessages);
@@ -446,12 +456,28 @@ const ConversationWidget = GObject.registerClass({
 
     _onDestroy(conversation) {
         conversation.device.disconnect(conversation._connectedId);
+        conversation._vadj.disconnect(conversation._scrolledId);
 
         conversation.list.foreach(message => {
             // HACK: temporary mitigator for mysterious GtkListBox leak
             message.run_dispose();
             imports.system.gc();
         });
+    }
+
+    _onEdgeReached(scrolled_window, pos) {
+        // Try to load more messages
+        if (pos === Gtk.PositionType.TOP) {
+            this.logPrevious();
+
+        // Release any hold to resume auto-scrolling
+        } else if (pos === Gtk.PositionType.BOTTOM) {
+            this._releasePosition();
+        }
+    }
+
+    _onEntryChanged(entry) {
+        entry.secondary_icon_sensitive = (entry.text.length);
     }
 
     _onKeyPressEvent(entry, event) {
@@ -465,6 +491,46 @@ const ConversationWidget = GObject.registerClass({
         }
 
         return false;
+    }
+
+    _onSendMessage(entry, signal_id, event) {
+        // Don't send empty texts
+        if (!this.entry.text.trim()) return;
+
+        // Send the message
+        this.plugin.sendMessage(this.addresses, entry.text);
+
+        // Log the message as pending
+        let message = new MessageLabel({
+            body: this.entry.text,
+            date: Date.now(),
+            type: Sms.MessageBox.SENT
+        });
+        this.pending_box.add(message);
+        this.notify('has-pending');
+
+        // Clear the entry
+        this.entry.text = '';
+    }
+
+    _onSizeAllocate(listbox, allocation) {
+        let upper = this._vadj.get_upper();
+        let pageSize = this._vadj.get_page_size();
+
+        // If the scrolled window hasn't been filled yet, load another message
+        if (upper <= pageSize) {
+            this.logPrevious();
+            this.scrolled.get_child().check_resize();
+
+        // We've been asked to hold the position, so we'll reset the adjustment
+        // value and update the hold position
+        } else if (this.__pos) {
+            this._vadj.set_value(upper - this.__pos);
+
+        // Otherwise we probably appended a message and should scroll to it
+        } else {
+            this._scrollPosition(Gtk.PositionType.BOTTOM);
+        }
     }
 
     /**
@@ -574,44 +640,46 @@ const ConversationWidget = GObject.registerClass({
         }
     }
 
+    _holdPosition() {
+        this.__pos = this._vadj.get_upper() - this._vadj.get_value();
+    }
+
+    _releasePosition() {
+        this.__pos = 0;
+    }
+
+    _scrollPosition(pos = Gtk.PositionType.BOTTOM, animate = true) {
+        let vpos = pos;
+        this._vadj.freeze_notify();
+
+        if (pos === Gtk.PositionType.BOTTOM) {
+            vpos = this._vadj.get_upper() - this._vadj.get_page_size();
+        }
+
+
+        if (animate) {
+            Tweener.addTween(this._vadj, {
+                value: vpos,
+                time: 0.5,
+                transition: 'easeInOutCubic',
+                onComplete: () => this._vadj.thaw_notify()
+            });
+        } else {
+            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                this._vadj.set_value(vpos);
+                this._vadj.thaw_notify();
+            });
+        }
+    }
+
     _sortMessages(row1, row2) {
         return (row1.date > row2.date) ? 1 : -1;
-    }
-
-    // GtkListBox::size-allocate
-    _onMessageLogged(listbox, allocation) {
-        let vadj = this.scrolled.get_vadjustment();
-        let upper = vadj.get_upper();
-        let pageSize = vadj.get_page_size();
-
-        // Try loading more messages if there's room
-        if (upper <= pageSize) {
-            this.logPrevious();
-            this.scrolled.get_child().check_resize();
-
-        // We've been asked to hold the position
-        } else if (this.__pos) {
-            vadj.set_value(upper - this.__pos);
-            this.__pos = 0;
-
-        // Otherwise scroll to the bottom
-        } else {
-            vadj.set_value(upper - pageSize);
-        }
-    }
-
-    // GtkScrolledWindow::edge-reached
-    _onMessageRequested(scrolled_window, pos) {
-        if (pos === Gtk.PositionType.TOP) {
-            this.__pos = this.scrolled.vadjustment.get_upper();
-            this.logPrevious();
-        }
     }
 
     /**
      * Log the next message in the conversation.
      *
-     * @param {Object} message - A sms message object
+     * @param {object} message - A message object
      */
     logNext(message) {
         try {
@@ -647,7 +715,7 @@ const ConversationWidget = GObject.registerClass({
             // TODO: Unsupported MessageBox
             if (message.type !== Sms.MessageBox.INBOX &&
                 message.type !== Sms.MessageBox.SENT) {
-                return;
+                throw TypeError(`invalid message box "${message.type}"`);
             }
 
             // Prepend the message
@@ -660,40 +728,9 @@ const ConversationWidget = GObject.registerClass({
     }
 
     /**
-     * Message Entry
-     */
-    // GtkEditable::changed
-    _onEntryChanged(entry) {
-        entry.secondary_icon_sensitive = (entry.text.length);
-    }
-
-    /**
-     * Send the contents of the message entry to the address
-     */
-    sendMessage(entry, signal_id, event) {
-        // Don't send empty texts
-        if (!this.entry.text.trim()) return;
-
-        // Send the message
-        this.plugin.sendMessage(this.addresses, entry.text);
-
-        // Log the message as pending
-        let message = new MessageLabel({
-            body: entry.text,
-            date: Date.now(),
-            type: Sms.MessageBox.SENT
-        });
-        this.pending_box.add(message);
-        this.notify('has-pending');
-
-        // Clear the entry
-        this.entry.text = '';
-    }
-
-    /**
      * Set the contents of the message entry
      *
-     * @param {String} text - The message to place in the entry
+     * @param {string} text - The message to place in the entry
      */
     setMessage(text) {
         this.entry.text = text;

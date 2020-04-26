@@ -32,6 +32,7 @@ const AskNamePopup = imports.askNamePopup;
 const AskRenamePopup = imports.askRenamePopup;
 const AskConfirmPopup = imports.askConfirmPopup;
 const ShowErrorPopup = imports.showErrorPopup;
+const TemplateManager = imports.templateManager;
 
 const Gettext = imports.gettext.domain('ding');
 
@@ -41,6 +42,9 @@ var DesktopManager = class {
     constructor(appUuid, desktopList, codePath, asDesktop) {
 
         DBusUtils.init();
+        this._clickX = 0;
+        this._clickY = 0;
+        this._templateManager = new TemplateManager.TemplateManager();
         this._codePath = codePath;
         this._asDesktop = asDesktop;
         this._desktopList = desktopList;
@@ -51,10 +55,12 @@ var DesktopManager = class {
         this._toDelete = [];
         this._deletingFilesRecursively = false;
         this._desktopDir = DesktopIconsUtil.getDesktopDir();
+        this.desktopFsId = this._desktopDir.query_info('id::filesystem', Gio.FileQueryInfoFlags.NONE, null).get_attribute_string('id::filesystem');
         this._updateWritableByOthers();
         this._monitorDesktopDir = this._desktopDir.monitor_directory(Gio.FileMonitorFlags.WATCH_MOVES, null);
         this._monitorDesktopDir.set_rate_limit(1000);
         this._monitorDesktopDir.connect('changed', (obj, file, otherFile, eventType) => this._updateDesktopIfChanged(file, otherFile, eventType));
+        this._showHidden = Prefs.gtkSettings.get_boolean('show-hidden');
         this._settingsId = Prefs.desktopSettings.connect('changed', (obj, key) => {
             if (key == 'icon-size') {
                 this._removeAllFilesFromGrids();
@@ -64,6 +70,7 @@ var DesktopManager = class {
         });
         this._gtkSettingsId = Prefs.gtkSettings.connect('changed', (obj, key) => {
             if (key == 'show-hidden') {
+                this._showHidden = Prefs.gtkSettings.get_boolean('show-hidden');
                 this._updateDesktop();
             }
         });
@@ -90,7 +97,7 @@ var DesktopManager = class {
         // Check if Nautilus is available
         try {
             DesktopIconsUtil.trySpawn(null, ["nautilus", "--version"]);
-        } catch (e) {
+        } catch(e) {
             this._errorWindow = new ShowErrorPopup.ShowErrorPopup(_("Nautilus File Manager not found"),
                                                                   _("The Nautilus File Manager is mandatory to work with Desktop Icons NG."),
                                                                   null,
@@ -107,9 +114,9 @@ var DesktopManager = class {
             let desktop = this._desktopList[desktopIndex];
             if (this._asDesktop) {
                 if (this._appUuid) {
-                    var desktopName = `${this._appUuid} ${desktopIndex}`;
+                    var desktopName = `${this._appUuid} @!${desktop.x},${desktop.y};BDH`;
                 } else {
-                    var desktopName = `${desktopIndex}`;
+                    var desktopName = `@!${desktop.x},${desktop.y};BDH`;
                 }
             } else {
                 var desktopName = `DING ${desktopIndex}`;
@@ -159,42 +166,94 @@ var DesktopManager = class {
         }
     }
 
-    onDragDataReceived(x, y, selection, info) {
-        if ((info == 1) || (info == 2)) {
-            let fileList = DesktopIconsUtil.getFilesFromNautilusDnD(selection, info);
-            if (fileList.length != 0) {
-                this.clearFileCoordinates(fileList, `${x},${y}`);
-                DBusUtils.NautilusFileOperationsProxy.MoveURIsRemote(
-                    fileList,
-                    "file://" + GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP),
-                    (result, error) => {
-                        if (error)
-                            throw new Error('Error moving files: ' + error.message);
-                        }
-                );
+    doMoveWithDragAndDrop(fileItem, xOrigin, yOrigin, xDestination, yDestination) {
+        // Find the grid where the destination lies
+        for(let desktop of this._desktops) {
+            let grid = desktop.getGridAt(xDestination, yDestination);
+            if (grid !== null) {
+                xDestination = grid[0];
+                yDestination = grid[1];
+                break;
             }
+        }
+        let deltaX = xDestination - xOrigin;
+        let deltaY = yDestination - yOrigin;
+        let fileItems = [];
+        for(let item of this._fileList) {
+            if (item.isSelected) {
+                fileItems.push(item);
+                item.removeFromGrid();
+                let [x, y, a, b, c] = item.getCoordinates();
+                item.savedCoordinates = [x + deltaX, y + deltaY];
+            }
+        }
+        // force to store the new coordinates
+        this._addFilesToDesktop(fileItems, Enums.StoredCoordinates.OVERWRITE);
+    }
+
+    onDragDataReceived(xDestination, yDestination, selection, info) {
+        let [fileList, xOrigin, yOrigin] = DesktopIconsUtil.getFilesFromNautilusDnD(selection, info);
+        switch(info) {
+        case 0:
+            if (fileList.length != 0) {
+                this.doMoveWithDragAndDrop(this, parseInt(xOrigin), parseInt(yOrigin), xDestination, yDestination);
+            }
+            break;
+        case 1:
+        case 2:
+            if (fileList.length != 0) {
+                this.clearFileCoordinates(fileList, `${xDestination},${yDestination}`);
+                let data = Gio.File.new_for_uri(fileList[0]).query_info('id::filesystem', Gio.FileQueryInfoFlags.NONE, null);
+                let id_fs = data.get_attribute_string('id::filesystem');
+                if (this.desktopFsId == id_fs) {
+                    DBusUtils.NautilusFileOperationsProxy.MoveURIsRemote(
+                        fileList,
+                        "file://" + GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP),
+                        (result, error) => {
+                            if (error)
+                                throw new Error('Error moving files: ' + error.message);
+                            }
+                    );
+                } else {
+                    DBusUtils.NautilusFileOperationsProxy.CopyURIsRemote(
+                        fileList,
+                        "file://" + GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP),
+                        (result, error) => {
+                            if (error)
+                                throw new Error('Error moving files: ' + error.message);
+                            }
+                    );
+                }
+            }
+            break;
         }
     }
 
-    fillDragDataGet(info) {
+    fillDragDataGet(info, x, y) {
         let fileList = this.getCurrentSelection(false);
         if (fileList == null) {
             return null;
         }
         let atom;
         switch(info) {
+            case 0:
+                atom = Gdk.atom_intern('x-special/ding-icon-list', false);
+                break;
             case 1:
                 atom = Gdk.atom_intern('x-special/gnome-icon-list', false);
-            break;
+                break;
             case 2:
                 atom = Gdk.atom_intern('text/uri-list', false);
-            break;
+                break;
             default:
                 return null;
         }
         let data = "";
         for (let fileItem of fileList) {
             data += fileItem.uri;
+            if (info == 0) {
+                data += `\r${x} ${y}`
+            }
             if (info == 1) {
                 let coordinates = fileItem.getCoordinates();
                 if (coordinates != null) {
@@ -206,8 +265,10 @@ var DesktopManager = class {
         return [atom, data];
     }
 
-    onPressButton(x, y, event, window) {
+    onPressButton(x, y, event, grid) {
 
+        this._clickX = Math.floor(x);
+        this._clickY = Math.floor(y);
         let button = event.get_button()[1];
         let state = event.get_state()[1];
         if (button == 1) {
@@ -222,7 +283,27 @@ var DesktopManager = class {
             this._startRubberband(x, y);
         }
         if (button == 3) {
-            this._menu.popup_at_pointer(event);
+            let templates = this._templateManager.getTemplates();
+            if (templates.length == 0) {
+                this._newDocumentItem.hide();
+            } else {
+                let templateMenu = new Gtk.Menu();
+                this._newDocumentItem.set_submenu(templateMenu);
+                for(let template of templates) {
+                    let box = new Gtk.Box({"orientation":Gtk.Orientation.HORIZONTAL, "spacing": 6});
+                    let icon = Gtk.Image.new_from_gicon(template["icon"], Gtk.IconSize.MENU);
+                    let text = new Gtk.Label({"label": template["name"]});
+                    box.add(icon);
+                    box.add(text);
+                    let entry = new Gtk.MenuItem({"label": template["name"]});
+                    //entry.add(box);
+                    templateMenu.add(entry);
+                    entry.connect("activate", ()=>{
+                        this._newDocument(template);
+                    });
+                }
+                this._newDocumentItem.show_all();
+            }
             this._syncUndoRedo();
             let atom = Gdk.Atom.intern('CLIPBOARD', false);
             let clipboard = Gtk.Clipboard.get(atom);
@@ -230,6 +311,7 @@ var DesktopManager = class {
                 let [valid, is_cut, files] = this._parseClipboardText(text);
                 this._pasteMenuItem.set_sensitive(valid);
             });
+            this._menu.popup_at_pointer(event);
         }
     }
 
@@ -273,7 +355,7 @@ var DesktopManager = class {
         );
     }
 
-    onKeyPress(event) {
+    onKeyPress(event, grid) {
         let symbol = event.get_keyval()[1];
         let isCtrl = (event.get_state()[1] & Gdk.ModifierType.CONTROL_MASK) != 0;
         let isShift = (event.get_state()[1] & Gdk.ModifierType.SHIFT_MASK) != 0;
@@ -312,6 +394,13 @@ var DesktopManager = class {
                 this.doRename(selection[0]);
                 return true;
             }
+        } else if (symbol == Gdk.KEY_space) {
+            let selection = this.getCurrentSelection(false);
+            if (selection) {
+                // Support renaming other grids file items.
+                DBusUtils.GnomeNautilusPreviewProxy.ShowFileRemote(selection[0].uri, 0, false);
+                return true;
+            }
         }
         return false;
     }
@@ -321,6 +410,9 @@ var DesktopManager = class {
         let newFolder = new Gtk.MenuItem({label: _("New Folder")});
         newFolder.connect("activate", () => this._newFolder());
         this._menu.add(newFolder);
+
+        this._newDocumentItem = new Gtk.MenuItem({label: _("New Document")});
+        this._menu.add(this._newDocumentItem);
 
         this._menu.add(new Gtk.SeparatorMenuItem());
 
@@ -335,6 +427,12 @@ var DesktopManager = class {
         this._redoMenuItem = new Gtk.MenuItem({label: _("Redo")});
         this._redoMenuItem.connect("activate", () => this._doRedo());
         this._menu.add(this._redoMenuItem);
+
+        this._menu.add(new Gtk.SeparatorMenuItem());
+
+        let selectAll = new Gtk.MenuItem({label: _("Select all")});
+        selectAll.connect("activate", () => this._selectAll());
+        this._menu.add(selectAll);
 
         this._menu.add(new Gtk.SeparatorMenuItem());
 
@@ -368,6 +466,14 @@ var DesktopManager = class {
         this._settingsMenuItem.connect("activate", () => Prefs.showPreferences());
         this._menu.add(this._settingsMenuItem);
         this._menu.show_all();
+    }
+
+    _selectAll() {
+        for(let fileItem of this._fileList) {
+            if (fileItem.isAllSelectable) {
+                fileItem.setSelected();
+            }
+        }
     }
 
     _onOpenDesktopInFilesClicked() {
@@ -457,7 +563,7 @@ var DesktopManager = class {
         return false;
     }
 
-    onReleaseButton() {
+    onReleaseButton(grid) {
         if (this.rubberBand) {
             this.rubberBand = false;
             for(let item of this._fileList) {
@@ -534,8 +640,6 @@ var DesktopManager = class {
 
     _readFileList() {
         this._readingDesktopFiles = true;
-        this._removeAllFilesFromGrids();
-
         this._desktopFilesChanged = false;
         if (this._desktopEnumerateCancellable)
             this._desktopEnumerateCancellable.cancel();
@@ -550,10 +654,11 @@ var DesktopManager = class {
                 try {
                     let fileEnum = source.enumerate_children_finish(result);
                     if (!this._desktopFilesChanged) {
+                        let fileList = [];
                         // if no file changed while reading the desktop folder, the fileItems list if right
                         this._readingDesktopFiles = false;
                         for (let [newFolder, extras] of DesktopIconsUtil.getExtraFolders()) {
-                            this._fileList.push(
+                            fileList.push(
                                 new FileItem.FileItem(
                                     this,
                                     newFolder,
@@ -564,7 +669,6 @@ var DesktopManager = class {
                             );
                         }
                         let info;
-                        let showHidden = Prefs.gtkSettings.get_boolean('show-hidden');
                         while ((info = fileEnum.next_file(null))) {
                             let fileItem = new FileItem.FileItem(
                                 this,
@@ -573,7 +677,7 @@ var DesktopManager = class {
                                 Enums.FileType.NONE,
                                 this._codePath
                             );
-                            if (fileItem.isHidden && !showHidden) {
+                            if (fileItem.isHidden && !this._showHidden) {
                                 /* if there are hidden files in the desktop and the user doesn't want to
                                    show them, remove the coordinates. This ensures that if the user enables
                                    showing them, they won't fight with other icons for the same place
@@ -584,8 +688,10 @@ var DesktopManager = class {
                                 }
                                 continue;
                             }
-                            this._fileList.push(fileItem);
+                            fileList.push(fileItem);
                         }
+                        this._removeAllFilesFromGrids();
+                        this._fileList = fileList;
                         this._addFilesToDesktop(this._fileList, Enums.StoredCoordinates.PRESERVE);
                     } else {
                         // But if there was a file change, we must re-read it to be sure that the list is complete
@@ -659,9 +765,21 @@ var DesktopManager = class {
                 fileItem.dropCoordinates = null;
                 storeMode = Enums.StoredCoordinates.OVERWRITE;
             }
+            // try first in the designated desktop
+            let assigned = false;
             for (let desktop of this._desktops) {
-                let distance = desktop.getDistance(x, y);
-                if (distance != -1) {
+                if (desktop.getDistance(x, y) == 0) {
+                    desktop.addFileItemCloseTo(fileItem, x, y, storeMode);
+                    assigned = true;
+                    break;
+                }
+            }
+            if (assigned) {
+                continue;
+            }
+            // if there is no space in the designated desktop, try in another
+            for (let desktop of this._desktops) {
+                if (desktop.getDistance(x, y) != -1) {
                     desktop.addFileItemCloseTo(fileItem, x, y, storeMode);
                     break;
                 }
@@ -696,6 +814,17 @@ var DesktopManager = class {
     }
 
     _updateDesktopIfChanged(file, otherFile, eventType) {
+        if (eventType == Gio.FileMonitorEvent.CHANGED) {
+            // use only CHANGES_DONE_HINT
+            return;
+        }
+        if (!this._showHidden && (file.get_basename()[0] == '.')) {
+            // If the file is not visible, we don't need to refresh the desktop
+            // Unless it is a hidden file being renamed to visible
+            if (!otherFile || (otherFile.get_basename()[0] == '.')) {
+                return;
+            }
+        }
         if (this._readingDesktopFiles) {
             // just notify that the files changed while being read from the disk.
             this._desktopFilesChanged = true;
@@ -845,34 +974,6 @@ var DesktopManager = class {
         });
     }
 
-    doMoveWithDragAndDrop(fileItem, xOrigin, yOrigin) {
-        // Find the grid where the destination lies
-        for(let desktop of this._desktops) {
-            let grid = desktop.getGridAt(this.xDestination, this.yDestination);
-            if (grid !== null) {
-                this.xDestination = grid[0];
-                this.yDestination = grid[1];
-                break;
-            }
-        }
-        let deltaX = this.xDestination - xOrigin;
-        let deltaY = this.yDestination - yOrigin;
-        let fileItems = [fileItem];
-        fileItem.removeFromGrid();
-        let [x, y, a, b, c] = fileItem.getCoordinates();
-        fileItem.savedCoordinates = [x + deltaX, y + deltaY];
-        for(let item of this._fileList) {
-            if (item.isSelected && (item != fileItem)) {
-                fileItems.push(item);
-                item.removeFromGrid();
-                [x, y, a, b, c] = item.getCoordinates();
-                item.savedCoordinates = [x + deltaX, y + deltaY];
-            }
-        }
-        // force to store the new coordinates
-        this._addFilesToDesktop(fileItems, Enums.StoredCoordinates.OVERWRITE);
-    }
-
     checkIfSpecialFilesAreSelected() {
         for(let item of this._fileList) {
             if (item.isSelected && item.isSpecial) {
@@ -949,12 +1050,41 @@ var DesktopManager = class {
         let newName = newFolderWindow.run();
         if (newName) {
             let dir = DesktopIconsUtil.getDesktopDir().get_child(newName);
-            DBusUtils.NautilusFileOperationsProxy.CreateFolderRemote(dir.get_uri(),
-                (result, error) => {
-                    if (error)
-                        throw new Error('Error creating new folder: ' + error.message);
-                }
-            );
+            try {
+                dir.make_directory(null);
+                let info = new Gio.FileInfo();
+                info.set_attribute_string('metadata::nautilus-drop-position', `${this._clickX},${this._clickY}`);
+                info.set_attribute_string('metadata::nautilus-icon-position', '');
+                dir.set_attributes_from_info(info, Gio.FileQueryInfoFlags.NONE, null);
+            } catch(e) {
+                print(`Failed to create folder ${e.message}`);
+            }
+        }
+    }
+
+    _newDocument(template) {
+        let file = this._templateManager.getTemplateFile(template["file"]);
+        if (file == null) {
+            return;
+        }
+        let counter = 0;
+        let finalName = `${template["name"]}${template["extension"]}`;
+        let destination;
+        do {
+            if (counter != 0) {
+                finalName = `${template["name"]} ${counter}${template["extension"]}`
+            }
+            destination = Gio.File.new_for_path(GLib.build_filenamev([GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP), finalName]));
+            counter++;
+        } while(destination.query_exists(null));
+        try {
+            file.copy(destination, Gio.FileCopyFlags.NONE, null, null);
+            let info = new Gio.FileInfo();
+            info.set_attribute_string('metadata::nautilus-drop-position', `${this._clickX},${this._clickY}`);
+            info.set_attribute_string('metadata::nautilus-icon-position', '');
+            destination.set_attributes_from_info(info, Gio.FileQueryInfoFlags.NONE, null);
+        } catch(e) {
+            print(`Failed to create template ${e.message}`);
         }
     }
 }

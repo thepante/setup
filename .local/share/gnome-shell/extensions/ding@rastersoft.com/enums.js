@@ -20,6 +20,11 @@ var ICON_SIZE = { 'tiny': 36, 'small': 48, 'standard': 64, 'large': 96 };
 var ICON_WIDTH = { 'tiny': 70, 'small': 90, 'standard': 120, 'large': 130 };
 var ICON_HEIGHT = { 'tiny': 70, 'small': 90, 'standard': 106, 'large': 138 };
 
+var START_CORNER = { 'top-left':     [false, false],
+                     'top-right':    [true, false],
+                     'bottom-left':  [false, true],
+                     'bottom-right': [true, true]};
+
 var FileType = {
     NONE: null,
     USER_DIRECTORY_HOME: 'show-home',

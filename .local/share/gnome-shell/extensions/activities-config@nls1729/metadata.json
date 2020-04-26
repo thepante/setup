@@ -6,9 +6,9 @@
   "name": "Activities Configurator",
   "settings-schema": "org.gnome.shell.extensions.activities-config",
   "shell-version": [
-    "3.34"
+    "3.36"
   ],
   "url": "https://nls1729.github.io/activities_config.html",
   "uuid": "activities-config@nls1729",
-  "version": 78
+  "version": 84
 }

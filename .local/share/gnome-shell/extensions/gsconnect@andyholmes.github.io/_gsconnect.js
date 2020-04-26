@@ -7,6 +7,14 @@ const GIRepository = imports.gi.GIRepository;
 const GLib = imports.gi.GLib;
 
 
+// Bootstrap the global object
+if (!window.gsconnect) {
+    window.gsconnect = {};
+    let m = /@(.+):\d+/.exec((new Error()).stack.split('\n')[1]);
+    gsconnect.extdatadir = Gio.File.new_for_path(m[1]).get_parent().get_path();
+}
+
+
 /**
  * String.format API supporting %s, %d, %x and %f. Used exclusively for gettext.
  * See: https://github.com/GNOME/gjs/blob/master/modules/format.js
@@ -35,8 +43,9 @@ gsconnect.configdir = GLib.build_filenamev([GLib.get_user_config_dir(), 'gsconne
 gsconnect.runtimedir = GLib.build_filenamev([GLib.get_user_runtime_dir(), 'gsconnect']);
 
 for (let path of [gsconnect.cachedir, gsconnect.configdir, gsconnect.runtimedir]) {
-    GLib.mkdir_with_parents(path, 448);
+    GLib.mkdir_with_parents(path, 0o755);
 }
+
 
 /**
  * Setup global object for user or system install

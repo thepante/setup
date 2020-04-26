@@ -1,8 +1,20 @@
-/**
- * Blyr shared/utility functions
- * Copyright © 2017-2019 Julius Piso, All rights reserved
- * This file is distributed under the same license as Blyr.
- **/
+/*
+  This file is part of Blyr.
+  Copyright © 2017-2020 Julius Piso
+
+  Blyr is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 2 of the License, or
+  (at your option) any later version.
+
+  Blyr is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Blyr.  If not, see <https://www.gnu.org/licenses/>.
+ */
  
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
@@ -14,8 +26,7 @@ function getSettings(schemaName, schemaDir) {
     // Extension installed in .local
     if (GLib.file_test(schemaDir + '/' + schemaName + ".gschema.xml", GLib.FileTest.EXISTS)) {
     	var schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
-                                  Gio.SettingsSchemaSource.get_default(),
-                                  false);
+                                  Gio.SettingsSchemaSource.get_default(), false);
     	var schema = schemaSource.lookup(schemaName, false);
 
         return new Gio.Settings({ settings_schema: schema });
@@ -29,13 +40,13 @@ function checkShellVersion() {
     return shell_version;
 }
 
-function isEligibleForPanelBlur() {
-	let shell_version = checkShellVersion();
-	let eligible;
-	if(shell_version >= 326) {
-        eligible = true;
+function supportsNativeBlur() {
+    let shell_version = checkShellVersion();
+	let native;
+	if(shell_version >= 336) {
+        native = true;
     } else {
-        eligible = false;
+        native = false;
     }
-    return eligible;
+    return native;
 }

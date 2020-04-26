@@ -6,9 +6,9 @@
   "name": "Places Status Indicator",
   "settings-schema": "org.gnome.shell.extensions.places-menu",
   "shell-version": [
-    "3.34"
+    "3.36"
   ],
   "url": "https://gitlab.gnome.org/GNOME/gnome-shell-extensions",
   "uuid": "places-menu@gnome-shell-extensions.gcampax.github.com",
-  "version": 45
+  "version": 46
 }

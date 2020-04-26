@@ -56,19 +56,6 @@ var Plugin = GObject.registerClass({
     _init(device) {
         super._init(device, 'runcommand');
         
-        // Setup a launcher with env variables for commands
-        let application = GLib.build_filenamev([
-            gsconnect.extdatadir,
-            'service',
-            'daemon.js'
-        ]);
-        this._launcher = new Gio.SubprocessLauncher();
-        this._launcher.setenv('GSCONNECT', application, false);
-        this._launcher.setenv('GSCONNECT_DEVICE_ID', this.device.id, false);
-        this._launcher.setenv('GSCONNECT_DEVICE_NAME', this.device.name, false);
-        this._launcher.setenv('GSCONNECT_DEVICE_ICON', this.device.icon_name, false);
-        this._launcher.setenv('GSCONNECT_DEVICE_DBUS', this.device.g_object_path, false);
-
         // Local Commands
         this._commandListChangedId = this.settings.connect(
             'changed::command-list',
@@ -129,28 +116,19 @@ var Plugin = GObject.registerClass({
      */
     _handleCommand(key) {
         try {
-            let commandList = this.settings.get_value('command-list').full_unpack();
+            let commandList = this.settings.get_value('command-list').recursiveUnpack();
 
             if (!commandList.hasOwnProperty(key)) {
                 throw new Error(`Unknown command: ${key}`);
             }
             
-            let proc = this._launcher.spawnv([
+            this.device.launchProcess([
                 '/bin/sh',
                 '-c',
                 commandList[key].command
             ]);
-            proc.wait_check_async(null, this._commandExit);
         } catch (e) {
             logError(e, this.device.name);
-        }
-    }
-    
-    _commandExit(proc, res) {
-        try {
-            proc.wait_check_finish(res);
-        } catch (e) {
-            debug(e);
         }
     }
 
@@ -232,7 +210,7 @@ var Plugin = GObject.registerClass({
      * Send the local command list
      */
     sendCommandList() {
-        let commands = this.settings.get_value('command-list').full_unpack();
+        let commands = this.settings.get_value('command-list').recursiveUnpack();
 
         this.device.sendPacket({
             type: 'kdeconnect.runcommand',

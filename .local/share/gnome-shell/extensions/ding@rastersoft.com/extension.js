@@ -18,112 +18,31 @@
 
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
-const Shell = imports.gi.Shell;
 const Meta = imports.gi.Meta;
 const St = imports.gi.St;
 
-const Layout = imports.ui.layout;
 const Main = imports.ui.main;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Config = imports.misc.config;
 const Mainloop = imports.mainloop;
 
+const Me = ExtensionUtils.getCurrentExtension();
+const EmulateX11 = Me.imports.emulateX11WindowType;
+
 // This object will contain all the global variables
 let data = {};
-
-/**
- * Replaces a method in a class with our own method, and stores the original
- * one in 'data' using 'old_XXXX' (being XXXX the name of the original method),
- * or 'old_classId_XXXX' if 'classId' is defined. This is done this way for the
- * case that two methods with the same name must be replaced in two different
- * classes
- *
- * @param {class} className The class where to replace the method
- * @param {string} methodName The method to replace
- * @param {function} functionToCall The function to call as the replaced method
- * @param {string} [classId] an extra ID to identify the stored method when two
- *                           methods with the same name are replaced in
- *                           two different classes
- */
-function replaceMethod(className, methodName, functionToCall, classId) {
-    if (classId) {
-        data['old_' + classId + '_' + methodName] = className.prototype[methodName];
-    } else {
-        data['old_' + methodName] = className.prototype[methodName];
-    }
-    className.prototype[methodName] = functionToCall;
-}
 
 function init() {
     data.isEnabled = false;
     data.launchDesktopId = 0;
     data.currentProcess = null;
-    data.desktopWindows = [];
     data.reloadTime = 100;
+    data.x11Manager = new EmulateX11.EmulateX11WindowType();
     // Ensure that there aren't "rogue" processes
     doKillAllOldDesktopProcesses();
 }
 
-/**
- * Receives a list of metaWindow or metaWindowActor objects, and remove from it
- * our desktop window
- *
- * @param {GList} windowList A list of metaWindow or metaWindowActor objects
- * @returns {GList} The same list, but with the desktop window removed
- */
-function removeDesktopWindowFromList(windowList) {
-
-    if (!data.currentProcess) {
-        return windowList;
-    }
-    let returnVal = [];
-    for(let element of windowList) {
-        let window = element;
-        if (window.get_meta_window) { // it is a MetaWindowActor
-            window = window.get_meta_window();
-        }
-        let belongs;
-        try {
-            belongs = data.currentProcess.query_window_belongs_to(window);
-        } catch(err) {
-            belongs = false;
-        }
-        if (!belongs) {
-            returnVal.push(element);
-        }
-    }
-    return returnVal;
-}
-
-/**
- * Method replacement for Meta.Display.get_tab_list
- * It removes the desktop window from the list of windows in the switcher
- *
- * @param {*} type
- * @param {*} workspace
- */
-function newGetTabList(type, workspace) {
-    let windowList = data.old_get_tab_list.apply(this, [type, workspace]);
-    return removeDesktopWindowFromList(windowList);
-};
-
-/**
- * Method replacement for Shell.Global.get_window_actors
- * It removes the desktop window from the list of windows in the Activities mode
- */
-function newGetWindowActors() {
-    let windowList = data.old_get_window_actors.apply(this, []);
-    return removeDesktopWindowFromList(windowList);
-}
-
-/**
- * Method replacement for Meta.Workspace.list_windows
- */
-function newListWindows() {
-    let windowList = data.old_list_windows.apply(this, []);
-    return removeDesktopWindowFromList(windowList);
-};
 
 /**
  * Enables the extension
@@ -134,24 +53,6 @@ function enable() {
         data.startupPreparedId = Main.layoutManager.connect('startup-complete', () => { innerEnable(true); });
     } else {
         innerEnable(false);
-    }
-}
-
-/**
- * Extracts the desktop number from the window title, no matter if it has an UUID or not
- * @param {string} title The window title
- * @returns The desktop number, or -1 if there is no valid number
- */
-function getDesktopNumber(title) {
-    try {
-        let pos = title.indexOf(" ");
-        if (pos == -1) {
-            return parseInt(title);
-        } else {
-            return parseInt(title.substring(pos+1));
-        }
-    } catch(e) {
-        return -1;
     }
 }
 
@@ -167,16 +68,9 @@ function innerEnable(removeId) {
 
     // under X11 we don't need to cheat, so only do all this under wayland
     if (Meta.is_wayland_compositor()) {
-        replaceMethod(Meta.Display, 'get_tab_list', newGetTabList);
-        replaceMethod(Shell.Global, 'get_window_actors', newGetWindowActors);
-        replaceMethod(Meta.Workspace, 'list_windows', newListWindows);
+        data.x11Manager.enable();
 
         data.idMap = global.window_manager.connect_after('map', (obj, windowActor) => {
-            for (let desktopWindow of data.desktopWindows) {
-                try {
-                    desktopWindow.lower();
-                } catch {}
-            }
             if (!data.currentProcess) {
                 return false;
             }
@@ -192,52 +86,9 @@ function innerEnable(removeId) {
                 belongs = false;
             }
             if (belongs) {
-                /*
-                * the desktop window is big enough to cover all the monitors in the system,
-                * so the first thing to do is to move it to the minimum coordinate of the desktop.
-                *
-                * In theory, the minimum coordinates are always (0,0); but if there is only one
-                * monitor, the coordinates used are (0,27) because the top bar uses that size, and
-                * it makes no sense in having a piece of window always covered by the bar. Of
-                * course, that value isn't fixed, but calculated automatically each time the
-                * desktop geometry changes, so a bigger top bar will work fine.
-                */
-                let desktopNumber = getDesktopNumber(window.get_title());
-                if ((desktopNumber >= 0) && (desktopNumber < data.desktopCoordinates.length)) {
-                    window.move_frame(false,
-                                      data.desktopCoordinates[desktopNumber].x,
-                                      data.desktopCoordinates[desktopNumber].y);
-                    // Show the window in all desktops, and send it to the bottom
-                    window.stick();
-                    window.lower();
-                    data.desktopWindows.push(window);
-                    // keep the window at the bottom when the user clicks on it
-                    window.connect_after('raised', () => {
-                        window.lower();
-                    });
-                    // Don't allow to move it with Alt+F7 or other special keys
-                    window.connect('position-changed', () => {
-                        let desktopNumber = getDesktopNumber(window.get_title());
-                        window.move_frame(false,
-                                          data.desktopCoordinates[desktopNumber].x,
-                                          data.desktopCoordinates[desktopNumber].y);
-                    });
-                } else {
-                    global.log(`Desktop number not valid: ${desktopNumber}`);
-                }
+                data.x11Manager.addWindow(window);
             }
             return false;
-        });
-        data.switchWorkspaceId = global.window_manager.connect('switch-workspace', () => {
-            /*
-             * If the user switches to another workspace, ensure that the desktop window
-             * is sent to the bottom, thus giving the focus to any window that is there
-             */
-            for (let desktopWindow of data.desktopWindows) {
-                try {
-                    desktopWindow.lower();
-                } catch {}
-            }
         });
     }
 
@@ -285,20 +136,9 @@ function innerEnable(removeId) {
 function disable() {
 
     data.isEnabled = false;
-    // restore external methods only if have been intercepted
-    if (data.old_get_tab_list) {
-        Meta.Display.prototype['get_tab_list'] = data.old_get_tab_list;
-    }
-    if (data.old_get_window_actors) {
-        Shell.Global.prototype['get_window_actors'] = data.old_get_window_actors;
-    }
-    if (data.old_list_windows) {
-        Meta.Workspace.prototype['list_windows'] = data.old_list_windows;
-    }
+    data.x11Manager.disable();
+
     // disconnect signals only if connected
-    if (data.switchWorkspaceId) {
-        global.window_manager.disconnect(data.switchWorkspaceId);
-    }
     if (data.startupPreparedId) {
         Main.layoutManager.disconnect(data.startupPreparedId);
     }
@@ -332,7 +172,6 @@ function killCurrentProcess() {
     }
 
     // kill the desktop program. It will be reloaded automatically.
-    data.desktopWindows = [];
     data.appUUID = null;
     if (data.currentProcess && data.currentProcess.subprocess) {
         data.currentProcess.subprocess.force_exit();
@@ -456,7 +295,6 @@ function launchDesktop() {
         } else {
             data.reloadTime = 1000;
         }
-        data.desktopWindows = [];
         data.currentProcess = null;
         if (data.isEnabled) {
             if (data.launchDesktopId) {

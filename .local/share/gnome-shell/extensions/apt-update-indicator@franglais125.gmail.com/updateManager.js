@@ -11,12 +11,12 @@
     You should have received a copy of the GNU General Public License
     along with Apt Update Indicator.  If not, see <http://www.gnu.org/licenses/>.
     Copyright 2016 Raphael Rochet
-    Copyright 2016, 2017 Fran Glais
+    Copyright 2016-2020 Fran Glais
 */
 
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
-const Lang = imports.lang;
+const GObject = imports.gi.GObject;
 
 const Util = imports.misc.util;
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -41,20 +41,12 @@ const SCRIPT = Indicator.SCRIPT;
 /* For error checking */
 const STATUS = Indicator.STATUS;
 
-var UpdateManager = new Lang.Class({
-    Name: 'UpdateManager',
+var UpdateManager = class UpdateManager {
+    constructor() {
 
-    _TimeoutId: null,
+        this._TimeoutId = null;
+        this._initialTimeoutId = null;
 
-    _initialTimeoutId: null,
-
-    _upgradeProcess_sourceId: null,
-    _upgradeProcess_stream: null,
-
-    _process_sourceId: [null, null, null, null, null],
-    _process_stream:   [null, null, null, null, null],
-
-    _init: function() {
         // Create indicator on the panel and initialize it
         this._indicator = new Indicator.AptUpdateIndicator(this);
         this._indicator.updateStatus(STATUS.INITIALIZING);
@@ -84,16 +76,16 @@ var UpdateManager = new Lang.Class({
         let initialRunTimeout = 30;
         this._initialTimeoutId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT,
                                                           initialRunTimeout,
-                                                          Lang.bind(this, function() {
-                                                                  this._launchScript(SCRIPT.UPGRADES);
-                                                                  this._initialTimeoutId = null;
-                                                                  return false;
-                                                          }));
+                                                          () => {
+                                                              this._launchScript(SCRIPT.UPGRADES);
+                                                              this._initialTimeoutId = null;
+                                                              return false;
+                                                          });
 
         this._ignoreListTimeoutId = 0
-    },
+    }
 
-    _applySettings: function() {
+    _applySettings() {
         // Parse the various commands
         this._updateCMD();
         this._checkCMD();
@@ -102,9 +94,9 @@ var UpdateManager = new Lang.Class({
         this._initializeInterval();
 
         this._bindSettings();
-    },
+    }
 
-    _updateCMD: function() {
+    _updateCMD() {
         let option = this._settings.get_enum('update-cmd-options');
         if (option == 1) {
             // Update manager, Ubuntu only
@@ -127,17 +119,17 @@ var UpdateManager = new Lang.Class({
             // Default, or in case the command is empty, Gnome-Software
             UPDATE_CMD = STOCK_UPDATE_CMD;
         }
-    },
+    }
 
-    _checkCMD: function() {
+    _checkCMD() {
         if (this._settings.get_boolean('use-custom-cmd') &&
             this._settings.get_string('check-cmd-custom') !== '')
             CHECK_CMD = '/usr/bin/' + this._settings.get_string('check-cmd-custom');
         else
             CHECK_CMD = STOCK_CHECK_CMD;
-    },
+    }
 
-    _initializeInterval: function() {
+    _initializeInterval() {
         this._isAutomaticCheck = false;
 
         // Remove the periodic check before adding a new one
@@ -180,17 +172,16 @@ var UpdateManager = new Lang.Class({
             }
 
             this._TimeoutId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT,
-                                                       CHECK_INTERVAL,
-                                                       Lang.bind(this, function() {
-                                                               this._isAutomaticCheck = true;
-                                                               this._checkNetwork();
-                                                               this._checkInterval();
-                                                               return true;
-                                                       }));
+                                                       CHECK_INTERVAL, () => {
+                                                           this._isAutomaticCheck = true;
+                                                           this._checkNetwork();
+                                                           this._checkInterval();
+                                                           return true;
+                                                       });
         }
-    },
+    }
 
-    _checkInterval: function() {
+    _checkInterval() {
         // Remove the periodic check before adding a new one
         if (this._TimeoutId)
             GLib.source_remove(this._TimeoutId);
@@ -198,101 +189,104 @@ var UpdateManager = new Lang.Class({
         let CHECK_INTERVAL = this._settings.get_int('check-interval') * 60 * 60;
         if (CHECK_INTERVAL) {
             this._TimeoutId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT,
-                                                       CHECK_INTERVAL,
-                                                       Lang.bind(this, function() {
+                                                       CHECK_INTERVAL, () => {
                                                                this._isAutomaticCheck = true;
                                                                this._checkNetwork();
                                                                return true;
-                                                       }));
+                                                       });
         }
 
-    },
+    }
 
-    _newPackagesBinding: function() {
+    _newPackagesBinding() {
         if (this._settings.get_boolean('new-packages')) {
             this._launchScript(SCRIPT.NEW);
         } else {
             this._indicator._newPackagesList = [];
             this._indicator._updateNewPackagesStatus();
         }
-    },
+    }
 
-    _obsoletePackagesBinding: function() {
+    _obsoletePackagesBinding() {
         if (this._settings.get_boolean('obsolete-packages')) {
             this._launchScript(SCRIPT.OBSOLETE);
         } else {
             this._indicator._obsoletePackagesList = [];
             this._indicator._updateObsoletePackagesStatus();
         }
-    },
+    }
 
-    _residualPackagesBinding: function() {
+    _residualPackagesBinding() {
         if (this._settings.get_boolean('residual-packages')) {
             this._launchScript(SCRIPT.RESIDUAL);
         } else {
             this._indicator._residualPackagesList = [];
             this._indicator._updateResidualPackagesStatus();
         }
-    },
+    }
 
-    _autoremovablePackagesBinding: function() {
+    _autoremovablePackagesBinding() {
         if (this._settings.get_boolean('autoremovable-packages')) {
             this._launchScript(SCRIPT.AUTOREMOVABLE);
         } else {
             this._indicator._autoremovablePackagesList = [];
             this._indicator._updateAutoremovablePackagesStatus();
         }
-    },
+    }
 
-    _bindSettings: function() {
+    _bindSettings() {
         this._signalsHandler.add([
         // Apply updates
             this._settings,
             'changed::update-cmd-options',
-            Lang.bind(this, this._updateCMD)
+            this._updateCMD.bind(this)
         ],[
             this._settings,
             'changed::terminal',
-            Lang.bind(this, this._updateCMD)
+            this._updateCMD.bind(this)
         ],[
             this._settings,
             'changed::output-on-terminal',
-            Lang.bind(this, this._updateCMD)
+            this._updateCMD.bind(this)
         ],[
             this._settings,
             'changed::update-cmd',
-            Lang.bind(this, this._updateCMD)
+            this._updateCMD.bind(this)
         ],[
         // Checking for updates
             this._settings,
             'changed::check-cmd-custom',
-            Lang.bind(this, this._checkCMD)
+            this._checkCMD.bind(this)
         ],[
             this._settings,
             'changed::use-custom-cmd',
-            Lang.bind(this, this._checkCMD)
+            this._checkCMD.bind(this)
         ],[
         // Basic settings
             this._settings,
             'changed::check-interval',
-            Lang.bind(this, this._initializeInterval)
+            this._initializeInterval.bind(this)
         ],[
         // Basic settings
             this._settings,
             'changed::interval-unit',
-            Lang.bind(this, this._initializeInterval)
+            this._initializeInterval.bind(this)
         ],[
             this._settings,
             'changed::strip-versions',
-            Lang.bind(this, function() {this._launchScript(SCRIPT.UPGRADES);})
+            () => {
+                this._launchScript(SCRIPT.UPGRADES);
+            }
         ],[
             this._settings,
             'changed::show-critical-updates',
-            Lang.bind(this, function() {this._launchScript(SCRIPT.UPGRADES);})
+            () => {
+                this._launchScript(SCRIPT.UPGRADES);
+            }
         ],[
             this._settings,
             'changed::ignore-list',
-            Lang.bind(this, function() {
+            () => {
                 // We add a timeout in case many entries are deleted
                 if (this._ignoreListTimeoutId) {
                     GLib.source_remove(this._ignoreListTimeoutId)
@@ -302,47 +296,47 @@ var UpdateManager = new Lang.Class({
                 this._ignoreListTimeoutId = GLib.timeout_add_seconds(
                     GLib.PRIORITY_DEFAULT,
                     5,
-                    Lang.bind(this, function() {
+                    () => {
                         this._launchScript(SCRIPT.UPGRADES);
                         this._ignoreListTimeoutId = 0;
                         return false;
-                    }));
-            })
+                    });
+            }
         ],[
         // Synaptic features
             this._settings,
             'changed::new-packages',
-            Lang.bind(this, this._newPackagesBinding)
+            this._newPackagesBinding.bind(this)
         ],[
             this._settings,
             'changed::obsolete-packages',
-            Lang.bind(this, this._obsoletePackagesBinding)
+            this._obsoletePackagesBinding.bind(this)
         ],[
             this._settings,
             'changed::residual-packages',
-            Lang.bind(this, this._residualPackagesBinding)
+            this._residualPackagesBinding.bind(this)
         ],[
             this._settings,
             'changed::autoremovable-packages',
-            Lang.bind(this, this._autoremovablePackagesBinding)
+            this._autoremovablePackagesBinding.bind(this)
         ],[
             // Indicator buttons
             this._indicator.checkNowMenuItem,
             'activate',
-            Lang.bind(this, this._checkNetwork)
+            this._checkNetwork.bind(this)
         ],[
             this._indicator.applyUpdatesMenuItem,
             'activate',
-            Lang.bind(this, this._applyUpdates)
+            this._applyUpdates.bind(this)
         ]);
-    },
+    }
 
     /* Upgrade functions:
      *     _applyUpdates
      *     _applyUpdatesEnd
      */
 
-    _applyUpdates: function () {
+    _applyUpdates() {
         if(this._upgradeProcess_sourceId) {
             // A check is running ! Maybe we should kill it and run another one ?
             return;
@@ -351,30 +345,25 @@ var UpdateManager = new Lang.Class({
             // Parse check command line
             let [parseok, argvp] = GLib.shell_parse_argv( UPDATE_CMD );
             if (!parseok) { throw 'Parse error' };
-            let [, pid, , , ] = GLib.spawn_async_with_pipes(null,
-                                                            argvp,
-                                                            null,
-                                                            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                                                            null);
+            let proc = new Gio.Subprocess({argv: argvp, flags: Gio.SubprocessFlags.STDOUT_PIPE});
+            proc.init(null);
 
-            // We will process the output at once when it's done
-            this._upgradeProcess_sourceId = GLib.child_watch_add(0, pid, Lang.bind(this, this._applyUpdatesEnd));
+            // Asynchronously call the output handler when script output is ready
+            proc.communicate_utf8_async(null, null, this._applyUpdatesEnd.bind(this));
+
+            this._upgradeProcess_sourceId = 1;
         } catch (err) {
         }
-    },
+    }
 
-    _applyUpdatesEnd: function() {
+    _applyUpdatesEnd() {
         // Free resources
-        if (this._upgradeProcess_sourceId)
-            GLib.source_remove(this._upgradeProcess_sourceId);
         this._upgradeProcess_sourceId = null;
 
         // Check if updates are available
         this._dontUpdateDate = true;
         this._launchScript(SCRIPT.UPGRADES);
-
-        return GLib.SOURCE_REMOVE;
-    },
+    }
 
     /* Update functions:
      *     _checkNetwork
@@ -383,17 +372,17 @@ var UpdateManager = new Lang.Class({
      *     _checkUpdatesEnd
      */
 
-    _checkNetwork: function() {
+    _checkNetwork() {
         this._indicator.showChecking(true);
         this._netMonitor.networkTimeout();
-    },
+    }
 
-    networkFailed: function() {
+    networkFailed() {
         this._indicator.showChecking(false);
         this._indicator.updateStatus(STATUS.NO_INTERNET);
-    },
+    }
 
-    checkUpdates: function() {
+    checkUpdates() {
         // Stop the dir monitor to prevent it from updating again right after
         // the update
         this._dirMonitor.stop();
@@ -407,31 +396,27 @@ var UpdateManager = new Lang.Class({
             // Parse check command line
             let [parseok, argvp] = GLib.shell_parse_argv( CHECK_CMD );
             if (!parseok) { throw 'Parse error' };
-            let [, pid, , , ] = GLib.spawn_async_with_pipes(null,
-                                                            argvp,
-                                                            null,
-                                                            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                                                            null);
+            let proc = new Gio.Subprocess({argv: argvp, flags: Gio.SubprocessFlags.STDOUT_PIPE});
+            proc.init(null);
 
-            // We will process the output at once when it's done
-            this._upgradeProcess_sourceId = GLib.child_watch_add(0, pid, Lang.bind(this, this._checkUpdatesEnd));
+            // Asynchronously call the output handler when script output is ready
+            proc.communicate_utf8_async(null, null, this._checkUpdatesEnd.bind(this));
+
+            this._upgradeProcess_sourceId = 1;
+
         } catch (err) {
             this._indicator.showChecking(false);
             this._indicator.updateStatus(STATUS.ERROR);
         }
-    },
+    }
 
-    _checkUpdatesEnd: function() {
+    _checkUpdatesEnd() {
         // Free resources
-        if (this._upgradeProcess_sourceId)
-            GLib.source_remove(this._upgradeProcess_sourceId);
         this._upgradeProcess_sourceId = null;
 
         // Update indicator
         this._launchScript(SCRIPT.UPGRADES);
-
-        return GLib.SOURCE_REMOVE;
-    },
+    }
 
     /* Extra packages functions:
      *     _launchScript
@@ -440,7 +425,7 @@ var UpdateManager = new Lang.Class({
      *     _lastCheck
      */
 
-    _launchScript: function(index) {
+    _launchScript(index) {
         let script_names = ['get-updates',
                             'new',
                             'obsolete',
@@ -454,40 +439,25 @@ var UpdateManager = new Lang.Class({
                           path + '/scripts/' + script_names[index] + '.sh',
                           this._initializing ? '1' : '0'];
 
-            let [, pid, , out_fd, ] = GLib.spawn_async_with_pipes(null,
-                                                                  script,
-                                                                  null,
-                                                                  GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                                                                  null);
+            let proc = new Gio.Subprocess({argv: script, flags: Gio.SubprocessFlags.STDOUT_PIPE});
+            proc.init(null);
 
-            // Let's buffer the command's output - that's an input for us !
-            this._process_stream[index] = new Gio.DataInputStream({
-                base_stream: new Gio.UnixInputStream({fd: out_fd})
-            });
+            // Asynchronously call the output handler when script output is ready
+            proc.communicate_utf8_async(null, null, this._packagesRead.bind(this, index));
 
-            // We will process the output at once when it's done
-            this._process_sourceId[index] = GLib.child_watch_add(0, pid, Lang.bind(this,
-                function() {
-                    this._packagesRead(index);
-                }));
         } catch (err) {
             if (index == SCRIPT.UPGRADES) {
                 this._indicator.showChecking(false);
                 this._indicator.updateStatus(STATUS.ERROR);
             }
         }
-    },
+    }
 
-    _packagesRead: function(index) {
+    _packagesRead(index, proc, result) {
         // Reset the new packages list
-        let packagesList = [];
-        let out, size;
-        if (this._process_stream[index]) {
-            do {
-                [out, size] = this._process_stream[index].read_line_utf8(null);
-                if (out) packagesList.push(out);
-            } while (out);
-        }
+        let [ok, output, ] = proc.communicate_utf8_finish(result);
+        let packagesList = output.split('\n');
+        packagesList.pop(); // Last item is empty
 
         // Since this runs async, the indicator might have been destroyed!
         if (this._indicator) {
@@ -506,18 +476,9 @@ var UpdateManager = new Lang.Class({
         }
 
         this._packagesEnd(index);
-    },
+    }
 
-    _packagesEnd: function(index) {
-        // Free resources
-        if (this._process_stream[index]) {
-            this._process_stream[index].close(null);
-            this._process_stream[index] = null;
-        }
-        if (this._process_sourceId[index])
-            GLib.source_remove(this._process_sourceId[index]);
-        this._process_sourceId[index] = null;
-
+    _packagesEnd(index) {
         // Since this runs async, the indicator might have been destroyed!
         if (this._indicator) {
             // Update indicator
@@ -549,42 +510,27 @@ var UpdateManager = new Lang.Class({
                 this._dirMonitor.start();
             }
         }
+    }
 
-        return GLib.SOURCE_REMOVE;
-    },
-
-    _checkUrgency: function() {
+    _checkUrgency() {
         try {
             let path = Me.dir.get_path();
-            let argvp = ['/bin/bash', path + '/scripts/urgency.sh'];
+            let script = ['/bin/bash', path + '/scripts/urgency.sh'];
 
-            let [, pid, , out_fd, ] = GLib.spawn_async_with_pipes(null,
-                                                            argvp,
-                                                            null,
-                                                            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
-                                                            null);
-
-            // Let's buffer the command's output - that's an input for us !
-            this._urgency_process_stream = new Gio.DataInputStream({
-                base_stream: new Gio.UnixInputStream({fd: out_fd})
-            });
-
-            // We will process the output at once when it's done
-            this._urgencyCheckId = GLib.child_watch_add(0, pid, Lang.bind(this, this._checkUrgencyRead));
+            let proc = new Gio.Subprocess({argv: script, flags: Gio.SubprocessFlags.STDOUT_PIPE});
+            proc.init(null);
+            // Asynchronously call the output handler when script output is ready
+            proc.communicate_utf8_async(null, null, this._checkUrgencyRead.bind(this));
         } catch (err) {
+            global.log('Apt Update Indicator LOG: failed to run urgency.sh');
         }
-    },
+    }
 
-    _checkUrgencyRead: function() {
+    _checkUrgencyRead(proc, result) {
         // Reset the new packages list
-        let urgencyList = [];
-        let out, size;
-        if (this._urgency_process_stream) {
-            do {
-                [out, size] = this._urgency_process_stream.read_line_utf8(null);
-                if (out) urgencyList.push(out);
-            } while (out);
-        }
+        let [ok, output, ] = proc.communicate_utf8_finish(result);
+        let urgencyList = output.split('\n');
+        urgencyList.pop(); // Last item is empty
 
         let cleanUrgentList = this._indicator._updateList.filter(function(pkg) {
             for (let i = 0; i < urgencyList.length; i++) {
@@ -598,22 +544,9 @@ var UpdateManager = new Lang.Class({
 
         this._indicator._urgentList = cleanUrgentList;
         this._indicator.updatePackagesStatus(SCRIPT.UPGRADES);
+    }
 
-        this._checkUrgencyEnd();
-    },
-
-    _checkUrgencyEnd: function() {
-        // Free resources
-        if (this._urgency_process_stream) {
-            this._urgency_process_stream.close(null);
-            this._urgency_process_stream = null;
-        }
-        if (this._urgencyCheckId)
-            GLib.source_remove(this._urgencyCheckId);
-        this._urgencyCheckId = null;
-    },
-
-    _lastCheck: function() {
+    _lastCheck() {
         if (this._dontUpdateDate) {
             this._dontUpdateDate = false;
             return;
@@ -637,9 +570,9 @@ var UpdateManager = new Lang.Class({
             this._indicator.lastCheckMenuItem.label.set_text(_('Last check: ') + date);
             this._indicator.lastCheckMenuItem.actor.visible = true;
         }
-    },
+    }
 
-    _filterList: function(packagesList) {
+    _filterList(packagesList) {
         let ignoreList = this._settings.get_string('ignore-list');
         ignoreList = Prefs.splitEntries(ignoreList);
 
@@ -650,28 +583,9 @@ var UpdateManager = new Lang.Class({
                 return false;
             return true;
         });
-    },
+    }
 
-    destroy: function() {
-        // Remove remaining processes to avoid zombies
-        if (this._upgradeProcess_sourceId) {
-            GLib.source_remove(this._upgradeProcess_sourceId);
-            this._upgradeProcess_sourceId = null;
-            this._upgradeProcess_stream = null;
-        }
-
-        for (let i = 0; i < SCRIPT.length; i++)
-            if (this._process_sourceId[i]) {
-                GLib.source_remove(this._process_sourceId[i]);
-                this._process_sourceId[i] = null;
-                this._process_stream[i] = null;
-            }
-
-        if (this._urgencyCheckId) {
-            GLib.source_remove(this._urgencyCheckId);
-            this._urgencyCheckId = null;
-        }
-
+    destroy() {
         if (this._TimeoutId) {
             GLib.source_remove(this._TimeoutId);
             this._TimeoutId = null;
@@ -692,4 +606,4 @@ var UpdateManager = new Lang.Class({
         this._indicator.destroy();
         this._indicator = null;
     }
-});
+}

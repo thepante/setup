@@ -230,14 +230,6 @@ const Service = GObject.registerClass({
             settings_schema: gsconnect.gschema.lookup(gsconnect.app_id, true)
         });
 
-        // TODO: added v25, remove after a few releases
-        let publicName = this.settings.get_string('public-name');
-
-        if (publicName.length > 0) {
-            this.settings.set_string('name', publicName);
-            this.settings.reset('public-name');
-        }
-
         // Bound Properties
         this.settings.bind('discoverable', this, 'discoverable', 0);
         this.settings.bind('id', this, 'id', 0);
@@ -326,7 +318,7 @@ const Service = GObject.registerClass({
 
     _error(action, parameter) {
         try {
-            let error = parameter.deep_unpack();
+            let error = parameter.deepUnpack();
             let dialog = new Gtk.MessageDialog({
                 text: error.message,
                 secondary_text: error.stack,
@@ -478,7 +470,6 @@ const Service = GObject.registerClass({
 
     _initBackends() {
         let backends = [
-            //'bluetooth',
             'lan'
         ];
 
@@ -501,27 +492,6 @@ const Service = GObject.registerClass({
                 this.notify_error(e);
             }
         }
-    }
-
-    /**
-     * Override Gio.Application.send_notification() to respect donotdisturb
-     */
-    send_notification(id, notification) {
-        if (!this._notificationSettings) {
-            this._notificationSettings = new Gio.Settings({
-                schema_id: 'org.gnome.desktop.notifications.application',
-                path: '/org/gnome/desktop/notifications/application/org-gnome-shell-extensions-gsconnect/'
-            });
-        }
-
-        let now = GLib.DateTime.new_now_local().to_unix();
-        let dnd = (this.settings.get_int('donotdisturb') <= now);
-
-        // TODO: Maybe the 'enable-sound-alerts' should be left alone/queried
-        this._notificationSettings.set_boolean('enable-sound-alerts', dnd);
-        this._notificationSettings.set_boolean('show-banners', dnd);
-
-        super.send_notification(id, notification);
     }
 
     /**
@@ -984,7 +954,7 @@ const Service = GObject.registerClass({
         let device;
 
         for (let object of Object.values(variant)) {
-            object = object.full_unpack();
+            object = object.recursiveUnpack();
             device = object['org.gnome.Shell.Extensions.GSConnect.Device'];
             
             if (full) {
@@ -1000,10 +970,15 @@ const Service = GObject.registerClass({
             throw new TypeError('missing --message-body option');
         }
 
-        let address = options.lookup_value('message', null).deep_unpack();
-        let body = options.lookup_value('message-body', null).deep_unpack();
+        // TODO: currently we only support single-recipient messaging
+        let addresses = options.lookup_value('message', null).deepUnpack();
+        let body = options.lookup_value('message-body', null).deepUnpack();
 
-        this._cliAction(id, 'sendSms', GLib.Variant.new('(ss)', [address, body]));
+        this._cliAction(
+            id,
+            'sendSms',
+            GLib.Variant.new('(ss)', [addresses[0], body])
+        );
     }
 
     _cliNotify(id, options) {
@@ -1048,7 +1023,7 @@ const Service = GObject.registerClass({
     _cliShareFile(device, options) {
         let files = options.lookup_value('share-file', null);
 
-        files = files.deep_unpack();
+        files = files.deepUnpack();
 
         files.map(file => {
             file = imports.byteArray.toString(file);
@@ -1058,7 +1033,7 @@ const Service = GObject.registerClass({
     }
 
     _cliShareLink(device, options) {
-        let uris = options.lookup_value('share-link', null).deep_unpack();
+        let uris = options.lookup_value('share-link', null).deepUnpack();
 
         uris.map(uri => {
             uri = imports.byteArray.toString(uri);

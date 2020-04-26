@@ -10,9 +10,6 @@
     </key>
 
     <!-- Service Settings -->
-    <key name="public-name" type="s">
-      <default>""</default>
-    </key>
     <key name="id" type="s">
       <default>""</default>
     </key>
@@ -21,9 +18,6 @@
     </key>
     <key name="devices" type="as">
       <default>[]</default>
-    </key>
-    <key name="donotdisturb" type="i">
-      <default>0</default>
     </key>
     <key name="debug" type="b">
       <default>false</default>

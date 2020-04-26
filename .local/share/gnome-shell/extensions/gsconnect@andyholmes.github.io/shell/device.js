@@ -8,10 +8,12 @@ const St = imports.gi.St;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
+const Extension = imports.misc.extensionUtils.getCurrentExtension();
+
 // eslint-disable-next-line no-redeclare
 const _ = gsconnect._;
-const GMenu = imports.shell.gmenu;
-const Tooltip = imports.shell.tooltip;
+const GMenu = Extension.imports.shell.gmenu;
+const Tooltip = Extension.imports.shell.tooltip;
 
 
 /**
@@ -76,7 +78,7 @@ var Battery = GObject.registerClass({
         if (action_name === 'battery') {
             if (action_group.has_action('battery')) {
                 let value = action_group.get_action_state('battery');
-                let [charging, icon_name, level, time] = value.deep_unpack();
+                let [charging, icon_name, level, time] = value.deepUnpack();
 
                 this.battery = {
                     Charging: charging,
@@ -94,7 +96,7 @@ var Battery = GObject.registerClass({
 
     _onStateChanged(action_group, action_name, value) {
         if (action_name === 'battery') {
-            let [charging, icon_name, level, time] = value.deep_unpack();
+            let [charging, icon_name, level, time] = value.deepUnpack();
 
             this.battery = {
                 Charging: charging,

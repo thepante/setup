@@ -2149,7 +2149,7 @@ StScrollBar StButton#vhandle:active, StScrollBar StButton#hhandle:active {
 
 /* NOTIFICATIONS & MESSAGE TRAY */
 .url-highlighter {
-  link-color: #5C8BF0;
+  link-color: rgb(119, 148, 211);
 }
 
 .notification-banner {
