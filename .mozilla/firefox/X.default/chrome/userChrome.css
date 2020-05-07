@@ -1,4 +1,4 @@
-/* Gnome 03/2020 - u/thepante */
+/* Gnome 05/2020 - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 /*@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");*/
@@ -6,7 +6,7 @@
 :root:-moz-lwtheme-brighttext,
 :root,
 * {
-  --chrome-background-color: #0f1419 !important; /* linear-gradient(150deg, #102E33, #171E33, #262038) ///  #0F1419 !important; /*era #141414*/
+  --chrome-background-color: linear-gradient(150deg, #1b0f1a, #160c15) !important; /* #0f1419 , linear-gradient(150deg, #102E33, #171E33, #262038) ///  #0F1419 !important; /*era #141414*/
   --chrome-color: #a7a592 !important;
   --chrome-secondary-background-color: #222424 !important;
   --toolbox-border-bottom-color: hsl(240, 5%, 5%);
@@ -385,7 +385,7 @@ toolbarbutton .toolbarbutton-icon,
 }
 
 /* Tamaño pestañas max-min */
-.tabbrowser-tab:not([pinned]) {
+.tabbrowser-tab:not([pinned="true"])[fadein] {
   max-width: 160px !important;
   min-width: 80px !important;
 }
@@ -656,4 +656,31 @@ tabpanels {
   color: white !important;
   border-radius: 50px !important;
   font-size: 10px !important;
+}
+
+#identity-box[pageproxystate="valid"].notSecureText, 
+#identity-box[pageproxystate="valid"].verifiedIdentity, 
+#identity-box[pageproxystate="valid"].chromeUI, 
+#identity-box[pageproxystate="valid"].extensionPage, 
+#urlbar-label-box {
+  --color-separador: red;
+	margin-inline-end: 8px;
+	border-inline-end: 1px solid var(--color-separador);
+	border-image: linear-gradient(transparent 15%, var(--color-separador) 15%, var(--color-separador) 85%, transparent 85%);
+	border-image-slice: 1;
+}
+
+#urlbar:not([focused=true]) 
+  > #urlbar-input-container {
+	border-color: #0f1419 !important;
+}
+
+/* Removes search engine support*/
+#urlbar .search-one-offs {
+display: none !important;
+}
+
+/* remove fullscreen banner */
+#fullscreen-warning {
+  display: none !important;
 }
