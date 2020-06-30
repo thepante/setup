@@ -36,7 +36,7 @@ const Readme = Me.imports.readme;
 const GioSSS = Gio.SettingsSchemaSource;
 const DEFAULT_ICO = Me.path + Keys.ICON_FILE;
 const THEME_SCHEMA = 'org.gnome.shell.extensions.user-theme';
-const COMMIT = "Commit: 1ee5aeaf 2020-03-25 16:51 master";
+const COMMIT = "Commit: 29e8e49e 2020-05-05 11:55 master";
 const TILE_OFF = 'tile-max-effect-off';
 
 function init() {
@@ -50,7 +50,7 @@ class ActivitiesConfiguratorSettingsWidget extends Gtk.Grid {
         super._init(params)
 
         this._settings = ExtensionUtils.getSettings();
-        let version = '[ v' + Me.metadata[Keys.EPVERSION] +
+        let version = '[ v' + this._settings.get_string(Keys.EPVERSION) +
             ' GS ' + this._settings.get_string(Keys.GSPVERSION) + ' ]';
         this.savedThemeId = "";
         this.margin = 5;

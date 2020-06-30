@@ -16,10 +16,10 @@ const APP_PATH = '/org/gnome/Shell/Extensions/GSConnect';
 
 
 // deviceId Pattern (<device-id>|<remote-id>)
-const DEVICE_REGEX = /^([^|]+)\|(.+)$/;
+const DEVICE_REGEX = /^([^|]+)\|([\s\S]+)$/;
 
 // requestReplyId Pattern (<device-id>|<remote-id>)|<reply-id>)
-const REPLY_REGEX = /^([^|]+)\|(.+)\|([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i;
+const REPLY_REGEX = /^([^|]+)\|([\s\S]+)\|([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})$/i;
 
 
 /**
@@ -127,13 +127,7 @@ const NotificationBanner = GObject.registerClass({
             Gio.DBusCallFlags.NO_AUTO_START,
             -1,
             null,
-            (connection, res) => {
-                try {
-                    connection.call_finish(res);
-                } catch (e) {
-                    // Silence errors
-                }
-            }
+            null
         );
 
         this.close();
@@ -156,7 +150,7 @@ const Source = GObject.registerClass({
         }
 
         // Avoid sending the request multiple times
-        if (notification._remoteClosed) {
+        if (notification._remoteClosed || notification.remoteId === undefined) {
             return;
         }
 
@@ -195,39 +189,54 @@ const Source = GObject.registerClass({
      * Override to control notification spawning
      */
     addNotification(notificationId, notificationParams, showBanner) {
+        this._notificationPending = true;
+
+        // Parse the id to determine if it's a repliable notification, device
+        // notification or a regular local notification
         let idMatch, deviceId, requestReplyId, remoteId, localId;
 
-        // Check if it's a repliable device notification
         if ((idMatch = notificationId.match(REPLY_REGEX))) {
             [idMatch, deviceId, remoteId, requestReplyId] = idMatch;
             localId = `${deviceId}|${remoteId}`;
 
-        // Check if it's a device notification
         } else if ((idMatch = notificationId.match(DEVICE_REGEX))) {
             [idMatch, deviceId, remoteId] = idMatch;
             localId = `${deviceId}|${remoteId}`;
 
-        // Must be a service notification
         } else {
             localId = notificationId;
         }
 
-        //
-        this._notificationPending = true;
+        // Fix themed icons
+        if (notificationParams.icon) {
+            let gicon = Gio.Icon.deserialize(notificationParams.icon);
+
+            if (gicon instanceof Gio.ThemedIcon) {
+                gicon = gsconnect.getIcon(gicon.names[0]);
+                notificationParams.icon = gicon.serialize();
+            }
+        }
+
         let notification = this._notifications[localId];
 
-        // Check if @notificationParams represents an exact repeat
-        let repeat = (
-            notification &&
-            notification.title === notificationParams.title.unpack() &&
-            notification.bannerBodyText === notificationParams.body.unpack()
-        );
-
-        // If it's a repeat, we still update the metadata
-        if (repeat) {
-            notification.deviceId = deviceId;
-            notification.remoteId = remoteId;
+        // Check if this is a repeat
+        if (notification) {
             notification.requestReplyId = requestReplyId;
+
+            // Bail early If @notificationParams represents an exact repeat
+            let title = notificationParams.title.unpack();
+            let body = notificationParams.body ?
+                notificationParams.body.unpack() :
+                null;
+
+            if (notification.title === title &&
+                notification.bannerBodyText === body) {
+                this._notificationPending = false;
+                return;
+            }
+
+            notification.title = title;
+            notification.bannerBodyText = body;
 
         // Device Notification
         } else if (idMatch) {
@@ -253,7 +262,7 @@ const Source = GObject.registerClass({
             this._notifications[localId] = notification;
         }
 
-        if (showBanner && !repeat)
+        if (showBanner)
             this.showNotification(notification);
         else
             this.pushNotification(notification);

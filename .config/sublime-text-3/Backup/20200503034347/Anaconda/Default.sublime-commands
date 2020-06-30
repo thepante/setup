@@ -1,0 +1,94 @@
+[
+    {
+        "caption": "Anaconda: Disable linting on this file",
+        "command": "anaconda_disable_linting"
+    },
+    {
+        "caption": "Anaconda: Enable linting on this file",
+        "command": "anaconda_enable_linting"
+    },
+    {
+        "caption": "Anaconda: Show error list",
+        "command": "anaconda_get_lines"
+    },
+    {
+        "caption": "Anaconda: Next lint error",
+        "command": "anaconda_next_lint_error"
+    },
+    {
+        "caption": "Anaconda: Previous lint error",
+        "command": "anaconda_prev_lint_error"
+    },
+    {
+        "caption": "Anaconda: Autoformat PEP8 Errors",
+        "command": "anaconda_auto_format"
+    },
+    {
+        "caption": "Anaconda: McCabe complexity check",
+        "command": "anaconda_mc_cabe"
+    },
+    {
+        "caption": "Anaconda: Vagrant Init",
+        "command": "anaconda_vagrant_init"
+    },
+    {
+        "caption": "Anaconda: Vagrant Status",
+        "command": "anaconda_vagrant_status"
+    },
+    {
+        "caption": "Anaconda: Vagrant Up",
+        "command": "anaconda_vagrant_up"
+    },
+    {
+        "caption": "Anaconda: Vagrant Reload",
+        "command": "anaconda_vagrant_reload"
+    },
+    {
+        "caption": "Anaconda: Vagrant Enable",
+        "command": "anaconda_vagrant_enable"
+    },
+    {
+        "caption": "Anaconda: Set Python interpreter",
+        "command": "anaconda_set_python_interpreter"
+    },
+    {
+        "caption": "Anaconda: Goto object definition",
+        "command": "anaconda_goto"
+    },
+    {
+        "caption": "Anaconda: Goto object assignment",
+        "command": "anaconda_goto_assignment"
+    },
+    {
+        "caption": "Anaconda: Goto Python object",
+        "command": "anaconda_goto_python_object"
+    },
+    {
+        "caption": "Anaconda: Find object usage",
+        "command": "anaconda_find_usages"
+    },
+    {
+        "caption": "Anaconda: Display object docs",
+        "command": "anaconda_doc"
+    },
+    {
+        "caption": "Anaconda: Run Current Test",
+        "command": "anaconda_run_current_test"
+    },
+    {
+        "caption": "Anaconda: Run Current File Tests",
+        "command": "anaconda_run_current_file_tests"
+    },
+    {
+        "caption": "Anaconda: Run Project Tests",
+        "command": "anaconda_run_project_tests"
+    },
+    {
+        "caption": "Anaconda: Run Last Test",
+        "command": "anaconda_run_last_test"
+    },
+    {
+	"caption": "Anaconda: Rename object under cursor",
+	"command": "anaconda_rename"
+    }
+]

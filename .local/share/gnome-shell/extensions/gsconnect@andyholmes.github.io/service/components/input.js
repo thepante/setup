@@ -163,7 +163,7 @@ const RemoteSession = GObject.registerClass({
     scrollPointer(dx, dy) {
         // TODO: NotifyPointerAxis only seems to work on Wayland, but maybe
         //       NotifyPointerAxisDiscrete is the better choice anyways
-        if (_WAYLAND) {
+        if (HAVE_WAYLAND) {
             this._call(
                 'NotifyPointerAxis',
                 GLib.Variant.new('(ddu)', [dx, dy, 0])
@@ -276,15 +276,22 @@ const Controller = class Controller {
     }
 
     _checkWayland() {
-        if (_WAYLAND) {
+        if (HAVE_WAYLAND) {
             // eslint-disable-next-line no-global-assign
             HAVE_REMOTEINPUT = false;
             let service = Gio.Application.get_default();
 
-            // First we're going to disabled the mousepad plugin on all devices
+            // First we're going to disabled the affected plugins on all devices
             for (let device of service.devices) {
                 let supported = device.settings.get_strv('supported-plugins');
-                supported = supported.splice(supported.indexOf('mousepad'), 1);
+                let index;
+
+                if ((index = supported.indexOf('mousepad')) > -1)
+                    supported.splice(index, 1);
+
+                if ((index = supported.indexOf('presenter')) > -1)
+                    supported.splice(index, 1);
+
                 device.settings.set_strv('supported-plugins', supported);
             }
 

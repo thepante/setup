@@ -6,7 +6,12 @@ const { Clutter, St } = imports.gi;
 const Main = imports.ui.main;
 const Volume = imports.ui.status.volume;
 
+const ShellVersion = imports.misc.config.PACKAGE_VERSION;
+let SIGNAL_ID;
+
 function init() {}
+
+//------------------------------------------------------------------------------
 
 function showLabel(percentage) {
 	let volumeIndicator = Main.panel.statusArea.aggregateMenu._volume;
@@ -33,7 +38,7 @@ function updateVolume() {
 	showLabel(percent);
 }
 
-let SIGNAL_ID;
+//------------------------------------------------------------------------------
 
 function enable() {
 	let volumeIndicator = Main.panel.statusArea.aggregateMenu._volume;
@@ -41,9 +46,16 @@ function enable() {
 		y_expand: true,
 		y_align: Clutter.ActorAlign.CENTER
 	});
-	volumeIndicator.indicators.add(volumeIndicator._percentageLabel);
-	volumeIndicator.indicators.add_style_class_name('power-status');
-	
+
+	let useIndicators = parseInt(ShellVersion.split('.')[1]) < 35;
+	if (useIndicators) {
+		volumeIndicator.indicators.add(volumeIndicator._percentageLabel);
+		volumeIndicator.indicators.add_style_class_name('power-status');
+	} else {
+		volumeIndicator.add(volumeIndicator._percentageLabel);
+		volumeIndicator.add_style_class_name('power-status');
+	}
+
 	updateVolume();
 	SIGNAL_ID = volumeIndicator._volumeMenu._output.connect('stream-updated', updateVolume);
 }

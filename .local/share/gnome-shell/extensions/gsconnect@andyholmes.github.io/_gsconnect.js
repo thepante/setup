@@ -8,10 +8,12 @@ const GLib = imports.gi.GLib;
 
 
 // Bootstrap the global object
-if (!window.gsconnect) {
-    window.gsconnect = {};
+if (!globalThis.gsconnect) {
     let m = /@(.+):\d+/.exec((new Error()).stack.split('\n')[1]);
-    gsconnect.extdatadir = Gio.File.new_for_path(m[1]).get_parent().get_path();
+
+    globalThis.gsconnect = {
+        extdatadir: Gio.File.new_for_path(m[1]).get_parent().get_path()
+    };
 }
 
 
@@ -50,43 +52,39 @@ for (let path of [gsconnect.cachedir, gsconnect.configdir, gsconnect.runtimedir]
 /**
  * Setup global object for user or system install
  */
-if (gsconnect.is_local) {
+function _findLibdir() {
     // Infer libdir by assuming gnome-shell shares a common prefix with gjs
-    gsconnect.libdir = GIRepository.Repository.get_search_path().find(path => {
+    let searchPath = GIRepository.Repository.get_search_path();
+
+    let libdir = searchPath.find(path => {
         return path.endsWith('/gjs/girepository-1.0');
     }).replace('/gjs/girepository-1.0', '');
 
-    // localedir will be a subdirectory of the extension root
-    gsconnect.localedir = GLib.build_filenamev([
-        gsconnect.extdatadir,
-        'locale'
-    ]);
+    // Assume the parent directory if it's not there
+    let path = GLib.build_filenamev([libdir, 'gnome-shell']);
 
-    // schemadir will be a subdirectory of the extension root
+    if (!GLib.file_test(path, GLib.FileTest.IS_DIR)) {
+        let currentDir = `/${GLib.path_get_basename(libdir)}`;
+        libdir = libdir.replace(currentDir, '');
+    }
+
+    return libdir;
+}
+
+if (gsconnect.is_local) {
+    // Infer libdir by assuming gnome-shell shares a common prefix with gjs
+    gsconnect.libdir = _findLibdir();
+
+    // locale and schemas will be a subdirectories of the extension root
+    gsconnect.localedir = GLib.build_filenamev([gsconnect.extdatadir, 'locale']);
     gsconnect.gschema = Gio.SettingsSchemaSource.new_from_directory(
         GLib.build_filenamev([gsconnect.extdatadir, 'schemas']),
         Gio.SettingsSchemaSource.get_default(),
         false
     );
 } else {
-    let gvc_typelib = GLib.build_filenamev([
-        gsconnect.metadata.libdir,
-        'gnome-shell',
-        'Gvc-1.0.typelib'
-    ]);
-
-    // Check for the Gvc TypeLib to verify the defined libdir
-    if (GLib.file_test(gvc_typelib, GLib.FileTest.EXISTS)) {
-        gsconnect.libdir = gsconnect.metadata.libdir;
-    // Fallback to assuming a common prefix with GJS
-    } else {
-        let searchPath = GIRepository.Repository.get_search_path();
-        gsconnect.libdir = searchPath.find(path => {
-            return path.endsWith('/gjs/girepository-1.0');
-        }).replace('/gjs/girepository-1.0', '');
-    }
-
-    // These two should be populated by meson for this system at build time
+    // These should be populated by meson for this system at build time
+    gsconnect.libdir = gsconnect.metadata.libdir;
     gsconnect.localedir = gsconnect.metadata.localedir;
     gsconnect.gschema = Gio.SettingsSchemaSource.new_from_directory(
         gsconnect.metadata.gschemadir,
@@ -106,8 +104,8 @@ imports.gettext.bindtextdomain(gsconnect.app_id, gsconnect.localedir);
 const Gettext = imports.gettext.domain(gsconnect.app_id);
 
 if (typeof _ !== 'function') {
-    window._ = Gettext.gettext;
-    window.ngettext = Gettext.ngettext;
+    globalThis._ = Gettext.gettext;
+    globalThis.ngettext = Gettext.ngettext;
 } else {
     gsconnect._ = Gettext.gettext;
     gsconnect.ngettext = Gettext.ngettext;
@@ -267,8 +265,7 @@ gsconnect.installService = function() {
             GLib.unlink(GLib.build_filenamev([dir, name]));
         }
 
-        // eslint-disable-next-line no-unused-vars
-        for (let [dir, manifest] of manifests) {
+        for (let dir of Object.keys(manifests)) {
             GLib.unlink(GLib.build_filenamev([dir, manifestFile]));
         }
     }

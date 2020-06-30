@@ -17,22 +17,30 @@ SPACESHIP_GIT_STATUS_AHEAD=""
 SPACESHIP_GIT_STATUS_BEHIND=""
 
 HISTFILE=~/.zsh_history
-HISTSIZE=500
-SAVEHIST=500
+HISTSIZE=800
+SAVEHIST=800
 HISTDUP=erase
+
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
+
 setopt histignoredups
-setopt appendhistory
-setopt sharehistory
+setopt nosharehistory
+setopt noextendedhistory
+setopt histfindnodups
+
+setopt HIST_FIND_NO_DUPS
 
 source $HOME/.aliases
-# source $(dirname $(gem which colorls))/tab_complete.sh
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/zsh-interactive-cd.plugin.zsh
 source ~/.zsh/shf.zsh
 source ~/.zsh/k/k.sh
 
 source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-# source ~/.zsh/auto_expand.zsh
+#source ~/.zsh/auto_expand.zsh
 
 ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=002
 ZSH_HIGHLIGHT_STYLES[precommand]=fg=002
@@ -42,6 +50,8 @@ bindkey "^[[1;5C" forward-word
 bindkey "^[[1;5D" backward-word
 bindkey '^d' autosuggest-accept 	# ctrl+d
 bindkey '^[^M' autosuggest-execute	# ctrl+enter
+bindkey '^H' backward-kill-word
+bindkey '^[[3;5~' kill-word
 
 # colored man - https://github.com/ael-code/zsh-colored-man-pages
 function man() {
@@ -64,5 +74,7 @@ function man() {
 # fi
 
 eval $(thefuck --alias)
-unsetopt extended_history
 fpath=($fpath "/home/pante/.zfunctions")
+
+# go lang:
+export PATH=$PATH:/usr/local/go/bin

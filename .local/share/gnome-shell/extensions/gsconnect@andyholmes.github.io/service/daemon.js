@@ -24,7 +24,7 @@ function get_datadir() {
     return Gio.File.new_for_path(m[1]).get_parent().get_parent().get_path();
 }
 
-window.gsconnect = {extdatadir: get_datadir()};
+globalThis.gsconnect = {extdatadir: get_datadir()};
 imports.searchPath.unshift(gsconnect.extdatadir);
 imports._gsconnect;
 
@@ -116,8 +116,11 @@ const Service = GObject.registerClass({
             });
 
             for (let name in imports.service.plugins) {
-                // Don't report mousepad support in Ubuntu Wayland sessions
-                if (name === 'mousepad' && !HAVE_REMOTEINPUT) continue;
+                // Exclude mousepad/presenter capability in unsupported sessions
+                if (!HAVE_REMOTEINPUT &&
+                    (name === 'mousepad' || name === 'presenter')) {
+                    continue;
+                }
 
                 let meta = imports.service.plugins[name].Metadata;
 
@@ -1003,6 +1006,10 @@ const Service = GObject.registerClass({
         if (options.contains('notification-icon')) {
             icon = options.lookup_value('notification-icon', null).unpack();
             icon = Gio.Icon.new_for_string(icon);
+        } else {
+            icon = new Gio.ThemedIcon({
+                name: 'org.gnome.Shell.Extensions.GSConnect'
+            });
         }
 
         let notif = {
@@ -1078,6 +1085,7 @@ const Service = GObject.registerClass({
             // Pairing
             if (options.contains('pair')) {
                 this._cliAction(id, 'pair');
+                return 0;
             }
 
             if (options.contains('unpair')) {

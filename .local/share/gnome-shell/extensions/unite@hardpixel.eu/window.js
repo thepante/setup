@@ -1,12 +1,16 @@
-const Bytes    = imports.byteArray
-const GLib     = imports.gi.GLib
-const GObject  = imports.gi.GObject
-const Meta     = imports.gi.Meta
-const Main     = imports.ui.main
-const Util     = imports.misc.util
-const Unite    = imports.misc.extensionUtils.getCurrentExtension()
-const AppMenu  = Main.panel.statusArea.appMenu
-const Handlers = Unite.imports.handlers
+const Bytes      = imports.byteArray
+const GLib       = imports.gi.GLib
+const GObject    = imports.gi.GObject
+const Meta       = imports.gi.Meta
+const WinTracker = imports.gi.Shell.WindowTracker.get_default()
+const Main       = imports.ui.main
+const Config     = imports.misc.config
+const Util       = imports.misc.util
+const Unite      = imports.misc.extensionUtils.getCurrentExtension()
+const AppMenu    = Main.panel.statusArea.appMenu
+const Handlers   = Unite.imports.handlers
+
+const VERSION = parseInt(Config.PACKAGE_VERSION.split('.')[1])
 
 const VALID_TYPES = [
   Meta.WindowType.NORMAL,
@@ -130,6 +134,7 @@ var MetaWindow = GObject.registerClass(
       win._uniteShellManaged = true
 
       this.win = win
+      this.app = WinTracker.get_window_app(win)
       this.xid = getXid(win)
 
       this.signals  = new Handlers.Signals()
@@ -176,7 +181,7 @@ var MetaWindow = GObject.registerClass(
       if (this.showTitle) {
         return this.win.get_title()
       } else {
-        return AppMenu.get_accessible_name()
+        return this.app.get_name()
       }
     }
 
@@ -259,17 +264,17 @@ var MetaWindow = GObject.registerClass(
 
     syncControls() {
       if (this.hasFocus) {
-        const overview = Main.overview._visible
+        const overview = Main.overview.visibleTarget
         const controls = Main.panel.statusArea.uniteWindowControls
 
-        controls && controls.setVisible(this.showButtons && !overview)
+        controls && controls.setVisible(!overview && this.showButtons)
       }
     }
 
     syncAppmenu() {
       const label = AppMenu._label
 
-      if (label && this.hasFocus) {
+      if (label && this.hasFocus && this.title) {
         const current = label.get_text()
         current != this.title && label.set_text(this.title)
       }
@@ -334,10 +339,6 @@ var WindowManager = GObject.registerClass(
         global.display, 'window-demands-attention', this._onAttention.bind(this)
       )
 
-      this.signals.connect(
-        AppMenu._label, 'notify::text', this._onAppmenuChanged.bind(this)
-      )
-
       this.settings.connect(
         'hide-window-titlebars', this._onStylesChange.bind(this)
       )
@@ -345,6 +346,12 @@ var WindowManager = GObject.registerClass(
       this.settings.connect(
         'window-buttons-position', this._onStylesChange.bind(this)
       )
+
+      if (VERSION < 36) {
+        this.signals.connect(
+          AppMenu._label, 'notify::text', this._onAppmenuChanged.bind(this)
+        )
+      }
     }
 
     get focusWindow() {
@@ -405,11 +412,8 @@ var WindowManager = GObject.registerClass(
     }
 
     _onAppmenuChanged() {
-      const focused = this.focusWindow
-      const current = AppMenu._label.get_text()
-
-      if (focused && current != focused.title) {
-        AppMenu._label.set_text(focused.title)
+      if (this.focusWindow) {
+        this.focusWindow.syncAppmenu()
       }
     }
 

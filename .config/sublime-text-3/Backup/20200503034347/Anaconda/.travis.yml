@@ -1,0 +1,24 @@
+language: python
+python:
+    - "2.7"
+    # - "3.3"
+    - "3.5"
+    - "3.6"
+    # - "3.7"
+    - "pypy"
+    # - "pypy3"
+matrix:
+    allow_failures:
+      - python: pypy
+install: |
+    export PYTHON_VERSION=$(pip --version | grep -oP 'python \d.\d' | cut -d' ' -f2 | cut -d'.' -f1)
+    if [ ${PYTHON_VERSION} -eq 3 ]; then pip install -r requirements.py3.txt; fi
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/bce2445da932b9c1bed7
+    on_success: change
+    on_failure: always
+    on_start: never
+
+script: nosetests -v test

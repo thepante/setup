@@ -1,0 +1,695 @@
+/*
+    Anaconda default settings
+*/
+{
+    /*
+        Anaconda Tooltip Options
+
+        Sublime Text 3 supports tooltips since build 3070; if anaconda
+        runs in a ST3 installation equal to or newer than build 3070, it
+        can be configured to show tooltips for documentation and signatures.
+
+        The options below set how the tooltip looks.
+    */
+    "anaconda_tooltip_theme": "popup",
+
+    /*
+        If you set the following option as true, anaconda will display the
+        signatures of the methods in a floating popup.
+
+        *note*: this only has an effect if "display_signatures" is true.
+    */
+    "enable_signatures_tooltip": true,
+
+    /*
+        If you set the following option as true, anaconda will display the
+        documentation of modules, classes or methods in a floating popup.
+    */
+    "enable_docstrings_tooltip": true,
+
+    /*
+        If the option below is set as true, anaconda will merge the
+        outputs of display_signatures and show documentation.
+
+        *note*: This only has an effect if tooltips are enabled.
+    */
+    "merge_signatures_and_doc": true,
+
+    /*
+        If you set the following option as true, anaconda will display the
+        signatures of the methods you are using while typing
+    */
+    "display_signatures": true,
+
+    /*
+        Auto project switching
+
+        If you set this to true, anaconda will detect project switches and
+        will reconnect a new JsonServer with the switched project
+        configuration.
+    */
+    "auto_project_switch": true,
+
+    /*
+        Python Builder Options
+
+        If enabled, anaconda will add your configured interpreter (if any)
+        into your per-project `build_systems` list if any, or create a
+        new one in case you don't define one yourself.
+
+        This is enabled by default; disable it if you experience slowdowns
+        when you switch between projects, and file an issue in GitHub.
+    */
+    "auto_python_builder_enabled": true,
+
+    /*
+        Debug Mode:
+
+        If you need to debug the jsonserver.py service for any reason, you
+        can configure the following options to make the plugin to connect
+        always to the same port in your local machine.
+
+        Procedure:
+
+            1. Set the debug_mode as true
+            2. Set the debug_port to your desired port
+            3. Close Sublime Text 3
+            4. cd to your Packages/Anaconda directory
+            5. Start the jsonserver manually:
+                python -B anaconda_server/jsonserver.py -p test 9999 DEBUG
+            6. Start your Sublime Text 3 and
+
+        Then your anaconda plugin will use the configured server, and you will
+        get debug messages in the terminal where you ran it.
+    */
+    "jsonserver_debug": false,
+    "jsonserver_debug_port": 9999,
+
+    /*
+        Default python interpreter
+
+        This can (and should) be overridden by project settings.
+
+        NOTE: if you want anaconda to lint and complete using a remote
+        python interpreter that runs the anaconda's minserver.py script
+        in a remote machine just use it's address:port as interpreter
+        for example:
+
+        	"python_interpreter": "tcp://my_remote.machine.com:19360"
+    */
+    "python_interpreter": "python",
+
+    /*
+        Disable anaconda completion
+
+        WARNING: setting this as true will totally disable anaconda completion.
+    */
+    "disable_anaconda_completion": false,
+
+    /*
+        Set those as true if you don't want Sublime Text regular completions
+    */
+    "suppress_word_completions": false,
+    "suppress_explicit_completions": false,
+
+    /*
+        If complete_parameters is true, anaconda will add function and class
+        parameters to its completions.
+
+        If complete_all_parameters is true, it will add all the possible
+        parameters, if it's false, it will add only required parameters
+    */
+    "complete_parameters": false,
+    "complete_all_parameters": false,
+
+    /*
+        If you set the following option as true, anaconda will complete
+        function parameters on keypress, when cursor is between function
+        brackets, independently from any other setting. It also works with
+        disabled tooltips.
+
+        Moreover you'll be able to choose at the moment of insertion, whether
+        inserting all parameters or just the required parameters.
+
+        Default keybindings (they only work between empty function brackets):
+        Tab      : insert required parameters
+        Ctrl+Tab : insert all parameters
+    */
+    "parameters_completion_on_keypress": true,
+
+    /*
+        The following set of options controls the autopep autoformatting
+        behaviour.
+
+        The full list of errors that can be fixed are:
+
+            E101 - Reindent all lines.
+            E111 - Reindent all lines.
+            E121 - Fix indentation to be a multiple of four.
+            E122 - Add absent indentation for hanging indentation.
+            E123 - Align closing bracket to match opening bracket.
+            E124 - Align closing bracket to match visual indentation.
+            E125 - Indent to distinguish line from next logical line.
+            E126 - Fix over-indented hanging indentation.
+            E127 - Fix visual indentation.
+            E128 - Fix visual indentation.
+            E129 - Indent to distinguish line from next logical line.
+            E201 - Remove extraneous whitespace.
+            E202 - Remove extraneous whitespace.
+            E203 - Remove extraneous whitespace.
+            E211 - Remove extraneous whitespace.
+            E221 - Fix extraneous whitespace around keywords.
+            E222 - Fix extraneous whitespace around keywords.
+            E223 - Fix extraneous whitespace around keywords.
+            E224 - Remove extraneous whitespace around operator.
+            E225 - Fix missing whitespace around operator.
+            E226 - Fix missing whitespace around operator.
+            E227 - Fix missing whitespace around operator.
+            E228 - Fix missing whitespace around operator.
+            E231 - Add missing whitespace.
+            E241 - Fix extraneous whitespace around keywords.
+            E242 - Remove extraneous whitespace around operator.
+            E251 - Remove whitespace around parameter '=' sign.
+            E261 - Fix spacing before comment hash.
+            E262 - Fix spacing after comment hash.
+            E271 - Fix extraneous whitespace around keywords.
+            E272 - Fix extraneous whitespace around keywords.
+            E273 - Fix extraneous whitespace around keywords.
+            E274 - Fix extraneous whitespace around keywords.
+            E301 - Add missing blank line.
+            E302 - Add missing 2 blank lines.
+            E303 - Remove extra blank lines.
+            E304 - Remove blank line following function decorator.
+            E401 - Put imports on separate lines.
+            E501 - Try to make lines fit within --max-line-length characters.
+            E502 - Remove extraneous escape of newline.
+            E701 - Put colon-separated compound statement on separate lines.
+            E702 - Put semicolon-separated compound statement on separate lines.
+            E703 - Put semicolon-separated compound statement on separate lines.
+            E711 - Fix comparison with None.
+            E712 - Fix comparison with boolean.
+            W191 - Reindent all lines.
+            W291 - Remove trailing whitespace.
+            W293 - Remove trailing whitespace on blank line.
+            W391 - Remove trailing blank lines.
+            E26  - Format block comments.
+            W6   - Fix various deprecated code (via lib2to3).
+            W602 - Fix deprecated form of raising exception.
+    */
+
+    /*
+        Autoformat files on save
+
+        This option is disabled by default, AutoPEP8 is really slow and it get
+        the file buffer read only while its working in the background.
+
+        Use this at your own risk.
+    */
+    "auto_formatting": false,
+
+    /*
+        Timeout for the autoformatting tool before fail
+
+        Note: Take into account that depending on the size of the file you
+        want to autoformat, this can take a while.
+    */
+    "auto_formatting_timeout": 1,  // seconds
+
+    /*
+        Enable unsafe changes:
+            https://github.com/hhatto/autopep8#more-advanced-usage
+
+        Set it as 0 if you are unsure here.
+    */
+    "aggressive": 0,
+
+    /*
+        Do not fix the errors listed here:
+        Note: By default we ignore E309 as this is not pep8 but it does
+        conflict with pep257 D211.
+    */
+    "autoformat_ignore":
+    [
+        "E309"
+    ],
+
+    /*
+        Fix only the errors listed here:
+    */
+    "autoformat_select":
+    [
+    ],
+
+    /*
+        Set the threshold limit for McCabe complexity checker.
+    */
+    "mccabe_threshold": 7,
+
+    /*
+        Set to false to disable Anaconda linting entirely.
+    */
+    "anaconda_linting": true,
+
+    /*
+        Sets the linting behaviour for anaconda:
+
+        "always" - Linting works always even while you are writing (in the background)
+        "load-save" - Linting works in file load and save only
+        "save-only" - Linting works in file save only
+    */
+    "anaconda_linting_behaviour": "always",
+
+    /*
+        The minimum delay in seconds (fractional seconds are okay) before
+        a linter is run when the "anaconda_linting" setting is true. This allows
+        you to have background linting active, but defer the actual linting
+        until you are idle. When this value is greater than the built in linting delay,
+        errors are erased when the file is modified, since the assumption is
+        you don't want to see errors while you type (unless the option
+        anaconda_linter_persistent is true).
+    */
+    "anaconda_linter_delay": 0.5,
+
+    /*
+        If true, anaconda does not remove lint marks while you type.
+    */
+    "anaconda_linter_persistent": false,
+
+    // If true, anaconda draws gutter marks on line with errors.
+    "anaconda_gutter_marks": true,
+
+    /*
+
+        If anaconda_gutter_marks is true, this determines what theme is used.
+        Theme 'basic' only adds dots and circles to gutter.
+
+        Other available themes are 'alpha', 'bright', 'dark', 'hard', "retina"
+        (for retina displays) and 'simple'. To see icons that will be used for
+        each theme check gutter_icon_themes folder in Anaconda package.
+    */
+    "anaconda_gutter_theme": "basic",
+
+    /*
+        If 'outline' (default), anaconda will outline error lines.
+        If 'fill', anaconda will fill the lines.
+        If 'solid_underline', anaconda will draw a solid underline below regions.
+        If 'stippled_underline', anaconda will draw a stippled underline below regions.
+        If 'squiggly_underline', anaconda will draw a squiggly underline below regions.
+        If 'none', anaconda will not draw anything on error lines.
+    */
+    "anaconda_linter_mark_style": "outline",
+
+    /*
+        If this is set to false, anaconda will not underline errors.
+    */
+    "anaconda_linter_underlines": true,
+
+    /*
+        If this is set to true, anaconda will show errors inline.
+    */
+    "anaconda_linter_phantoms": false,
+
+    /*
+        This determines what theme is phantoms used.
+    */
+    "anaconda_linter_phantoms_theme": "phantom",
+
+    /*
+        This determines what template is phantoms used.
+    */
+    "anaconda_linter_phantoms_template": "default",
+
+    /*
+        If anaconda_linter_show_errors_on_save is set to true, anaconda
+        will show a list of errors when you save the file.
+
+        This is disabled by default.
+    */
+    "anaconda_linter_show_errors_on_save": false,
+
+    /*
+        Use PyLint instead of PyFlakes and PEP-8
+
+        **** WARNING ****
+
+        - If you set this value as true, PyFlakes and pep8 will not be used.
+        - PyLint does *NOT* support linting buffers that are not already saved in
+          the file system.
+
+        **** WARNING ****
+    */
+    "use_pylint": false,
+
+    // Set this to false to turn pep8 checking off completely.
+    "pep8": true,
+
+    /*
+        If set, the given file will be used as configuration for pep8.
+
+        **** WARNING ****
+
+        - If this option is set to something other than false,
+          pep8_ignore and pep8_max_line_length will be silently ignored.
+
+        **** WARNING ****
+    */
+    "pep8_rcfile": false,
+
+    /*
+        A list of pep8 error numbers to ignore.
+        The list of error codes is in this file:
+            https://pycodestyle.readthedocs.io/en/latest/intro.html#error-codes.
+        Search for "Ennn:", where nnn is a 3-digit number.
+        E309 is ignored by default as it conflicts with pep257 E211
+    */
+    "pep8_ignore":
+    [
+        "E309"
+    ],
+
+    // Maximum line length for pep8
+    "pep8_max_line_length": 79,
+
+    /*
+        You can override the level of PEP8 errors altering this mapping.
+        WARNING: Be careful with this option, the only valid error level values
+        are:
+
+            * E for errors (reduced to Warning by default)
+            * W for warnings (reduced to Violation by default)
+            * V for convention violations
+
+        If you set a value that is not listed here, anaconda will ignore your
+        setting
+    */
+    "pep8_error_levels": {"E": "W", "W": "V", "V": "V"},
+
+    // Set this to true to turn pep257 checking on.
+    "pep257": false,
+
+    /*
+        A list of pep257 error numbers to ignore.
+
+        The list can be found here: http://www.pydocstyle.org/en/2.1.1/error_codes.html
+
+        D209: Multi-line docstring should end with 1 blank line is ignored by
+        default as this rule has been deprecated.
+
+        D203: 1 blank line before class docstring is ignored by default, as
+        this rule has been deprecated.
+    */
+    "pep257_ignore":
+    [
+        "D203",
+        "D209"
+    ],
+
+    /*
+        You can ignore some of the "undefined name xxx" errors (comes
+        in handy if you work with post-processors, globals/builtins
+        available only at runtime, etc.). You can control what names
+        will be ignored with the user setting "pyflakes_ignore".
+
+        Example:
+
+        "pyflakes_ignore":
+            [
+                "some_custom_builtin_o_mine",
+                "A_GLOBAL_CONSTANT"
+            ],
+    */
+    "pyflakes_ignore":
+    [
+    ],
+
+    /*
+        Specific error types to ignore for pyflakes.
+        (Uncomment to ignore the below error types.)
+    */
+    "pyflakes_explicit_ignore":
+    [
+        // "Redefined",
+        // "UnusedImport",
+        // "UndefinedName",
+        // "UndefinedLocal",
+        // "UnusedVariable,",
+        // "UndefinedExport",
+        // "DuplicateArgument",
+        // "RedefinedWhileUnused"
+    ],
+
+    /*
+        If set, the given file will be used as configuration for PyLint.
+
+        **** WARNING ****
+
+            - If this option is set to something different than false,
+              pylint_ignore will be silently ignored
+
+        **** WARNING ****
+    */
+    "pylint_rcfile": false,
+
+    /*
+        You can ignore specific PyLint error codes using this configuration.
+
+        We strongly suggest that you better configure your pylintrc file to
+        determine which type of error is important to you.
+    */
+    "pylint_ignore":
+    [
+        // "0201"
+    ],
+
+    /*
+        Ordinarily pyflakes will issue a warning when 'from foo import *'
+        is used; this is ignored by default.
+
+        If you want to see this warning, set this option to false.
+    */
+    "pyflakes_ignore_import_*": true,
+
+    /*
+        Set the following option to true if you want anaconda to check
+        the validity of your imports when the linting process is fired.
+
+        WARNING: take into account that anaconda compiles and import the
+        modules in the JsonServer memory segment in order to check this
+    */
+    "validate_imports": false,
+
+    /*
+    	MyPy
+
+    	Set the following option to true to enable MyPy checker.
+    */
+    "mypy": false,
+
+    /*
+        Set the following variable to set MyPy MYPYPATH.
+     */
+    "mypy_mypypath": "",
+
+    /*
+    	MyPy Silent Imports
+
+    	If true, mypy will not follow imports to .py files.
+    */
+    "mypy_silent_imports": false,
+
+    /*
+    	MyPy Almost Silent
+
+		Same as Silent Imports, but report the imports as errors.
+    */
+    "mypy_almost_silent": false,
+
+    /*
+        MyPy suppress stub warnings
+
+        Suppress stub warnings when silent_imports is not used.
+     */
+    "mypy_suppress_stub_warnings": true,
+
+    /*
+    	MyPy py2
+
+    	Use Python 2 mode.
+    */
+    "mypy_py2": false,
+
+    /*
+    	MyPy Disallow Untyped Calls
+
+    	Disallow calling functions without type annotations from
+    	functions with type annotations.
+    */
+    "mypy_disallow_untyped_calls": false,
+
+    /*
+    	MyPy Disallow Untyped Defs
+
+    	Disallow defining functions without type annotations or
+    	with incomplete type annotations.
+    */
+    "mypy_disallow_untyped_defs": false,
+
+	/*
+		MyPy Check Untyped Defs
+
+		Type check the interior of functions without type annotations.
+	*/
+	"mypy_check_untyped_defs": false,
+
+    /*
+        MyPy Fast Parser
+
+        Enable the experimental fast parser module of MyPy. In practice
+        this seems to be slower, however is required for support of some
+        recent syntax changes in Python.
+    */
+    "mypy_fast_parser": false,
+
+	/*
+		MyPy Custom Typing
+
+		Use a custom typing module. Uncomment to enable.
+	*/
+	// "mypy_custom_typing": "",
+
+    /*
+        Debug and development options
+
+        Use those options only for debugging and development purposes, they can
+        and will slowdown your Sublime Text
+
+        anconda_debug can be set as: false or profiler
+
+        If this is set as profiler, Anaconda will run a profiler on autocomplete
+        and print its results in the Sublime Text console.
+
+        NOTE: cProfile can't be imported in all the platforms, at least not in
+        Linux, this is an already reported bug:
+
+            http://www.sublimetext.com/forum/viewtopic.php?f=3&t=13698
+            https://github.com/SublimeText/Issues/issues/127
+
+    */
+    "anaconda_debug": false,
+
+    /*
+        Anaconda test runner related configuration.
+
+        The anaconda's test runner is originally a contribution by NorthIsUp
+            https://github.com/NorthIsUp
+
+        Run Twisted's trial based test suite under a virtualenv project:
+
+            // this is your <ProjectName>.sublime-project file
+            "settings": {
+                "python_interpreter": "~/.virtualenvs/project_name",
+                "test_command": "trial",
+                "test_virtualenv": "~/.virtualenvs/project_name",
+                "test_project_path": "project_src"
+            }
+
+        Run Django project tests using nose2 with a virtualenv:
+
+            // this is your <ProjectName>.sublime-project file
+            "settings": {
+                "python_interpreter": "~/.virtualenvs/django_project_name",
+                "test_command": "./manage.py test --settings=tests.settings --noinput"
+            }
+    */
+
+    /*
+        Theme to use in the output panel.
+
+        Uncomment the line below to override the default tests runner
+        output, by default the theme is PythonConsoleDark.hidden-tmTheme
+        NOTE: The file specified here **MUST** exists in `Packages/Anaconda`
+    */
+    //"test_runner_theme": "PythonConsoleDark.hidden-tmTheme",
+
+    /*
+        Uncomment the line below to execute any command before try to execute
+        your test suite. (if you need to run more than one command, just use a
+        list of commands ["cmd1", "cmd2", ...])
+
+    */
+    // "test_before_command": "",
+
+    /*
+        Command to execute tests with. nosetests by default
+    */
+    "test_command": "nosetests",
+
+    /*
+        Uncomment the line below to execute any command after execute
+        your test suite.
+    */
+    //"test_after_command": "",
+
+    /*
+        This is the delimiter between the module and the class.
+    */
+    "test_delimeter": ":",
+
+    /*
+        This is the delimiter between the class and the method.
+    */
+    "test_method_delimeter": ".",
+
+    /*
+        Whether to include full path of the test file/method.
+    */
+    "test_include_full_path": true,
+
+    /*
+        Uncomment the line below to enable filepath-based test runner
+        patterns like those required for py.test.
+    */
+    // "test_filepath_patterns": true,
+
+    /* Uncomment the line below to use a virtualenv for your tests */
+    //"test_virtualenv": ""
+
+    /*
+        Uncomment the line below to add a top level path when you ask
+        anaconda to run all your project tests.
+
+        Note: this is need for example to can run tests with `twisted's trial`
+    */
+    // "test_project_path": "./"
+
+    /*
+    	Set this option to true if you get warnings about anaconda not
+    	being able to connect to your localhost on ST3 startup but it
+    	works normally after closing the error message.
+
+    	NOTE: Ignoring errors may be dangerous.
+     */
+
+     /* Parameters to include after test_command specific to testing scope */
+     "test_params": {
+        "current_file_tests": "",
+        "current_test": "",
+        "project_tests": ""
+    },
+	"swallow_startup_errors": false,
+
+    /*
+        If this is set to true, anaconda will unload plugins that
+        make it malfunction interfering with it
+    */
+    "auto_unload_conflictive_plugins": true,
+    /*
+        If this is set to true, anaconda will search for environment hook
+        files in any directory level down to the one the current file is in
+        as opposed to the default where it will only search down to the
+        root of your working directory.
+    */
+    "anaconda_allow_project_environment_hooks": false
+}
+
+// vim: set ft=javascript:

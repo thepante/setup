@@ -1,4 +1,4 @@
-# 14/02/2020
+# 30/06/2020
 
 # function commit () { 
 #    git add . && noglob git commit -m "$*"
@@ -11,22 +11,20 @@ alias -g tb='noglob tb'
 alias apagar='sudo shutdown -P'
 alias n='nnn'
 alias taskbook='tb'
-alias push='git push'
 alias rmi='rm -i'
 alias trash='trash-put'
 alias neth='sudo nethogs'
 alias streamv='acestream-launcher -p vlc'
 alias stream='acestream-launcher'
-alias mp3='noglob youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
-alias desc='noglob youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
-alias download='noglob youtube-dl --output "/home/pante/Downloads/%(title)s.%(ext)s"'
+alias mp3='noglob youtube-dl --output "~/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
+alias desc='noglob youtube-dl --output "~/Downloads/%(title)s.%(ext)s" --extract-audio --audio-format mp3'
+alias download='noglob youtube-dl --output "~/Downloads/%(title)s.%(ext)s"'
 alias urserver='/opt/urserver/urserver-start --no-manager --no-notify'
 alias neo='neofetch'
+alias loadmic='pacmd load-module module-alsa-source device=hw:Loopback,1,0 source_properties=device.description=droidcam_audio'
 alias ..='cd ..'
 alias ..2='cd ../..'
 alias ..3='cd ../../..'
 alias ..4='cd ../../../..'
 alias ~='cd ~'
 alias dl='cd ~/Downloads'
-alias sesion='tilix --session /home/pante/.config/tilix/config4.json'
-

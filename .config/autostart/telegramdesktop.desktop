@@ -2,10 +2,13 @@
 Version=1.0
 Name=Telegram Desktop
 Comment=Official desktop version of Telegram messaging app
-Exec=telegram-desktop -- %u
+TryExec=/opt/telegram/telegram
+Exec=/opt/telegram/telegram -autostart
 Icon=telegram
 Terminal=false
 StartupWMClass=TelegramDesktop
 Type=Application
-Categories=Network;InstantMessaging;Qt;
+Categories=Chat;Network;InstantMessaging;Qt;
 MimeType=x-scheme-handler/tg;
+Keywords=tg;chat;im;messaging;messenger;sms;tdesktop;
+X-GNOME-UsesNotifications=true

@@ -3,7 +3,6 @@
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
-const Gtk = imports.gi.Gtk;
 
 const PluginsBase = imports.service.plugins.base;
 
@@ -48,7 +47,8 @@ var Plugin = GObject.registerClass({
 
         // A reusable launcher for ssh processes
         this._launcher = new Gio.SubprocessLauncher({
-            flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_MERGE
+            flags: (Gio.SubprocessFlags.STDOUT_PIPE |
+                    Gio.SubprocessFlags.STDERR_MERGE)
         });
 
         this._mounting = false;
@@ -95,14 +95,9 @@ var Plugin = GObject.registerClass({
             this.device.lookup_action('unmount').enabled = false;
 
         // Request a mount
-        } else {
+        } else if (this.info.mount === null) {
             this.mount();
         }
-    }
-
-    disconnected() {
-        super.disconnected();
-        this.unmount();
     }
 
     /**
@@ -170,9 +165,8 @@ var Plugin = GObject.registerClass({
                 password_save: Gio.PasswordSave.NEVER
             });
 
-            // Auto-accept new host keys and password requests
-            let questionId = op.connect('ask-question', this._onAskQuestion);
-            let passwordId = op.connect('ask-password', this._onAskPassword);
+            op.connect('ask-question', this._onAskQuestion);
+            op.connect('ask-password', this._onAskPassword);
 
             // This is the actual call to mount the device
             await new Promise((resolve, reject) => {
@@ -180,8 +174,6 @@ var Plugin = GObject.registerClass({
 
                 file.mount_enclosing_volume(0, op, null, (file, res) => {
                     try {
-                        op.disconnect(questionId);
-                        op.disconnect(passwordId);
                         resolve(file.mount_enclosing_volume_finish(res));
                     } catch (e) {
                         // Special case when the GMount didn't unmount properly
