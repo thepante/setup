@@ -1,5 +1,4 @@
 const { GObject, Gio, Meta, Clutter, St, Shell } = imports.gi;
-const Lang = imports.lang;
 const Signals = imports.signals;
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
@@ -22,12 +21,6 @@ class MiniviewIndicator extends PanelMenu.Button {
     _init(miniview) {
         this._miniview = miniview;
 
-        // get settings from schema
-        this._settings = _getSettings();
-        this._showme = this._settings.get_boolean('showme');
-        this._settings.connect('changed', Lang.bind(this, this._settingsChanged));
-        Main.wm.addKeybinding('toggle-miniview', this._settings, Meta.KeyBindingFlags.NONE, Shell.ActionMode.NORMAL, Lang.bind(this, this._onToggled));
-
         // create menu ui
         super._init(St.Align.START);
         let box = new St.BoxLayout();
@@ -39,50 +32,31 @@ class MiniviewIndicator extends PanelMenu.Button {
 
         // on/off toggle
         this._tsToggle = new PopupMenu.PopupSwitchMenuItem(_('Enable Miniview'), false, { style_class: 'popup-subtitle-menu-item' });
-        this._tsToggle.connect('toggled', Lang.bind(this, this._onToggled));
+        this._tsToggle.connect('toggled', this._onToggled.bind(this));
         this.menu.addMenuItem(this._tsToggle);
 
         // cycling through windows
         this._tsNext = new PopupMenu.PopupMenuItem(_('Next Window'));
-        this._tsNext.connect('activate', Lang.bind(this, this._onNext));
+        this._tsNext.connect('activate', this._onNext.bind(this));
         this.menu.addMenuItem(this._tsNext);
 
         this._tsPrev = new PopupMenu.PopupMenuItem(_('Previous Window'));
-        this._tsPrev.connect('activate', Lang.bind(this, this._onPrev));
+        this._tsPrev.connect('activate', this._onPrev.bind(this));
         this.menu.addMenuItem(this._tsPrev);
 
         // reset ephemeral parameters (in case miniview got lost :) )
         this._tsResetMiniview = new PopupMenu.PopupMenuItem(_('Reset Miniview'));
-        this._tsResetMiniview.connect('activate', Lang.bind(this, this._onResetMiniview));
+        this._tsResetMiniview.connect('activate', this._onResetMiniview.bind(this));
         this.menu.addMenuItem(this._tsResetMiniview);
 
         // extension preferences
         this._tsPreferences = new PopupMenu.PopupMenuItem(_('Preferences'));
-        this._tsPreferences.connect('activate', Lang.bind(this, this._onPreferences));
+        this._tsPreferences.connect('activate', this._onPreferences.bind(this));
         this.menu.addMenuItem(this._tsPreferences);
-
-        // init ui
-        this._reflectState();
-    }
-
-    _reflectState() {
-        this._tsToggle.setToggleState(this._showme);
-        if (this._showme) {
-            this._miniview._showMiniview();
-        } else {
-            this._miniview._hideMiniview();
-        }
-    }
-
-    _settingsChanged() {
-        this._showme = this._settings.get_boolean('showme');
-        this._reflectState();
     }
 
     _onToggled() {
-        this._showme = !this._showme;
-        this._settings.set_boolean('showme', this._showme);
-        this._reflectState();
+        this._miniview._toggleMiniview();
     }
 
     _onNext() {
@@ -100,18 +74,33 @@ class MiniviewIndicator extends PanelMenu.Button {
         this._miniview._clone.scale_y = 0.2;
         this._miniview._clone.x = 100;
         this._miniview._clone.y = 100;
+        this._miniview._clone.inMove = false;
+        this._miniview._clone.inResize = false;
+        this._miniview._clone.inResizeCtrl = false;
     }
 
     _onPreferences() {
         let _appSys = Shell.AppSystem.get_default();
         let _gsmPrefs = _appSys.lookup_app('gnome-shell-extension-prefs.desktop');
-        if (_gsmPrefs.get_state() === _gsmPrefs.SHELL_APP_STATE_RUNNING) {
+        if (_gsmPrefs === null) {
+            _gsmPrefs = _appSys.lookup_app('org.gnome.Extensions.desktop');
+        }
+        if (typeof ExtensionUtils.openPrefs === 'function') {
+            ExtensionUtils.openPrefs();
+        } else if (_gsmPrefs.get_state() === _gsmPrefs.SHELL_APP_STATE_RUNNING) {
             _gsmPrefs.activate();
         } else {
             let info = _gsmPrefs.get_app_info();
             let timestamp = _display.get_current_time_roundtrip();
             info.launch_uris([_uuid], global.create_app_launch_context(timestamp, -1));
         }
+    }
+
+    _onDestroy() {
+        super._onDestroy();
+
+        Main.wm.removeKeybinding('toggle-miniview');
+        this._settings.disconnect(this._settingsChangedId);
     }
 });
 
@@ -120,7 +109,7 @@ let MiniviewClone = GObject.registerClass({
         'scroll-up': {},
         'scroll-down': {}
     }
-}, class MiniviewClone extends Clutter.Group {
+}, class MiniviewClone extends Clutter.Actor {
     _init(miniview) {
         this._miniview = miniview;
         this._windowClone = new Clutter.Clone();
@@ -138,14 +127,14 @@ let MiniviewClone = GObject.registerClass({
         // To avoid this, we hide it from pick.
         Shell.util_set_hidden_from_pick(this._windowClone, true);
 
-        this.add_actor(this._windowClone);
+        this.add_child(this._windowClone);
 
-        this.connect('button-press-event', Lang.bind(this, this._onButtonPress));
-        this.connect('button-release-event', Lang.bind(this, this._onButtonRelease));
-        this.connect('motion-event', Lang.bind(this, this._onMouseMove));
-        this.connect('scroll-event', Lang.bind(this, this._onScroll));
-        this.connect('enter-event', Lang.bind(this, this._onMouseEnter));
-        this.connect('leave-event', Lang.bind(this, this._onMouseLeave));
+        this.connect('button-press-event', this._onButtonPress.bind(this));
+        this.connect('button-release-event', this._onButtonRelease.bind(this));
+        this.connect('motion-event', this._onMouseMove.bind(this));
+        this.connect('scroll-event', this._onScroll.bind(this));
+        this.connect('enter-event', this._onMouseEnter.bind(this));
+        this.connect('leave-event', this._onMouseLeave.bind(this));
 
         // interface state
         this.inMove = false;
@@ -174,6 +163,12 @@ let MiniviewClone = GObject.registerClass({
         let button = event.get_button();
         let state = event.get_state();
         let ctrl = (state & Clutter.ModifierType.CONTROL_MASK) != 0;
+        let shift = (state & Clutter.ModifierType.SHIFT_MASK) != 0;
+
+        // alternative scroll
+        if (shift) {
+            return true;
+        }
 
         if ((button == 1) && (!ctrl)) {
             this.inMove = true;
@@ -196,6 +191,18 @@ let MiniviewClone = GObject.registerClass({
 
     _onButtonRelease(actor, event) {
         let button = event.get_button();
+        let state = event.get_state();
+        let shift = (state & Clutter.ModifierType.SHIFT_MASK) != 0;
+
+        // alternative scroll
+        if (shift) {
+            if (button == 1) {
+                this.emit('scroll-up');
+            } else if (button == 3) {
+                this.emit('scroll-down');
+            }
+            return true;
+        }
 
         if (button == 1) {
             if (this.inMove) {
@@ -303,12 +310,44 @@ let MiniviewClone = GObject.registerClass({
 
 class Miniview {
     constructor(state) {
+        // panel menu
+        this._indicator = new MiniviewIndicator(this);
+        Main.panel.addToStatusArea('miniview', this._indicator);
+
+        // the actual window clone actor
+        this._clone = new MiniviewClone(this);
+        this._clone.connect('scroll-up', this._goWindowUp.bind(this));
+        this._clone.connect('scroll-down', this._goWindowDown.bind(this));
+
+        // get settings from schema
+        this._settings = _getSettings();
+        this._showme = this._settings.get_boolean('showme');
+        this._showind = this._settings.get_boolean('showind');
+        this._settingsChangedId = this._settings.connect('changed', this._settingsChanged.bind(this));
+        Main.wm.addKeybinding('toggle-miniview', this._settings, Meta.KeyBindingFlags.NONE, Shell.ActionMode.NORMAL, this._toggleMiniview.bind(this));
+
+        // add to top level chrome but hide for overview
+        this._overviewShowingId = Main.overview.connect('showing', this._overviewEnter.bind(this));
+        this._overviewHiddenId = Main.overview.connect('hidden', this._overviewLeave.bind(this));
+        Main.layoutManager.addChrome(this._clone);
+
+        // track windows as they move across monitors or are created/destroyed
+        this._windowEnteredMonitorId = _display.connect('window-entered-monitor', this._windowEnteredMonitor.bind(this));
+        this._windowLeftMonitorId = _display.connect('window-left-monitor', this._windowLeftMonitor.bind(this));
+
+        // for tracking across locking/suspending
         this._state = state;
         this._stateTimeout = null;
 
+        // for screen hops (which look like leaving one monitor then quickly entering another)
         this._lastIdx = null;
         this._lastTimeout = null;
 
+        // start out with null window info
+        this._winIdx = null;
+        this._metaWin = null;
+
+        // assemble window list
         let baseWindowList = global.get_window_actors();
         this._windowList = [];
         for (let i = 0; i < baseWindowList.length; i++) {
@@ -318,25 +357,8 @@ class Miniview {
             }
         }
 
-        this._clone = new MiniviewClone(this);
-        this._clone.connect('scroll-up', Lang.bind(this, this._goWindowUp));
-        this._clone.connect('scroll-down', Lang.bind(this, this._goWindowDown));
-
-        this._overviewShowingId = Main.overview.connect('showing',Lang.bind(this, this._overviewEnter));
-        this._overviewHiddenId = Main.overview.connect('hidden', Lang.bind(this, this._overviewLeave));
-        Main.layoutManager.addChrome(this._clone);
-
-        this._winIdx = null;
-        this._metaWin = null;
-        this._shouldShow = true;
-
-        if (this._windowList.length > 0) {
-            this.setIndex(0);
-            this._clone.visible = true;
-        }
-
-        this._windowEnteredMonitorId = _display.connect('window-entered-monitor', Lang.bind(this, this._windowEnteredMonitor));
-        this._windowLeftMonitorId = _display.connect('window-left-monitor', Lang.bind(this, this._windowLeftMonitor));
+        // harmonize ui
+        this._reflectState();
     }
 
     destroy() {
@@ -348,6 +370,10 @@ class Miniview {
 
         if (this._stateTimeout != null) {
             Mainloop.source_remove(this._stateTimeout);
+        }
+
+        if (this._indicator) {
+            this._indicator.destroy();
         }
 
         if (this._clone) {
@@ -377,12 +403,10 @@ class Miniview {
             if (this._stateTimeout != null) {
                 Mainloop.source_remove(this._stateTimeout);
             }
-            this._stateTimeout = Mainloop.timeout_add_seconds(1, Lang.bind(this,
-                function() {
-                    this._state.metaWin = this._metaWin;
-                    this._stateTimeout = null;
-                }
-            ));
+            this._stateTimeout = Mainloop.timeout_add_seconds(1, () => {
+                this._state.metaWin = this._metaWin;
+                this._stateTimeout = null;
+            });
         }
     }
 
@@ -417,14 +441,12 @@ class Miniview {
         if (!win) {
             // Newly-created windows are added to a workspace before
             // the compositor finds out about them...
-            Mainloop.idle_add(Lang.bind(this,
-                function () {
-                    if (this._clone && metaWin.get_compositor_private()) {
-                        this._insertWindow(metaWin);
-                    }
-                    return false;
+            Mainloop.idle_add(() => {
+                if (this._clone && metaWin.get_compositor_private()) {
+                    this._insertWindow(metaWin);
                 }
-            ));
+                return false;
+            });
 
             return;
         }
@@ -449,7 +471,7 @@ class Miniview {
         }
 
         // got our first window
-        if (this._shouldShow && (this._windowList.length == 1)) {
+        if (this._showme && (this._windowList.length == 1)) {
             this.setIndex(0);
             this._clone.visible = true;
         }
@@ -479,13 +501,11 @@ class Miniview {
         if (this._lastTimeout != null) {
             Mainloop.source_remove(this._lastTimeout);
         }
-        this._lastTimeout = Mainloop.timeout_add(100, Lang.bind(this,
-            function() {
-                this._lastIdx = null;
-                this._lastActive = null;
-                this._lastTimeout = null;
-            }
-        ));
+        this._lastTimeout = Mainloop.timeout_add(100, () => {
+            this._lastIdx = null;
+            this._lastActive = null;
+            this._lastTimeout = null;
+        });
 
         // remove from list
         this._windowList.splice(index, 1);
@@ -512,34 +532,8 @@ class Miniview {
         return tracker.is_window_interesting(metaWin);
     }
 
-    _showMiniview() {
-        this._shouldShow = true;
-        this._realizeMiniview();
-    }
-
-    _hideMiniview() {
-        this._shouldShow = false;
-        this._realizeMiniview();
-    }
-
-    _toggleMiniview() {
-        if (this._shouldShow) {
-            this._hideMiniview();
-        } else {
-            this._showMiniview();
-        }
-    }
-
-    _overviewEnter() {
-        this._clone.visible = false;
-    }
-
-    _overviewLeave() {
-        this._realizeMiniview();
-    }
-
     _realizeMiniview() {
-        if (this._shouldShow) {
+        if (this._showme) {
             if (this._windowList.length > 0) {
                 let idx = this._winIdx;
                 if ((idx == null) || (idx >= this._windowList.length) || (idx < 0)) {
@@ -551,6 +545,32 @@ class Miniview {
         } else {
             this._clone.visible = false;
         }
+    }
+
+    _overviewEnter() {
+        this._clone.visible = false;
+    }
+
+    _overviewLeave() {
+        this._realizeMiniview();
+    }
+
+    _reflectState() {
+        this._indicator._tsToggle.setToggleState(this._showme);
+        this._indicator.visible = this._showind;
+        this._realizeMiniview();
+    }
+
+    _toggleMiniview() {
+        this._showme = !this._showme;
+        this._settings.set_boolean('showme', this._showme);
+        this._reflectState();
+    }
+
+    _settingsChanged() {
+        this._showme = this._settings.get_boolean('showme');
+        this._showind = this._settings.get_boolean('showind');
+        this._reflectState();
     }
 }
 
@@ -577,8 +597,6 @@ function enable() {
     // global.log(`miniview: enable`)
 
     _miniview = new Miniview(state);
-    _indicator = new MiniviewIndicator(_miniview);
-    Main.panel.addToStatusArea('miniview', _indicator);
 
     if (state.metaWin != null) {
         let idx = _miniview.lookupIndex(state.metaWin);
@@ -615,7 +633,5 @@ function disable() {
     state.size_y = _miniview._clone.scale_y;
     state.opacity = _miniview._clone.user_opacity;
 
-    Main.wm.removeKeybinding('toggle-miniview');
-    _indicator.destroy();
     _miniview.destroy();
 }

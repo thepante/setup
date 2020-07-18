@@ -78,3 +78,6 @@ fpath=($fpath "/home/pante/.zfunctions")
 
 # go lang:
 export PATH=$PATH:/usr/local/go/bin
+
+export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+export PATH=$PATH:$JAVA_HOME/bin

@@ -23,7 +23,5 @@ fi
 pacmd set-default-source "alsa_input.hw_Loopback_1_0"
 
 # Open SoundWire client and droidcamx on the phone
-adb shell monkey -p com.georgie.SoundWireFree -v 1
+adb shell monkey -p com.georgie.SoundWire -v 1
 adb shell monkey -p com.dev47apps.droidcamx -v 1 &
-
-xdg-open "https://www.youtube.com/watch?v=7w1Qo1awwI4" &

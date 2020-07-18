@@ -76,16 +76,28 @@ class Blyr {
 
         // listens to changed signal on bg manager (useful if the url of a 
         // wallpaper doesn't change, but the wallpaper itself changed)
-        Connections.connectSmart(Main.layoutManager._bgManagers[Main.layoutManager.primaryIndex], 
-                            'changed', this, '_regenerateBlurredActors');
+        Connections.connectSmart(Main.layoutManager._bgManagers[Main.layoutManager.primaryIndex],
+            'changed', this, '_regenerateBlurredActors');
 
         // session mode listener
         //Connections.connectSmart(Main.sessionMode, 'updated', this, '_onSessionModeChange');
 
+        // screensaver listener
+        Connections.connectSmart(Main.screenShield, 'locked-changed', () => {
+            // let's refresh the effect only if the screensaver is disabled
+            if (!Main.screenShield.locked) {
+                this._regenerateBlurredActors();
+            }
+        });
+
         Connections.connectSmart(Main.layoutManager, 'startup-complete', this, '_regenerateBlurredActors');
 
         // Monitors changed listener
-        Connections.connectSmart(Main.layoutManager, 'monitors-changed', this, '_regenerateBlurredActors');
+        Connections.connectSmart(Main.layoutManager, 'monitors-changed', () => {
+            if (!Main.screenShield.locked) {
+                this._regenerateBlurredActors();
+            }
+        });
     }
 
     _enterMode() {
@@ -178,8 +190,8 @@ class Blyr {
     /***************************************************************
      *            Blur Effect and Animation Utilities              *
      ***************************************************************/
-    _applyTwoPassBlur(actor, intensity, brightness=1.0) {
-        if(supportsNativeBlur) {
+    _applyTwoPassBlur(actor, intensity, brightness = 1.0) {
+        if (supportsNativeBlur) {
             if (!actor.get_effect('blur')) {
                 actor.add_effect_with_name('blur', new Shell.BlurEffect({
                     mode: SHELL_BLUR_MODE_ACTOR,
@@ -347,7 +359,7 @@ class Blyr {
 
                     // Apply blur effect
                     this._applyTwoPassBlur(blurred_bg, intensity, activities_brightness);
-                    
+
                     // Add child to our modified BG actor
                     Main.overview._backgroundGroup.add_child(blurred_bg);
                     Main.overview._backgroundGroup.set_child_below_sibling(blurred_bg, bg);
@@ -362,12 +374,12 @@ class Blyr {
         let intensity = Settings.get_double('intensity');
         // Remove and reapply blur effect for each actor
         Main.overview._backgroundGroup.get_children().forEach(
-                (bg) => {
-                    if (bg['name'] == OVERVIEW_BACKGROUND_NAME) {
-                        bg.clear_effects();
-                        this._applyTwoPassBlur(bg, intensity, activities_brightness);
-                    }
+            (bg) => {
+                if (bg['name'] == OVERVIEW_BACKGROUND_NAME) {
+                    bg.clear_effects();
+                    this._applyTwoPassBlur(bg, intensity, activities_brightness);
                 }
+            }
         );
     }
 
@@ -405,9 +417,11 @@ class Blyr {
         // Clutter Actor with height 0 which will contain the actual blurred background
         this.panelContainer = new Clutter.Actor({
             name: PANEL_CONTAINER_NAME,
-            width: this.primaryBackground.width,
+            width: 0,
             height: 0
         });
+
+        let [tpx, tpy] = Main.layoutManager.panelBox.get_transformed_position();
 
         // Clone primary background instance (we need to clone it, not just 
         // assign it, so we can modify it without influencing the main 
@@ -416,15 +430,17 @@ class Blyr {
             background: this.primaryBackground['background'],
             monitor: this.primaryBackground['monitor'],
             width: this.primaryBackground.width,
-            /* Needed to reduce edge darkening caused by high blur intensities */
-            height: Main.layoutManager.panelBox.height*2,
-            x: 0,
-            y: 0
+            height: this.primaryBackground.height,
+            x: -1 * tpx,
+            y: -1 * tpy
         });
 
         // Only show one part of the panel background actor as large as the 
         // panel itself
-        this.panel_bg.set_clip(0, 0, Main.layoutManager.panelBox.width,
+        this.panel_bg.set_clip(
+            tpx,
+            tpy,
+            Main.layoutManager.panelBox.width,
             Main.layoutManager.panelBox.height);
 
         // Get current panel brightness and blur intensity value
@@ -456,7 +472,7 @@ class Blyr {
         log('removing blurred actors with the name: ' + name);
         parent.get_children().forEach(
             (child) => {
-                if(child.name == name) {
+                if (child.name == name) {
                     parent.remove_child(child);
                     child.destroy();
                 }
