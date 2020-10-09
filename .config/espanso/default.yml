@@ -1,0 +1,52 @@
+# espanso configuration file
+# https://espanso.org/docs/
+
+toggle_key: RIGHT_CTRL
+show_icon: false
+fast_inject: true
+
+matches:
+  # Date
+  - trigger: ":date"
+    replace: "{{mydate}}"
+    vars:
+      - name: mydate
+        type: date
+        params:
+          format: "%d/%m/%Y"
+          
+  # Hour as HH:MM
+  - trigger: ":now"
+    replace: "{{time}}"
+    vars:
+      - name: time
+        type: date
+        params:
+          format: "%H:%M"
+
+  # Shell commands
+  - trigger: ":shell"
+    replace: "{{output}}"
+    vars:
+      - name: output
+        type: shell
+        params:
+          cmd: "echo Hello from your shell"
+          
+  - trigger: ":gh"
+    replace: "https://github.com/thepante"
+  
+  - trigger: ":fp"
+    replace: "Fabián Pérez"
+    
+  # Session
+  - trigger: ":wid"
+    replace: "1617225347"
+    
+  # Sample texts
+  - trigger: ":lorem1"
+    replace: "Ac ut consequat semper viverra"
+    
+  - trigger: ":lorem2"
+    replace: "Condimentum mattis pellentesque id nibh tortor id aliquet. Facilisis leo vel fringilla est ullamcorper eget nulla. Vitae justo eget magna fermentum iaculis eu non diam."
+
