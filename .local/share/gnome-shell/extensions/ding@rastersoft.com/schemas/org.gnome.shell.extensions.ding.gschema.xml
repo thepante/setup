@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="ding">
+    <enum id="org.gnome.shell.extension.ding.ZoomLevel">
+        <value value="3" nick="tiny"/>
+        <value value="0" nick="small"/>
+        <value value="1" nick="standard"/>
+        <value value="2" nick="large"/>
+    </enum>
+    <enum id="org.gnome.shell.extension.ding.StartCorner">
+        <value value="0" nick="top-left"/>
+        <value value="1" nick="top-right"/>
+        <value value="2" nick="bottom-left"/>
+        <value value="3" nick="bottom-right"/>
+    </enum>
+    <schema path="/org/gnome/shell/extensions/ding/" id="org.gnome.shell.extensions.ding">
+    <key name="icon-size" enum="org.gnome.shell.extension.ding.ZoomLevel">
+        <default>'standard'</default>
+        <summary>Icon size</summary>
+        <description>Set the size for the desktop icons.</description>
+    </key>
+	<key type="b" name="show-home">
+        <default>true</default>
+        <summary>Show personal folder</summary>
+        <description>Show the personal folder in the desktop.</description>
+    </key>
+	<key type="b" name="show-trash">
+        <default>true</default>
+        <summary>Show trash icon</summary>
+        <description>Show the trash icon in the desktop.</description>
+    </key>
+    <key name="start-corner" enum="org.gnome.shell.extension.ding.StartCorner">
+        <default>'top-left'</default>
+        <summary>New icons start corner</summary>
+        <description>Set the corner from where the icons will start to be placed.</description>
+    </key>
+  </schema>
+</schemalist>

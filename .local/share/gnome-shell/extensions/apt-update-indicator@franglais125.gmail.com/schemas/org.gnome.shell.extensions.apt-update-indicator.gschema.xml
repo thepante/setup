@@ -1,0 +1,180 @@
+<schemalist gettext-domain="gnome-shell-extensions">
+  <enum id='org.gnome.shell.extensions.apt-update-indicator.interval-unit'>
+      <value value='0' nick='hours'/>
+      <value value='1' nick='days'/>
+      <value value='2' nick='weeks'/>
+  </enum>
+  <enum id='org.gnome.shell.extensions.apt-update-indicator.update-method'>
+      <value value='0' nick='gnome-software'/>
+      <value value='1' nick='update-manager'/>
+      <value value='2' nick='gpk-update-viewer'/>
+      <value value='3' nick='custom'/>
+  </enum>
+
+  <schema id="org.gnome.shell.extensions.apt-update-indicator"
+      path="/org/gnome/shell/extensions/apt-update-indicator/">
+
+    <key type="i" name="check-interval">
+        <default>1</default>
+        <summary>Interval between updates check</summary>
+        <description>Time to wait between two automatic checks</description>
+        <range min="0"/>
+    </key>
+
+    <key name="interval-unit" enum="org.gnome.shell.extensions.apt-update-indicator.interval-unit">
+      <default>"days"</default>
+        <summary>Unit to use for the interval</summary>
+        <description>0: hours, 1: days, 2: weeks</description>
+    </key>
+
+    <key name="always-visible" type="b">
+      <default>true</default>
+        <summary>Indicator is always visble</summary>
+        <description>
+            If true, the indicator is always visible, even when non updates are pending
+        </description>
+    </key>
+
+    <key name="show-count" type="b">
+      <default>true</default>
+        <summary>Show updates count on indicator</summary>
+        <description>
+            If true, the indicator will display the number of updates pending
+        </description>
+    </key>
+
+    <key name="notify" type="b">
+      <default>false</default>
+        <summary>Send a notification when new updates are available</summary>
+        <description>Send a notification when new updates are available</description>
+    </key>
+
+    <key name="verbosity" type="i">
+      <default>0</default>
+        <summary>How much information to show on notifications</summary>
+        <description>0:count, 1:list</description>
+    </key>
+
+    <key name="transient" type="b">
+      <default>true</default>
+        <summary>Use transient notifications (auto dismiss)</summary>
+        <description></description>
+    </key>
+
+    <key name="use-shortcut" type="b">
+      <default>false</default>
+        <summary>Use a shortcut to open the indicator.</summary>
+        <description></description>
+    </key>
+
+    <key type="s" name="shortcut-text">
+      <default>"&lt;Super&gt;i"</default>
+      <summary>Keybinding to open the indicator.</summary>
+      <description>If showing, the indicator menu is toggled.</description>
+    </key>
+
+    <key type="as" name="apt-update-indicator-shortcut">
+      <default><![CDATA[['<Super>i']]]></default>
+      <summary>Keybinding to show the dock and the number overlay.</summary>
+      <description>Behavior depends on hotkeys-show-dock and hotkeys-overlay.</description>
+    </key>
+
+    <key name="use-custom-cmd" type="b">
+      <default>false</default>
+        <summary>Allow checks for updates without a passwrd</summary>
+        <description></description>
+    </key>
+
+    <key name="check-cmd-custom" type="s">
+      <default>"pkexec apt update"</default>
+      <summary>Custom command to run to check for updates</summary>
+      <description>Command to run to check for updates.</description>
+    </key>
+
+    <key name="update-cmd-options" enum="org.gnome.shell.extensions.apt-update-indicator.update-method">
+      <default>"gnome-software"</default>
+        <summary>Application to use to update, or custom command</summary>
+        <description>0:gnome-software, 1:update-manager, 2: custom command</description>
+    </key>
+
+    <key name="update-cmd" type="s">
+      <default>"pkexec apt upgrade -y"</default>
+      <summary>Command to run to update packages.</summary>
+      <description>Command to run to update packages.</description>
+    </key>
+
+    <key name="output-on-terminal" type="b">
+      <default>false</default>
+        <summary>Show the output of the upgrade process on a terminal window</summary>
+        <description>This is a safer way of upgrading packages.</description>
+    </key>
+
+    <key name="terminal" type="s">
+      <default>"gnome-terminal -x bash -c"</default>
+      <summary>Terminal and options to use</summary>
+      <description>Terminal and options to execute a shell for the upgrade process</description>
+    </key>
+
+    <key name="strip-versions" type="b">
+      <default>true</default>
+        <summary>Remove version numbers from checkupdates output</summary>
+        <description></description>
+    </key>
+
+    <key name="show-critical-updates" type="b">
+      <default>true</default>
+      <summary>Distinguishes security/important updates from regular updates</summary>
+        <description></description>
+    </key>
+
+    <key name="auto-expand-list" type="i">
+      <default>0</default>
+        <summary>Auto-open list submenu when updates count is lower than this number</summary>
+        <description></description>
+        <range min="0" max="100"/>
+    </key>
+
+    <key name="last-check-date-double" type="d">
+      <default>0</default>
+      <summary>Date and time of the last time a check for updates was run.</summary>
+      <description>This is stored and used on the next boot.</description>
+    </key>
+
+    <key name="last-check-date-automatic-double" type="d">
+      <default>0</default>
+      <summary>Date and time of the last time a check for updates was run automatically.</summary>
+      <description>This is stored and used on the next boot. Used for calculating when the next check should take place.</description>
+    </key>
+
+    <key name="new-packages" type="b">
+      <default>true</default>
+        <summary>Show a list of new packages</summary>
+        <description>When a new package is found in the repository, it is added to a list.</description>
+    </key>
+
+    <key name="obsolete-packages" type="b">
+      <default>true</default>
+        <summary>Show a list of obsolete packages</summary>
+        <description>When an obsolete package is found, it is added to a list.</description>
+    </key>
+
+    <key name="residual-packages" type="b">
+      <default>true</default>
+        <summary>Show a list of residual packages</summary>
+        <description>When config files from package are not deleted after removal, the package is added to a list.</description>
+    </key>
+
+    <key name="autoremovable-packages" type="b">
+      <default>true</default>
+        <summary>Show a list of autoremovable packages</summary>
+        <description>When a package is no longer required, it is added to a list.</description>
+    </key>
+
+    <key type="s" name="ignore-list">
+      <default>""</default>
+      <summary>List of packages to ignore for updates.</summary>
+      <description></description>
+    </key>
+
+  </schema>
+</schemalist>

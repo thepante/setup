@@ -1,0 +1,13 @@
+.file-label {
+    text-shadow: 1px 1px black;
+    color: white;
+}
+
+label.file-label:backdrop {
+    text-shadow: 1px 1px black;
+    color: white;
+}
+
+.file-item-hover {
+   background-color: rgba(238, 238, 238, 0.2);
+}
