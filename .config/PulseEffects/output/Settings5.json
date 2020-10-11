@@ -644,6 +644,8 @@
         },
         "autogain": {
             "state": "false",
+            "detect-silence": "false",
+            "use-geometric-mean": "true",
             "input-gain": "0",
             "output-gain": "0",
             "target": "-23",
