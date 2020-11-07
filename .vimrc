@@ -11,7 +11,9 @@ set sw=2
 set relativenumber
 set laststatus=2
 set noshowmode
-" set hidden
+
+" Escape insert mode
+inoremap ,, <Esc>
 
 " Disable arrow keys
 noremap <Up> <Nop>
@@ -24,6 +26,10 @@ noremap <Right> <Nop>
 :imap <C-j> <Down>
 :imap <C-k> <Up>
 :imap <C-l> <Right>
+
+" Insert empty line
+nmap <S-Enter> O<Esc>
+nmap <CR> o<Esc>
 
 " Move lines
 nnoremap <A-j> :m .+1<CR>==
@@ -82,11 +88,19 @@ if !exists('g:vscode')
   Plug 'tpope/vim-rhubarb'
   Plug 'junegunn/gv.vim'
   Plug 'ap/vim-buftabline'
+  Plug 'AlessandroYorba/Alduin'
+  Plug 'sts10/vim-pink-moon'
+  Plug 'kyazdani42/nvim-web-devicons'
+  Plug 'romgrk/barbar.nvim'
+  Plug 'tpope/vim-surround'
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+
 
   call plug#end()
 
   " Settings
-  colorscheme gruvbox
+  colorscheme alduin
   set background=dark
   " hi Normal ctermbg=16 guibg=#0F1419
   " hi LineNr ctermbg=16 guibg=#0F1419
@@ -94,6 +108,35 @@ if !exists('g:vscode')
 
   nmap f <Plug>(easymotion-s2)
   nmap / <Plug>(easymotion-overwin-line)
+  
+  " barbar
+  let bufferline = {}
+  let bufferline.icons = v:false
+  let bufferline.animation = v:false
+
+  " Magic buffer-picking mode
+  nnoremap <silent> <C-s> :BufferPick<CR>
+  " Sort automatically by...
+  nnoremap <silent> <Space>bd :BufferOrderByDirectory<CR>
+  nnoremap <silent> <Space>bl :BufferOrderByLanguage<CR>
+  " Move to previous/next
+  nnoremap <silent>    <A-,> :BufferPrevious<CR>
+  nnoremap <silent>    <A-.> :BufferNext<CR>
+  " Re-order to previous/next
+  nnoremap <silent>    <A-<> :BufferMovePrevious<CR>
+  nnoremap <silent>    <A->> :BufferMoveNext<CR>
+  " Goto buffer in position...
+  nnoremap <silent>    <A-1> :BufferGoto 1<CR>
+  nnoremap <silent>    <A-2> :BufferGoto 2<CR>
+  nnoremap <silent>    <A-3> :BufferGoto 3<CR>
+  nnoremap <silent>    <A-4> :BufferGoto 4<CR>
+  nnoremap <silent>    <A-5> :BufferGoto 5<CR>
+  nnoremap <silent>    <A-6> :BufferGoto 6<CR>
+  nnoremap <silent>    <A-7> :BufferGoto 7<CR>
+  nnoremap <silent>    <A-8> :BufferGoto 8<CR>
+  nnoremap <silent>    <A-9> :BufferLast<CR>
+  " Close buffer
+  nnoremap <silent>    <A-c> :BufferClose<CR>
   
   set cursorline
 
