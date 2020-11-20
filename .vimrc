@@ -2,7 +2,6 @@ set number
 set mouse=a
 set numberwidth=1
 set clipboard=unnamedplus
-syntax enable
 set showcmd
 set ruler
 set encoding=utf-8
@@ -10,20 +9,25 @@ set showmatch
 set sw=2
 set relativenumber
 set laststatus=2
+set ignorecase
 set noshowmode
+set nowrap
+set cursorline
 set hidden
+syntax enable
 
 " Escape insert mode
 inoremap ,, <Esc>
 
 " Rename a variable
 nmap <C-c> <Plug>(coc-rename)
+nmap <leader>rn <Plug>(coc-rename)
 
 " Disable arrow keys
 noremap <Up> <Nop>
 noremap <Down> <Nop>
 noremap <Left> <Nop>
-noremap <Right> <Nop> 
+noremap <Right> <Nop>
 
 " Move on insert mode
 :imap <C-h> <Left>
@@ -32,8 +36,8 @@ noremap <Right> <Nop>
 :imap <C-l> <Right>
 
 " Insert empty line
-nmap <S-Enter> O<Esc>
-nmap <CR> o<Esc>
+nmap <S-CR> O<Esc>
+nmap <CR> o<Esc>k
 
 " Move lines
 nnoremap <A-j> :m .+1<CR>==
@@ -79,14 +83,13 @@ call plug#begin('~/.vim/plugged')
 " Themes
 Plug 'morhetz/gruvbox'
 Plug 'drewtempelmeyer/palenight.vim'
-Plug 'haishanh/night-owl.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'sainnhe/gruvbox-material'
 Plug 'franbach/miramare'
 Plug 'jmoggee/mirage.vim'
 Plug 'baverman/vim-babymate256'
 Plug 'AlessandroYorba/Alduin'
 Plug 'sts10/vim-pink-moon'
+Plug 'ayu-theme/ayu-vim'
 
 " Tools
 Plug 'ThePrimeagen/vim-be-good'
@@ -103,6 +106,7 @@ Plug 'romgrk/barbar.nvim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'metakirby5/codi.vim'
+Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'editorconfig/editorconfig-vim'
 Plug 'tpope/vim-surround'
@@ -114,12 +118,10 @@ call plug#end()
 
 
 " Theme
-" hi Normal ctermbg=16 guibg=#0F1419
-" hi LineNr ctermbg=16 guibg=#0F1419
 set background=dark
-let g:gruvbox_contrast_dark = "hard"
 set termguicolors
-colorscheme alduin	
+let g:gruvbox_contrast_dark = "hard"
+colorscheme alduin
 
 " Barbar (buffers as tabs)
 let bufferline = {}
@@ -147,19 +149,11 @@ nnoremap <silent>    <A-6> :BufferGoto 6<CR>
 nnoremap <silent>    <A-7> :BufferGoto 7<CR>
 nnoremap <silent>    <A-8> :BufferGoto 8<CR>
 nnoremap <silent>    <A-9> :BufferLast<CR>
-" Close buffer
 nnoremap <silent>    <A-c> :BufferClose<CR>
-
-set cursorline
-
-" TextEdit might fail if hidden is not set.
-set hidden
 
 " Give more space for displaying messages.
 set cmdheight=2
 
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
 set updatetime=300
 
 " Don't pass messages to |ins-completion-menu|.
@@ -175,8 +169,6 @@ else
 endif
 
 " Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
 inoremap <silent><expr> <TAB>
       \ pumvisible() ? "\<C-n>" :
       \ <SID>check_back_space() ? "\<TAB>" :
@@ -205,13 +197,13 @@ inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-" GoTo code navigation.
+" GoTo code navigation
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
-" Use K to show documentation in preview window.
+" K to show documentation in preview window
 nnoremap <silent> K :call <SID>show_documentation()<CR>
 
 function! s:show_documentation()
@@ -227,11 +219,7 @@ endfunction
 " Highlight the symbol and its references when holding the cursor.
 autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
-
 " Formatting selected code.
-nmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
 
 augroup mygroun
@@ -283,11 +271,6 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
-" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 " Mappings for CoCList
 " Show all diagnostics.
