@@ -9,19 +9,25 @@ set showmatch
 set sw=2
 set relativenumber
 set laststatus=2
+set cmdheight=2
 set ignorecase
 set noshowmode
 set nowrap
 set cursorline
 set hidden
+set splitbelow
 syntax enable
 
 " Escape insert mode
 inoremap ,, <Esc>
 
-" Rename a variable
+" Set leader
+nnoremap <SPACE> <Nop>
+let mapleader=" "
+
+" Rename a symbol
 nmap <C-c> <Plug>(coc-rename)
-nmap <leader>rn <Plug>(coc-rename)
+nmap <leader>r <Plug>(coc-rename)
 
 " Disable arrow keys
 noremap <Up> <Nop>
@@ -36,8 +42,11 @@ noremap <Right> <Nop>
 :imap <C-l> <Right>
 
 " Insert empty line
-nmap <S-CR> O<Esc>
-nmap <CR> o<Esc>k
+nmap <C-k> O<Esc>j
+nmap <C-j> o<Esc>k
+
+" Clear search using enter
+noremap <CR> :noh<CR><CR>
 
 " Move lines
 nnoremap <A-j> :m .+1<CR>==
@@ -51,6 +60,9 @@ vnoremap <A-k> :m '<-2<CR>gv=gv
 nnoremap <C-a> :bprev<CR>
 nnoremap <C-d> :bnext<CR>
 
+" Close buffer
+nnoremap <C-w> :bd<CR>
+
 " Autoclose brackets
 inoremap {      {}<Left>
 inoremap {<CR>  {<CR>}<Esc>O
@@ -62,14 +74,54 @@ inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")
 nnoremap <C-_> :Commentary<CR>
 vnoremap <C-_> :Commentary<CR>
 
-" Search with easymotion
-nmap f <Plug>(easymotion-s2)
+" Cursor movement with easymotion
+nmap t <Plug>(easymotion-s2)
+nmap T <Plug>(easymotion-overwin-line)
+nmap <leader>w <Plug>(easymotion-w)
 
-" Set leader
-nnoremap <SPACE> <Nop>
-let mapleader=" "
+" Swap ` and ' to go to line-column marks ('es' keyboard layout)
+noremap ' `
+sunmap '
+noremap ` '
+sunmap `
+noremap g' g`
+sunmap g'
+noremap g` g'
+sunmap g`
 
-nmap <Leader>l <Plug>(easymotion-overwin-line)
+" Special paste fro swap content
+noremap <c-p> p2g;P
+
+" Auto format
+nmap <Leader>f :ClangFormat<CR>
+vmap <Leader>f :ClangFormat<CR>
+
+" Open terminal
+vnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>
+nnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>
+
+" Nerdtree
+map <A-n> :NERDTreeToggle<CR>
+
+" Move between splits
+nmap <leader>k :wincmd k<CR>
+nmap <leader>j :wincmd j<CR>
+nmap <leader>h :wincmd h<CR>
+nmap <leader>l :wincmd l<CR>
+
+
+" let g:clang_format#code_style='llvm'
+let g:clang_format#style_options = {
+      \ 'IndentWidth' : '2',
+      \ 'AllowShortIfStatementsOnASingleLine': 'true',
+      \ 'AllowShortBlocksOnASingleLine': 'false',
+      \ 'AllowShortCaseLabelsOnASingleLine': 'false',
+      \ 'AllowShortFunctionsOnASingleLine': 'true',
+      \ 'AllowShortLoopsOnASingleLine': 'true',}
+
+
+let g:vim_vue_plugin_use_scss = 1
+let g:EasyMotion_keys = "abcdefghijklmnopqrstuvwxyz"
 
 " For conditional plugin load
 function! Cond(Cond, ...)
@@ -91,6 +143,12 @@ Plug 'AlessandroYorba/Alduin'
 Plug 'sts10/vim-pink-moon'
 Plug 'ayu-theme/ayu-vim'
 
+" Interface
+Plug 'ap/vim-buftabline'
+Plug 'preservim/nerdtree'
+Plug 'itchyny/lightline.vim'
+" Plug 'romgrk/barbar.nvim'
+
 " Tools
 Plug 'ThePrimeagen/vim-be-good'
 Plug 'yuezk/vim-js'
@@ -100,16 +158,17 @@ Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
 Plug 'junegunn/gv.vim'
-Plug 'ap/vim-buftabline'
-Plug 'kyazdani42/nvim-web-devicons'
-Plug 'romgrk/barbar.nvim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'metakirby5/codi.vim'
-Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'editorconfig/editorconfig-vim'
 Plug 'tpope/vim-surround'
+Plug 'rhysd/vim-clang-format'
+Plug 'nvim-treesitter/nvim-treesitter', { 'commit': '3c07232'}
+" Plug 'nvim-treesitter/nvim-treesitter'
+" Plug 'posva/vim-vue'
+Plug 'leafOfTree/vim-vue-plugin'
 
 Plug 'easymotion/vim-easymotion', Cond(!exists('g:vscode'))
 Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymotion' })
@@ -121,38 +180,30 @@ call plug#end()
 set background=dark
 set termguicolors
 let g:gruvbox_contrast_dark = "hard"
-colorscheme alduin
+colorscheme miramare
 
-" Barbar (buffers as tabs)
-let bufferline = {}
-let bufferline.icons = v:false
-let bufferline.animation = v:false
+" " Barbar (buffers as tabs)
+" let bufferline = {}
+" let bufferline.icons = v:false
+" let bufferline.animation = v:false
 
-" Magic buffer-picking mode
-nnoremap <silent> <C-s> :BufferPick<CR>
-" Sort automatically by...
-nnoremap <silent> <Space>bd :BufferOrderByDirectory<CR>
-nnoremap <silent> <Space>bl :BufferOrderByLanguage<CR>
-" Move to previous/next
-nnoremap <silent>    <A-,> :BufferPrevious<CR>
-nnoremap <silent>    <A-.> :BufferNext<CR>
+
 " Re-order to previous/next
-nnoremap <silent>    <A-<> :BufferMovePrevious<CR>
-nnoremap <silent>    <A->> :BufferMoveNext<CR>
+nnoremap <C-<> :BufferMovePrevious<CR>
+nnoremap <C->> :BufferMoveNext<CR>
 " Goto buffer in position...
-nnoremap <silent>    <A-1> :BufferGoto 1<CR>
-nnoremap <silent>    <A-2> :BufferGoto 2<CR>
-nnoremap <silent>    <A-3> :BufferGoto 3<CR>
-nnoremap <silent>    <A-4> :BufferGoto 4<CR>
-nnoremap <silent>    <A-5> :BufferGoto 5<CR>
-nnoremap <silent>    <A-6> :BufferGoto 6<CR>
-nnoremap <silent>    <A-7> :BufferGoto 7<CR>
-nnoremap <silent>    <A-8> :BufferGoto 8<CR>
-nnoremap <silent>    <A-9> :BufferLast<CR>
-nnoremap <silent>    <A-c> :BufferClose<CR>
+nnoremap <C-1> :BufferGoto 1<CR>
+nnoremap <C-2> :BufferGoto 2<CR>
+nnoremap <C-3> :BufferGoto 3<CR>
+nnoremap <C-4> :BufferGoto 4<CR>
+nnoremap <C-5> :BufferGoto 5<CR>
+nnoremap <C-6> :BufferGoto 6<CR>
+nnoremap <C-7> :BufferGoto 7<CR>
+nnoremap <C-8> :BufferGoto 8<CR>
+nnoremap <C-9> :BufferLast<CR>
+" nmap <C-c> :BufferClose<CR>
 
 " Give more space for displaying messages.
-set cmdheight=2
 
 set updatetime=300
 
@@ -220,7 +271,7 @@ endfunction
 autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Formatting selected code.
-nmap <leader>f  <Plug>(coc-format-selected)
+" nmap <leader>f  <Plug>(coc-format-selected)
 
 augroup mygroun
   autocmd!
