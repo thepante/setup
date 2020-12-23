@@ -16,17 +16,17 @@ set nowrap
 set cursorline
 set hidden
 set splitbelow
+set scrolloff=2
 syntax enable
 
 " Escape insert mode
-inoremap ,, <Esc>
+inoremap ,m <Esc>
 
 " Set leader
 nnoremap <SPACE> <Nop>
 let mapleader=" "
 
 " Rename a symbol
-nmap <C-c> <Plug>(coc-rename)
 nmap <leader>r <Plug>(coc-rename)
 
 " Disable arrow keys
@@ -44,6 +44,10 @@ noremap <Right> <Nop>
 " Insert empty line
 nmap <C-k> O<Esc>j
 nmap <C-j> o<Esc>k
+
+" Insert spaces before/after cursor
+nmap <C-h> i<space><Right><Esc>
+nmap <C-l> a<space><Left><Esc>
 
 " Clear search using enter
 noremap <CR> :noh<CR><CR>
@@ -89,10 +93,10 @@ sunmap g'
 noremap g` g'
 sunmap g`
 
-" Special paste fro swap content
+" Special paste for swap content
 noremap <c-p> p2g;P
 
-" Auto format
+" Format selected code
 nmap <Leader>f :ClangFormat<CR>
 vmap <Leader>f :ClangFormat<CR>
 
@@ -101,7 +105,9 @@ vnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>
 nnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>
 
 " Nerdtree
-map <A-n> :NERDTreeToggle<CR>
+map <C-e> :NERDTreeToggle<CR>
+" Autoclose on open file
+let NERDTreeQuitOnOpen=1
 
 " Move between splits
 nmap <leader>k :wincmd k<CR>
@@ -109,19 +115,38 @@ nmap <leader>j :wincmd j<CR>
 nmap <leader>h :wincmd h<CR>
 nmap <leader>l :wincmd l<CR>
 
+" Page movement
+nmap <C-f> <C-f>zz
+nmap <C-b> <C-b>zz
 
-" let g:clang_format#code_style='llvm'
+" Autoformat
 let g:clang_format#style_options = {
-      \ 'IndentWidth' : '2',
-      \ 'AllowShortIfStatementsOnASingleLine': 'true',
-      \ 'AllowShortBlocksOnASingleLine': 'false',
-      \ 'AllowShortCaseLabelsOnASingleLine': 'false',
-      \ 'AllowShortFunctionsOnASingleLine': 'true',
-      \ 'AllowShortLoopsOnASingleLine': 'true',}
+  \ 'IndentWidth' : '2',
+  \ 'AllowShortIfStatementsOnASingleLine': 'true',
+  \ 'AllowShortBlocksOnASingleLine': 'false',
+  \ 'AllowShortCaseLabelsOnASingleLine': 'false',
+  \ 'AllowShortFunctionsOnASingleLine': 'true',
+  \ 'AllowShortLoopsOnASingleLine': 'true',}
 
+" Coc extensions
+let g:coc_global_extensions = [
+  \ 'coc-tsserver',
+  \ 'coc-html',
+  \ 'coc-css',
+  \ 'coc-vetur',
+  \ 'coc-python'
+  \ ]
 
+" Autopairs
+let g:AutoPairsShortcutToggle = ''
+let g:AutoPairsMapCR = 0
+
+" Vue settings
 let g:vim_vue_plugin_use_scss = 1
+
+" Easymotion
 let g:EasyMotion_keys = "abcdefghijklmnopqrstuvwxyz"
+
 
 " For conditional plugin load
 function! Cond(Cond, ...)
@@ -132,27 +157,13 @@ endfunction
 
 call plug#begin('~/.vim/plugged')
 
-" Themes
-Plug 'morhetz/gruvbox'
-Plug 'drewtempelmeyer/palenight.vim'
-Plug 'sainnhe/gruvbox-material'
-Plug 'franbach/miramare'
-Plug 'jmoggee/mirage.vim'
-Plug 'baverman/vim-babymate256'
-Plug 'AlessandroYorba/Alduin'
-Plug 'sts10/vim-pink-moon'
-Plug 'ayu-theme/ayu-vim'
-
 " Interface
 Plug 'ap/vim-buftabline'
 Plug 'preservim/nerdtree'
 Plug 'itchyny/lightline.vim'
-" Plug 'romgrk/barbar.nvim'
 
 " Tools
-Plug 'ThePrimeagen/vim-be-good'
 Plug 'yuezk/vim-js'
-Plug 'mg979/vim-visual-multi', {'branch': 'master'}
 Plug 'tpope/vim-commentary'
 Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'
@@ -163,47 +174,51 @@ Plug 'junegunn/fzf.vim'
 Plug 'metakirby5/codi.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'editorconfig/editorconfig-vim'
-Plug 'tpope/vim-surround'
+
+" Formatting
 Plug 'rhysd/vim-clang-format'
+
+" Code refactoring
+Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'tpope/vim-surround'
+
+" Auto pairs/close
+Plug 'jiangmiao/auto-pairs'
+
+" Movement
+Plug 'easymotion/vim-easymotion', Cond(!exists('g:vscode'))
+Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymotion' })
+
+" Syntax highlight
+Plug 'sheerun/vim-polyglot'
+Plug 'leafOfTree/vim-vue-plugin'
 Plug 'nvim-treesitter/nvim-treesitter', { 'commit': '3c07232'}
 " Plug 'nvim-treesitter/nvim-treesitter'
 " Plug 'posva/vim-vue'
-Plug 'leafOfTree/vim-vue-plugin'
 
-Plug 'easymotion/vim-easymotion', Cond(!exists('g:vscode'))
-Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymotion' })
+" Themes
+Plug 'franbach/miramare'
+Plug 'jmoggee/mirage.vim'
+Plug 'sainnhe/gruvbox-material'
+Plug 'sainnhe/sonokai'
+Plug 'drewtempelmeyer/palenight.vim'
+Plug 'ghifarit53/tokyonight-vim'
+Plug 'AlessandroYorba/Alduin'
+Plug 'sts10/vim-pink-moon'
 
 call plug#end()
 
 
-" Theme
-set background=dark
+" Theme configuration
 set termguicolors
-let g:gruvbox_contrast_dark = "hard"
-colorscheme miramare
-
-" " Barbar (buffers as tabs)
-" let bufferline = {}
-" let bufferline.icons = v:false
-" let bufferline.animation = v:false
-
-
-" Re-order to previous/next
-nnoremap <C-<> :BufferMovePrevious<CR>
-nnoremap <C->> :BufferMoveNext<CR>
-" Goto buffer in position...
-nnoremap <C-1> :BufferGoto 1<CR>
-nnoremap <C-2> :BufferGoto 2<CR>
-nnoremap <C-3> :BufferGoto 3<CR>
-nnoremap <C-4> :BufferGoto 4<CR>
-nnoremap <C-5> :BufferGoto 5<CR>
-nnoremap <C-6> :BufferGoto 6<CR>
-nnoremap <C-7> :BufferGoto 7<CR>
-nnoremap <C-8> :BufferGoto 8<CR>
-nnoremap <C-9> :BufferLast<CR>
-" nmap <C-c> :BufferClose<CR>
-
-" Give more space for displaying messages.
+set background=dark
+let g:gruvbox_material_background = 'medium'
+" let g:gruvbox_contrast_dark = 'hard'
+" let g:tokyonight_style = 'night'
+" let g:sonokai_style = 'shusia'
+" colorscheme miramare
+colorscheme gruvbox-material
 
 set updatetime=300
 
@@ -270,8 +285,6 @@ endfunction
 " Highlight the symbol and its references when holding the cursor.
 autocmd CursorHold * silent call CocActionAsync('highlight')
 
-" Formatting selected code.
-" nmap <leader>f  <Plug>(coc-format-selected)
 
 augroup mygroun
   autocmd!
@@ -340,4 +353,9 @@ nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+
+if exists('g:vscode')
+  nnoremap <silent> u :<C-u>call VSCodeNotify('undo')<CR>
+  nnoremap <silent> <C-r> :<C-u>call VSCodeNotify('redo')<CR>
+endif
 
