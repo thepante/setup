@@ -93,8 +93,9 @@ sunmap g'
 noremap g` g'
 sunmap g`
 
-" Special paste for swap content
-noremap <c-p> p2g;P
+" Keep yank to paste
+noremap <c-y> "ay
+noremap <c-p> "ap
 
 " Format selected code
 nmap <Leader>f :ClangFormat<CR>
@@ -147,6 +148,9 @@ let g:vim_vue_plugin_use_scss = 1
 " Easymotion
 let g:EasyMotion_keys = "abcdefghijklmnopqrstuvwxyz"
 
+" Indentline
+let g:indentLine_char = '»'
+let g:indentLine_color_gui = '#333333'
 
 " For conditional plugin load
 function! Cond(Cond, ...)
@@ -174,6 +178,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'metakirby5/codi.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'editorconfig/editorconfig-vim'
+Plug 'Yggdroot/indentLine'
 
 " Formatting
 Plug 'rhysd/vim-clang-format'
@@ -194,6 +199,7 @@ Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymot
 Plug 'sheerun/vim-polyglot'
 Plug 'leafOfTree/vim-vue-plugin'
 Plug 'nvim-treesitter/nvim-treesitter', { 'commit': '3c07232'}
+Plug 'luochen1990/rainbow'
 " Plug 'nvim-treesitter/nvim-treesitter'
 " Plug 'posva/vim-vue'
 
@@ -206,6 +212,8 @@ Plug 'drewtempelmeyer/palenight.vim'
 Plug 'ghifarit53/tokyonight-vim'
 Plug 'AlessandroYorba/Alduin'
 Plug 'sts10/vim-pink-moon'
+Plug 'embark-theme/vim', { 'as': 'embark' }
+Plug 'tjammer/blayu.vim'
 
 call plug#end()
 
@@ -213,12 +221,21 @@ call plug#end()
 " Theme configuration
 set termguicolors
 set background=dark
-let g:gruvbox_material_background = 'medium'
+let g:rainbow_active = 1
+let g:gruvbox_material_background = 'hard'
+" let g:embark_terminal_italics = 1
 " let g:gruvbox_contrast_dark = 'hard'
 " let g:tokyonight_style = 'night'
 " let g:sonokai_style = 'shusia'
-" colorscheme miramare
-colorscheme gruvbox-material
+let g:miramare_cursor = 'blue'
+colorscheme miramare
+
+let g:lightline = {
+      \ 'colorscheme': 'embark',
+      \ 'component': {
+      \   'lineinfo': "%{printf('%03d/%03d', line('.'),  line('$'))}",
+      \ },
+    \ }
 
 set updatetime=300
 
