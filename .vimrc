@@ -17,6 +17,8 @@ set cursorline
 set hidden
 set splitbelow
 set scrolloff=2
+set noswapfile
+set undofile
 syntax enable
 
 " Escape insert mode
@@ -97,13 +99,18 @@ sunmap g`
 noremap <c-y> "ay
 noremap <c-p> "ap
 
+" Delete around block
+nmap dao va{Vd
+" Delete around block, including comments on top of it
+nmap dab va{o{oVd
+
 " Format selected code
 nmap <Leader>f :ClangFormat<CR>
 vmap <Leader>f :ClangFormat<CR>
 
 " Open terminal
-vnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>
-nnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>
+vnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>a
+nnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>a
 
 " Nerdtree
 map <C-e> :NERDTreeToggle<CR>
@@ -115,10 +122,6 @@ nmap <leader>k :wincmd k<CR>
 nmap <leader>j :wincmd j<CR>
 nmap <leader>h :wincmd h<CR>
 nmap <leader>l :wincmd l<CR>
-
-" Page movement
-nmap <C-f> <C-f>zz
-nmap <C-b> <C-b>zz
 
 " Autoformat
 let g:clang_format#style_options = {
@@ -200,7 +203,6 @@ Plug 'sheerun/vim-polyglot'
 Plug 'leafOfTree/vim-vue-plugin'
 Plug 'nvim-treesitter/nvim-treesitter', { 'commit': '3c07232'}
 Plug 'luochen1990/rainbow'
-" Plug 'nvim-treesitter/nvim-treesitter'
 " Plug 'posva/vim-vue'
 
 " Themes
@@ -348,10 +350,10 @@ xmap <silent> <C-s> <Plug>(coc-range-select)
 command! -nargs=0 Format :call CocAction('format')
 
 " Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+command! -nargs=? Fold :call CocAction('fold', <f-args>)
 
 " Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+command! -nargs=0 OR :call CocAction('runCommand', 'editor.action.organizeImport')
 
 " Mappings for CoCList
 " Show all diagnostics.
