@@ -2,9 +2,9 @@
 // @name           FloatingScrollbar.uc.js
 // @namespace      nightson1988@gmail.com
 // @include        main
-// @version        0.0.3
+// @version        0.0.4
 // @note           Thanks to Griever(https://github.com/Griever/userChromeJS/blob/master/SmartScrollbar.uc.js) and Paul Rouget(https://gist.github.com/4003205)
-// @note...........0.0.3 Fixed a problem of breaking hbox layout 
+// @note           0.0.3 Fixed a problem of breaking hbox layout
 // @note           0.0.2 Remove usage of E4X (https://bugzilla.mozilla.org/show_bug.cgi?id=788293)
 // ==/UserScript==
 
@@ -29,8 +29,13 @@
         padding: 2px;\
     }\
     :not(select):not(hbox) > scrollbar[orient = "vertical"] {\
-        -moz-margin-start: -10px;\
+        -moz-margin-start: -17px;\
         min-width: 10px;\
+        padding-left: 1px;\
+        margin-right: 0px;\
+    }\
+    :not(select):not(hbox) > scrollbar[orient = "vertical"] slider {\
+        padding-left: 6px;\
     }\
     :not(select):not(hbox) > scrollbar[orient = "vertical"] thumb {\
         min-height: 20px;\
@@ -38,6 +43,7 @@
    :not(select):not(hbox) > scrollbar[orient = "horizontal"] {\
         margin-top: -10px;\
         min-height: 10px;\
+        padding-top: 0px;\
     }\
     :not(select):not(hbox) > scrollbar[orient = "horizontal"] thumb {\
         min-width: 20px;\
