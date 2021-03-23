@@ -12,56 +12,56 @@
     var prefs = Services.prefs,
         enabled;
     if (prefs.prefHasUserValue('userChromeJS.floating_scrollbar.enabled')) {
-        enabled = prefs.getBoolPref('userChromeJS.floating_scrollbar.enabled')
+        enabled = prefs.getBoolPref('userChromeJS.floating_scrollbar.enabled');
     } else {
         prefs.setBoolPref('userChromeJS.floating_scrollbar.enabled', true);
         enabled = true;
     }
 
-    var css = '\
-    @namespace url(http: //www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);\
-    :not(select):not(hbox) > scrollbar {\
-        -moz-appearance: none!important;\
-        position: relative;\
-        background-color: transparent;\
-        background-image: none;\
-        z-index: 2147483647;\
-        padding: 2px;\
-    }\
-    :not(select):not(hbox) > scrollbar[orient = "vertical"] {\
-        -moz-margin-start: -17px;\
-        min-width: 10px;\
-        padding-left: 1px;\
-        margin-right: 0px;\
-    }\
-    :not(select):not(hbox) > scrollbar[orient = "vertical"] slider {\
-        padding-left: 6px;\
-    }\
-    :not(select):not(hbox) > scrollbar[orient = "vertical"] thumb {\
-        min-height: 20px;\
-    }\
-   :not(select):not(hbox) > scrollbar[orient = "horizontal"] {\
-        margin-top: -10px;\
-        min-height: 10px;\
-        padding-top: 0px;\
-    }\
-    :not(select):not(hbox) > scrollbar[orient = "horizontal"] thumb {\
-        min-width: 20px;\
-    }\
-    :not(select):not(hbox) > scrollbar thumb {\
-        -moz-appearance: none!important;\
-        border-width: 0px!important;\
-        border-radius: 3px!important;\
-        background-color: rgba(0, 0, 0, 0.15)!important;\
-        transition: background-color .3s ease-in-out;\
-    }\
-    :not(select):not(hbox) > scrollbar thumb:active,\
-    :not(select):not(hbox) > scrollbar thumb:hover {\
-        background-color: #9B9B9B!important;\
-    }\
-    :not(select):not(hbox) > scrollbar scrollbarbutton, :not(select):not(hbox) > scrollbar gripper {\
-        display: none;\
-    }';
+    const css = `
+    @namespace url(http: //www.mozilla.org/keymaster/gatekeeper/there.is.only.xul);
+    :not(select):not(hbox) > scrollbar {
+        -moz-appearance: none!important;
+        position: relative;
+        background-color: transparent;
+        background-image: none;
+        z-index: 2147483647;
+        padding: 2px;
+    }
+    :not(select):not(hbox) > scrollbar[orient = "vertical"] {
+        -moz-margin-start: -17px;
+        min-width: 10px;
+        padding-left: 1px;
+        margin-right: 0px;
+    }
+    :not(select):not(hbox) > scrollbar[orient = "vertical"] slider {
+        padding-left: 6px;
+    }
+    :not(select):not(hbox) > scrollbar[orient = "vertical"] thumb {
+        min-height: 20px;
+    }
+   :not(select):not(hbox) > scrollbar[orient = "horizontal"] {
+        margin-top: -10px;
+        min-height: 10px;
+        padding-top: 0px;
+    }
+    :not(select):not(hbox) > scrollbar[orient = "horizontal"] thumb {
+        min-width: 20px;
+    }
+    :not(select):not(hbox) > scrollbar thumb {
+        -moz-appearance: none!important;
+        border-width: 0px!important;
+        border-radius: 3px!important;
+        background-color: rgba(0, 0, 0, 0.15)!important;
+        transition: background-color .3s ease-in-out;
+    }
+    :not(select):not(hbox) > scrollbar thumb:active,
+    :not(select):not(hbox) > scrollbar thumb:hover {
+        background-color: #9B9B9B!important;
+    }
+    :not(select):not(hbox) > scrollbar scrollbarbutton, :not(select):not(hbox) > scrollbar gripper {
+        display: none;
+    }`;
 
     var sss = Cc['@mozilla.org/content/style-sheet-service;1'].getService(Ci.nsIStyleSheetService);
     var uri = makeURI('data:text/css;charset=UTF=8,' + encodeURIComponent(css));
