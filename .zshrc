@@ -1,10 +1,12 @@
-fpath=($fpath "/home/pante/.zfunctions")
+fpath=($fpath "~/.zfunctions")
 
 # Set Spaceship ZSH as a prompt
 autoload -U promptinit; promptinit
 prompt spaceship
 
 # SPACESHIP_TIME_SHOW=true
+SPACESHIP_PROMPT_PREFIXES_SHOW=false
+SPACESHIP_NODE_SHOW=false
 SPACESHIP_DIR_PREFIX=
 SPACESHIP_DIR_LOCK_SYMBOL=" "
 SPACESHIP_GIT_PREFIX=
@@ -15,11 +17,17 @@ SPACESHIP_GIT_STATUS_MODIFIED=""
 SPACESHIP_GIT_STATUS_UNTRACKED=""
 SPACESHIP_GIT_STATUS_AHEAD=""
 SPACESHIP_GIT_STATUS_BEHIND=""
+SPACESHIP_VI_MODE_INSERT="I"
+SPACESHIP_VI_MODE_NORMAL="N"
+SPACESHIP_VI_MODE_COLOR="red"
 
 HISTFILE=~/.zsh_history
 HISTSIZE=800
 SAVEHIST=800
 HISTDUP=erase
+
+# this was because that noglob issue
+setopt NO_nomatch
 
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_IGNORE_DUPS
@@ -35,12 +43,9 @@ setopt HIST_FIND_NO_DUPS
 
 source $HOME/.aliases
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.zsh/zsh-interactive-cd.plugin.zsh
+source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.zsh/shf.zsh
 source ~/.zsh/k/k.sh
-
-source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-#source ~/.zsh/auto_expand.zsh
 
 ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=002
 ZSH_HIGHLIGHT_STYLES[precommand]=fg=002
@@ -59,15 +64,6 @@ function man() {
 		PAGER="${commands[less]:-$PAGER}" \
 		man "$@"
 }
-
-
-# [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-# if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-#         source /etc/profile.d/vte.sh
-# fi
-
-eval $(thefuck --alias)
-fpath=($fpath "/home/pante/.zfunctions")
 
 # go lang:
 export PATH=$PATH:/usr/local/go/bin
@@ -111,7 +107,7 @@ function zle-keymap-select {
        [[ $1 = 'beam' ]]; then
     echo -ne '\e[5 q'
   fi
-  zle reset-prompt
+  zle reset-prompt ; zle -R
 }
 zle -N zle-keymap-select
 
@@ -121,3 +117,4 @@ _fix_cursor() {
 }
 
 precmd_functions+=(_fix_cursor)
+
