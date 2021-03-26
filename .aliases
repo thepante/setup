@@ -1,9 +1,8 @@
-# 31/10/2020
+# 26/03/2021
 
+alias n='nnn'
 alias -g apt='apt-fast'
 alias apagar='sudo shutdown -P'
-alias n='nnn'
-alias nvim='/opt/nvim/nvim.appimage'
 alias sws='/opt/SoundWireServer/SoundWireServer'
 alias taskbook='tb'
 alias trash='trash-put'
@@ -14,7 +13,6 @@ alias mp3='noglob youtube-dl --output "~/Downloads/%(title)s.%(ext)s" --extract-
 alias download='noglob youtube-dl --output "~/Downloads/%(title)s.%(ext)s"'
 alias desc='mp3'
 alias urserver='/opt/urserver/urserver-start --no-manager --no-notify'
-alias neo='neofetch'
 alias loadmic='pacmd load-module module-alsa-source device=hw:Loopback,1,0 source_properties=device.description=droidcam_audio'
 alias cam='nohup ~/startcam.sh && echo "Done"'
 alias ..='cd ..'

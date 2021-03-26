@@ -46,13 +46,6 @@ ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=002
 ZSH_HIGHLIGHT_STYLES[precommand]=fg=002
 ZSH_HIGHLIGHT_STYLES[arg0]=bold
 
-bindkey "^[[1;5C" forward-word
-bindkey "^[[1;5D" backward-word
-bindkey '^d' autosuggest-accept 	# ctrl+d
-bindkey '^[^M' autosuggest-execute	# ctrl+enter
-bindkey '^H' backward-kill-word
-bindkey '^[[3;5~' kill-word
-
 # colored man - https://github.com/ael-code/zsh-colored-man-pages
 function man() {
 	env \
@@ -81,3 +74,51 @@ export PATH=$PATH:/usr/local/go/bin
 
 export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
 export PATH=$PATH:$JAVA_HOME/bin
+
+# add nvim to path
+export PATH=/opt/nvim:$PATH
+export VISUAL=nvim
+export EDITOR=nvim
+
+# Activate vim mode
+bindkey -v
+bindkey ,m vi-cmd-mode
+
+bindkey '^[^M' autosuggest-execute	# alt+enter
+bindkey '^H' backward-kill-word     # ctrl+backspace
+
+# Use vi navigation keys in menu completion
+zstyle ':completion:*' menu select
+zmodload zsh/complist
+
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'k' vi-up-line-or-history
+bindkey -M menuselect 'l' vi-forward-char
+bindkey -M menuselect 'j' vi-down-line-or-history
+
+# Mode switching delay
+KEYTIMEOUT=50
+
+# Change cursor shape for different vi modes
+function zle-keymap-select {
+  if [[ ${KEYMAP} == vicmd ]] ||
+     [[ $1 = 'block' ]]; then
+    echo -ne '\e[1 q'
+
+  elif [[ ${KEYMAP} == main ]] ||
+       [[ ${KEYMAP} == viins ]] ||
+       [[ ${KEYMAP} = '' ]] ||
+       [[ $1 = 'beam' ]]; then
+    echo -ne '\e[5 q'
+  fi
+}
+zle -N zle-keymap-select
+
+# Use beam shape cursor on startup
+echo -ne '\e[5 q'
+
+# Use beam shape cursor for each new prompt
+preexec() {
+  echo -ne '\e[5 q'
+}
+
