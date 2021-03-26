@@ -111,6 +111,7 @@ function zle-keymap-select {
        [[ $1 = 'beam' ]]; then
     echo -ne '\e[5 q'
   fi
+  zle reset-prompt
 }
 zle -N zle-keymap-select
 
