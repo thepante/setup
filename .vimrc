@@ -52,7 +52,7 @@ nmap <C-h> i<space><Right><Esc>
 nmap <C-l> a<space><Left><Esc>
 
 " Clear search using enter
-noremap <CR> :noh<CR><CR>
+noremap <CR> :noh<CR>
 
 " Move lines
 nnoremap <A-j> :m .+1<CR>==
@@ -67,7 +67,7 @@ nnoremap <C-a> :bprev<CR>
 nnoremap <C-d> :bnext<CR>
 
 " Close buffer
-nnoremap <C-w> :bd<CR>
+nnoremap <C-w> :b#<bar>bd#<CR>
 
 " Autoclose brackets
 inoremap {      {}<Left>
@@ -83,7 +83,7 @@ vnoremap <C-_> :Commentary<CR>
 " Cursor movement with easymotion
 nmap t <Plug>(easymotion-s2)
 nmap T <Plug>(easymotion-overwin-line)
-nmap <leader>w <Plug>(easymotion-w)
+nmap <leader>t <Plug>(easymotion-w)
 
 " Swap ` and ' to go to line-column marks ('es' keyboard layout)
 noremap ' `
@@ -104,18 +104,35 @@ nmap dao va{Vd
 " Delete around block, including comments on top of it
 nmap dab va{o{oVd
 
+" Tab to go matching pair
+map <Tab> %
+
 " Format selected code
 nmap <Leader>f :ClangFormat<CR>
 vmap <Leader>f :ClangFormat<CR>
+
+" Coc Rest-client request
+noremap <Leader><CR> :CocCommand rest-client.request<CR>
 
 " Open terminal
 vnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>a
 nnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>a
 
-" Nerdtree
+" Files explore
 map <C-e> :NERDTreeToggle<CR>
-" Autoclose on open file
+map <A-e> :ProjectFiles<CR>
+" map <A-e> :GFiles<CR>
+map <A-f> :FZF ~/<CR>
+map <A-b> :BLines<CR>
+map <A-.> :exe ":FZF " . expand("%:h")<CR>
+
+" NERDTree autoclose on open file
 let NERDTreeQuitOnOpen=1
+
+" FZF window & preview
+let g:fzf_layout = { 'down': '~20%' }
+let g:fzf_preview_window = ['right:40%:hidden', 'ctrl-/']
+let $FZF_DEFAULT_OPTS = '--margin=0,5'
 
 " Move between splits
 nmap <leader>k :wincmd k<CR>
@@ -138,7 +155,8 @@ let g:coc_global_extensions = [
   \ 'coc-html',
   \ 'coc-css',
   \ 'coc-vetur',
-  \ 'coc-python'
+  \ 'coc-pyright',
+  \ 'coc-restclient'
   \ ]
 
 " Autopairs
@@ -154,6 +172,11 @@ let g:EasyMotion_keys = "abcdefghijklmnopqrstuvwxyz"
 " Indentline
 let g:indentLine_char = '»'
 let g:indentLine_color_gui = '#333333'
+
+function! s:find_git_root()
+  return system('git rev-parse --show-toplevel 2> /dev/null')[:-2]
+endfunction
+command! ProjectFiles execute 'Files' s:find_git_root()
 
 " For conditional plugin load
 function! Cond(Cond, ...)
@@ -216,6 +239,7 @@ Plug 'AlessandroYorba/Alduin'
 Plug 'sts10/vim-pink-moon'
 Plug 'embark-theme/vim', { 'as': 'embark' }
 Plug 'tjammer/blayu.vim'
+Plug 'NLKNguyen/papercolor-theme'
 
 call plug#end()
 
@@ -231,6 +255,9 @@ let g:gruvbox_material_background = 'hard'
 " let g:sonokai_style = 'shusia'
 let g:miramare_cursor = 'blue'
 colorscheme miramare
+
+" set background=light
+" colorscheme PaperColor
 
 let g:lightline = {
       \ 'colorscheme': 'embark',
