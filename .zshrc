@@ -76,6 +76,9 @@ export PATH=/opt/nvim:$PATH
 export VISUAL=nvim
 export EDITOR=nvim
 
+export FZF_DEFAULT_OPTS='--multi'
+export FZF_DEFAULT_COMMAND='find . -not \( -path "*/node_modules" -prune \) -not \( -path "*/.git" -prune \)'
+
 # Activate vim mode
 source ~/.zsh/zsh-vim-mode/zsh-vim-mode.plugin.zsh
 bindkey ,m vi-cmd-mode
