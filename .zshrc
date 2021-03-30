@@ -76,9 +76,6 @@ export PATH=/opt/nvim:$PATH
 export VISUAL=nvim
 export EDITOR=nvim
 
-export FZF_DEFAULT_OPTS='--multi'
-export FZF_DEFAULT_COMMAND='find . -not \( -path "*/node_modules" -prune \) -not \( -path "*/.git" -prune \)'
-
 # Activate vim mode
 source ~/.zsh/zsh-vim-mode/zsh-vim-mode.plugin.zsh
 bindkey ,m vi-cmd-mode
@@ -119,4 +116,26 @@ _fix_cursor() {
 }
 
 precmd_functions+=(_fix_cursor)
+
+fzf_excluded='\
+  -not \( -path "*/node_modules" -prune \) \
+  -not \( -path "*/.git" -prune \) \
+  -not \( -path "*.cache" -prune \) \
+  -not \( -path "*go/pkg" -prune \) \
+'
+export FZF_DEFAULT_OPTS='--ansi --multi'
+export FZF_DEFAULT_COMMAND='find . '$fzf_excluded
+export FZF_DIRS_COMMAND='find . -type d '$fzf_excluded
+
+open_with_fzf() {
+  eval $FZF_DEFAULT_COMMAND | fzf --preview "batcat" | xargs -ro -d "\n" xdg-open 2>&-
+}
+cd_with_fzf() {
+  cd ~ && cd "$(eval $FZF_DIRS_COMMAND | fzf )" && zle reset-prompt
+}
+zle -N open_with_fzf
+zle -N cd_with_fzf
+
+bindkey '^O' open_with_fzf
+bindkey '^G' cd_with_fzf
 
