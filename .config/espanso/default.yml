@@ -39,10 +39,6 @@ matches:
   - trigger: ":fp"
     replace: "Fabián Pérez"
     
-  # Session
-  - trigger: ":wid"
-    replace: "1617225347"
-    
   # Sample texts
   - trigger: ":lorem1"
     replace: "Ac ut consequat semper viverra"
