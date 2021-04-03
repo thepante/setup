@@ -102,21 +102,15 @@
     },
     {
         "command": "vscode-neovim.compositeEscape1",
-        "key": ",",
+        "key": "k",
         "when": "neovim.mode == insert && editorTextFocus",
-        "args": ","
-    },
-    {
-        "command": "vscode-neovim.compositeEscape1",
-        "key": ",",
-        "when": "neovim.mode == insert && editorTextFocus",
-        "args": ","
+        "args": "k"
     },
     {
         "command": "vscode-neovim.compositeEscape2",
-        "key": "m",
+        "key": "j",
         "when": "neovim.mode == insert && editorTextFocus",
-        "args": "m"
+        "args": "j"
     },
     {
         "key": "ctrl+a",
