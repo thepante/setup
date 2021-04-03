@@ -1,32 +1,32 @@
-/* Gnome 05/2020 - u/thepante */
+/* Gnome 04/2021 - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
-/*@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");*/
 
 :root:-moz-lwtheme-brighttext,
 :root,
 * {
   --chrome-background-color: linear-gradient(150deg, #1b0f1a, #160c15) !important; /* #0f1419 , linear-gradient(150deg, #102E33, #171E33, #262038) ///  #0F1419 !important; /*era #141414*/
-  --chrome-color: #a7a592 !important;
   --chrome-secondary-background-color: #222424 !important;
-  --toolbox-border-bottom-color: hsl(240, 5%, 5%);
   --chrome-nav-bar-controls-border-color: hsla(240, 5%, 5%, 0.3);
+  --chrome-color: #a7a592 !important;
   --chrome-selection-color: #fff;
   --chrome-selection-background-color: rgb(26, 88, 221);
+  --toolbar-color: var(--chrome-color) !important;
+  --toolbar-bgcolor: #222424 !important;
+  --toolbox-border-bottom-color: hsl(240, 5%, 5%);
+  --toolbarbutton-icon-fill-attention: var(--chrome-color) !important;
+  --urlbar-separator-color: #5f6670;
   --lwt-toolbar-field-background-color: rgb(71, 71, 73);
   --lwt-toolbar-field-color: var(--chrome-color);
-  --urlbar-separator-color: #5f6670;
-  --autocomplete-popup-background: #2a2a2e !important;
-  --autocomplete-popup-highlight-background: #284163;
-  --toolbar-bgcolor: #222424 !important;
-  --arrowpanel-background: #181c20 !important;
-  --panel-disabled-color: var(--chrome-color) !important;
-  --arrow-panel-color: var(--chrome-color) !important;
   --lwt-toolbarbutton-icon-fill: var(--chrome-color) !important;
-  --toolbarbutton-icon-fill-attention: var(--chrome-color) !important;
+  --lwt-selected-tab-background-color: inherit !important;
   --lwt-accent-color: var(--chrome-color) !important;
   --lwt-text-color: var(--chrome-color) !important;
-  --toolbar-color: var(--chrome-color) !important;
+  --panel-disabled-color: var(--chrome-color) !important;
+  --autocomplete-popup-highlight-background: #284163;
+  --autocomplete-popup-background: #2a2a2e !important;
+  --arrowpanel-background: #181c20 !important;
+  --arrow-panel-color: var(--chrome-color) !important;
 
   color: var(--chrome-color);
 }
@@ -310,7 +310,7 @@ toolbarbutton .toolbarbutton-icon,
   opacity: 0;
   height: 0px;
   width: 0px;
-} 
+}
 /* ACA - TODO - FIX */
 /*.tabbrowser-tab[selected="true"] .tab-close-button,*/
 .tabbrowser-tab:not([pinned="true"]):hover .tab-close-button {
@@ -653,10 +653,10 @@ tabpanels {
   font-size: 10px !important;
 }
 
-#identity-box[pageproxystate="valid"].notSecureText, 
-#identity-box[pageproxystate="valid"].verifiedIdentity, 
-#identity-box[pageproxystate="valid"].chromeUI, 
-#identity-box[pageproxystate="valid"].extensionPage, 
+#identity-box[pageproxystate="valid"].notSecureText,
+#identity-box[pageproxystate="valid"].verifiedIdentity,
+#identity-box[pageproxystate="valid"].chromeUI,
+#identity-box[pageproxystate="valid"].extensionPage,
 #urlbar-label-box {
   --color-separador: red;
 	margin-inline-end: 8px;
@@ -665,7 +665,7 @@ tabpanels {
 	border-image-slice: 1;
 }
 
-#urlbar:not([focused=true]) 
+#urlbar:not([focused=true])
   > #urlbar-input-container {
 	border-color: #0f1419 !important;
 }
