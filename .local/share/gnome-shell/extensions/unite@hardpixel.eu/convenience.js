@@ -25,13 +25,16 @@ var SettingsManager = GObject.registerClass(
         'show-window-buttons':        'enum',
         'window-buttons-theme':       'enum',
         'hide-window-titlebars':      'enum',
+        'enable-titlebar-actions':    'boolean',
         'window-buttons-placement':   'select',
         'hide-dropdown-arrows':       'boolean',
         'hide-aggregate-menu-arrow':  'boolean',
         'hide-app-menu-arrow':        'boolean',
         'hide-app-menu-icon':         'boolean',
         'reduce-panel-spacing':       'boolean',
-        'restrict-to-primary-screen': 'boolean'
+        'restrict-to-primary-screen': 'boolean',
+        'app-menu-max-width':         'int',
+        'app-menu-ellipsize-mode':    'enum'
       }
     }
 
@@ -50,8 +53,11 @@ var SettingsManager = GObject.registerClass(
     getSetting(key) {
       if (!this.exists(key)) return
 
-      let boolean = this.getSettingType(key) == 'boolean'
-      return boolean ? this.get_boolean(key) : this.get_string(key)
+      switch (this.getSettingType(key)) {
+        case 'int':     return this.get_int(key)
+        case 'boolean': return this.get_boolean(key)
+        default:        return this.get_string(key)
+      }
     }
   }
 )

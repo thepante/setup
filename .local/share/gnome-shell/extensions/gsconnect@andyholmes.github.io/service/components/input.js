@@ -14,9 +14,9 @@ const RemoteSession = GObject.registerClass({
     Implements: [Gio.DBusInterface],
     Signals: {
         'closed': {
-            flags: GObject.SignalFlags.RUN_FIRST
-        }
-    }
+            flags: GObject.SignalFlags.RUN_FIRST,
+        },
+    },
 }, class RemoteSession extends Gio.DBusProxy {
 
     _init(objectPath) {
@@ -25,20 +25,20 @@ const RemoteSession = GObject.registerClass({
             g_name: 'org.gnome.Mutter.RemoteDesktop',
             g_object_path: objectPath,
             g_interface_name: 'org.gnome.Mutter.RemoteDesktop.Session',
-            g_flags: Gio.DBusProxyFlags.NONE
+            g_flags: Gio.DBusProxyFlags.NONE,
         });
 
         this._started = false;
     }
 
     vfunc_g_signal(sender_name, signal_name, parameters) {
-        if (signal_name === 'Closed') {
+        if (signal_name === 'Closed')
             this.emit('closed');
-        }
     }
 
     _call(name, parameters = null) {
-        if (!this._started) return;
+        if (!this._started)
+            return;
 
         this.call(name, parameters, Gio.DBusCallFlags.NONE, -1, null, null);
     }
@@ -53,7 +53,8 @@ const RemoteSession = GObject.registerClass({
 
     async start() {
         try {
-            if (this._started) return;
+            if (this._started)
+                return;
 
             // Initialize the proxy
             await new Promise((resolve, reject) => {
@@ -169,7 +170,7 @@ const RemoteSession = GObject.registerClass({
     }
 
     scrollPointer(dx, dy) {
-        // TODO: NotifyPointerAxis only seems to work on Wayland, but maybe
+        // NOTE: NotifyPointerAxis only seems to work on Wayland, but maybe
         //       NotifyPointerAxisDiscrete is the better choice anyways
         if (HAVE_WAYLAND) {
             this._call(
@@ -180,22 +181,20 @@ const RemoteSession = GObject.registerClass({
                 'NotifyPointerAxis',
                 GLib.Variant.new('(ddu)', [0, 0, 1])
             );
-        } else {
-            if (dy > 0) {
-                this._call(
-                    'NotifyPointerAxisDiscrete',
-                    GLib.Variant.new('(ui)', [Gdk.ScrollDirection.UP, 1])
-                );
-            } else if (dy < 0) {
-                this._call(
-                    'NotifyPointerAxisDiscrete',
-                    GLib.Variant.new('(ui)', [Gdk.ScrollDirection.UP, -1])
-                );
-            }
+        } else if (dy > 0) {
+            this._call(
+                'NotifyPointerAxisDiscrete',
+                GLib.Variant.new('(ui)', [Gdk.ScrollDirection.UP, 1])
+            );
+        } else if (dy < 0) {
+            this._call(
+                'NotifyPointerAxisDiscrete',
+                GLib.Variant.new('(ui)', [Gdk.ScrollDirection.UP, -1])
+            );
         }
     }
 
-    /**
+    /*
      * Keyboard Events
      */
     pressKeysym(keysym) {
@@ -223,15 +222,19 @@ const RemoteSession = GObject.registerClass({
         );
     }
 
-    /**
+    /*
      * High-level keyboard input
      */
     pressKey(input, modifiers) {
         // Press Modifiers
-        if (modifiers & Gdk.ModifierType.MOD1_MASK) this.pressKeysym(Gdk.KEY_Alt_L);
-        if (modifiers & Gdk.ModifierType.CONTROL_MASK) this.pressKeysym(Gdk.KEY_Control_L);
-        if (modifiers & Gdk.ModifierType.SHIFT_MASK) this.pressKeysym(Gdk.KEY_Shift_L);
-        if (modifiers & Gdk.ModifierType.SUPER_MASK) this.pressKeysym(Gdk.KEY_Super_L);
+        if (modifiers & Gdk.ModifierType.MOD1_MASK)
+            this.pressKeysym(Gdk.KEY_Alt_L);
+        if (modifiers & Gdk.ModifierType.CONTROL_MASK)
+            this.pressKeysym(Gdk.KEY_Control_L);
+        if (modifiers & Gdk.ModifierType.SHIFT_MASK)
+            this.pressKeysym(Gdk.KEY_Shift_L);
+        if (modifiers & Gdk.ModifierType.SUPER_MASK)
+            this.pressKeysym(Gdk.KEY_Super_L);
 
         if (typeof input === 'string') {
             let keysym = Gdk.unicode_to_keyval(input.codePointAt(0));
@@ -241,22 +244,26 @@ const RemoteSession = GObject.registerClass({
         }
 
         // Release Modifiers
-        if (modifiers & Gdk.ModifierType.MOD1_MASK) this.releaseKeysym(Gdk.KEY_Alt_L);
-        if (modifiers & Gdk.ModifierType.CONTROL_MASK) this.releaseKeysym(Gdk.KEY_Control_L);
-        if (modifiers & Gdk.ModifierType.SHIFT_MASK) this.releaseKeysym(Gdk.KEY_Shift_L);
-        if (modifiers & Gdk.ModifierType.SUPER_MASK) this.releaseKeysym(Gdk.KEY_Super_L);
+        if (modifiers & Gdk.ModifierType.MOD1_MASK)
+            this.releaseKeysym(Gdk.KEY_Alt_L);
+        if (modifiers & Gdk.ModifierType.CONTROL_MASK)
+            this.releaseKeysym(Gdk.KEY_Control_L);
+        if (modifiers & Gdk.ModifierType.SHIFT_MASK)
+            this.releaseKeysym(Gdk.KEY_Shift_L);
+        if (modifiers & Gdk.ModifierType.SUPER_MASK)
+            this.releaseKeysym(Gdk.KEY_Super_L);
     }
 
     destroy() {
         if (this.__disposed === undefined) {
             this.__disposed = true;
-            this.run_dispose();
+            GObject.signal_handlers_destroy(this);
         }
     }
 });
 
 
-const Controller = class Controller {
+class Controller {
     constructor() {
         this._nameAppearedId = 0;
         this._session = null;
@@ -276,21 +283,31 @@ const Controller = class Controller {
     }
 
     get connection() {
-        if (this._connection === undefined) {
+        if (this._connection === undefined)
             this._connection = null;
-        }
 
         return this._connection;
     }
 
+    /**
+     * Check if this is a Wayland session, specifically for distributions that
+     * don't ship pipewire support (eg. Debian/Ubuntu).
+     *
+     * FIXME: this is a super ugly hack that should go away
+     *
+     * @return {boolean} %true if wayland is not supported
+     */
     _checkWayland() {
         if (HAVE_WAYLAND) {
             // eslint-disable-next-line no-global-assign
             HAVE_REMOTEINPUT = false;
             let service = Gio.Application.get_default();
 
+            if (service === null)
+                return true;
+
             // First we're going to disabled the affected plugins on all devices
-            for (let device of service.devices) {
+            for (let device of service.manager.devices.values()) {
                 let supported = device.settings.get_strv('supported-plugins');
                 let index;
 
@@ -303,9 +320,12 @@ const Controller = class Controller {
                 device.settings.set_strv('supported-plugins', supported);
             }
 
-            // Second we need to amend the service identity and broadcast
-            service._identity = undefined;
-            service._identify();
+            // Second we need each backend to rebuild its identity packet and
+            // broadcast the amended capabilities to the network
+            for (let backend of service.manager.backends.values())
+                backend.buildIdentity();
+
+            service.manager.identify();
 
             return true;
         }
@@ -323,9 +343,8 @@ const Controller = class Controller {
 
     _onNameVanished(connection, name) {
         try {
-            if (this._session !== null) {
+            if (this._session !== null)
                 this._onSessionClosed(this._session);
-            }
         } catch (e) {
             logError(e);
         }
@@ -358,9 +377,8 @@ const Controller = class Controller {
         }
 
         // Otherwise if there's an active session, close it
-        if (this._session !== null) {
+        if (this._session !== null)
             this._session.stop();
-        }
 
         // Reset the GSource Id
         this._sessionExpiryId = 0;
@@ -402,7 +420,7 @@ const Controller = class Controller {
         return new Promise((resolve, reject) => {
             let options = new GLib.Variant('(a{sv})', [{
                 'disable-animations': GLib.Variant.new_boolean(false),
-                'remote-desktop-session-id': GLib.Variant.new_string(sessionId)
+                'remote-desktop-session-id': GLib.Variant.new_string(sessionId),
             }]);
 
             this.connection.call(
@@ -433,14 +451,16 @@ const Controller = class Controller {
             this._sessionExpiry = Math.floor((Date.now() / 1000) + SESSION_TIMEOUT);
 
             // Session is active
-            if (this._session !== null) return;
+            if (this._session !== null)
+                return;
 
             // Mutter's RemoteDesktop is not available, fall back to Atspi
             if (this.connection === null) {
                 debug('Falling back to Atspi');
 
                 // If we got here in Wayland, we need to re-adjust and bail
-                if (this._checkWayland()) return;
+                if (this._checkWayland())
+                    return;
 
                 let fallback = imports.service.components.atspi;
                 this._session = new fallback.Controller();
@@ -489,12 +509,13 @@ const Controller = class Controller {
         }
     }
 
-    /**
+    /*
      * Pointer Events
      */
     movePointer(dx, dy) {
         try {
-            if (dx === 0 && dy === 0) return;
+            if (dx === 0 && dy === 0)
+                return;
 
             this._ensureAdapter();
             this._session.movePointer(dx, dy);
@@ -540,7 +561,8 @@ const Controller = class Controller {
     }
 
     scrollPointer(dx, dy) {
-        if (dx === 0 && dy === 0) return;
+        if (dx === 0 && dy === 0)
+            return;
 
         try {
             this._ensureAdapter();
@@ -550,7 +572,7 @@ const Controller = class Controller {
         }
     }
 
-    /**
+    /*
      * Keyboard Events
      */
     pressKeysym(keysym) {
@@ -580,7 +602,7 @@ const Controller = class Controller {
         }
     }
 
-    /**
+    /*
      * High-level keyboard input
      */
     pressKey(input, modifiers) {
@@ -609,7 +631,7 @@ const Controller = class Controller {
             this._nameWatcherId = 0;
         }
     }
-};
+}
 
 
 /**

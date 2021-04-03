@@ -21,6 +21,8 @@
     <value value="18" nick="breeze" />
     <value value="19" nick="prof-gnome" />
     <value value="20" nick="flat-remix" />
+    <value value="21" nick="adwaita-dark" />
+    <value value="22" nick="canta" />
   </enum>
 
   <enum id="org.gnome.shell.extensions.unite.hideTitlebars">
@@ -59,6 +61,12 @@
     <value value="2" nick="always" />
   </enum>
 
+  <enum id="org.gnome.shell.extensions.unite.ellipsizeMode">
+    <value value="0" nick="start" />
+    <value value="1" nick="middle" />
+    <value value="2" nick="end" />
+  </enum>
+
   <schema id="org.gnome.shell.extensions.unite" path="/org/gnome/shell/extensions/unite/">
     <key name="use-system-fonts" type="b">
       <default>true</default>
@@ -95,6 +103,11 @@
       <summary>Set the top bar desktop name text.</summary>
     </key>
 
+    <key name="enable-titlebar-actions" type="b">
+      <default>true</default>
+      <summary>Enable window titlebar actions on top bar click.</summary>
+    </key>
+
     <key name="restrict-to-primary-screen" type="b">
       <default>true</default>
       <summary>Restrict functionalities to the primary screen.</summary>
@@ -118,6 +131,16 @@
     <key name="hide-app-menu-icon" type="b">
       <default>true</default>
       <summary>Hide app menu application icon.</summary>
+    </key>
+
+    <key name="app-menu-max-width" type="i">
+      <default>0</default>
+      <summary>Limit the width of the app menu. 0 means no limit.</summary>
+    </key>
+
+    <key name="app-menu-ellipsize-mode" enum="org.gnome.shell.extensions.unite.ellipsizeMode">
+      <default>"end"</default>
+      <summary>The place where characters will be omitted when the max width of the app menu is reached.</summary>
     </key>
 
     <key name="reduce-panel-spacing" type="b">

@@ -9,7 +9,8 @@ const SETTINGS = Convenience.getSettings()
 const WM_PREFS = Convenience.getPreferences()
 
 const USER_CONFIG = GLib.get_user_config_dir()
-const USER_STYLES = `${USER_CONFIG}/gtk-3.0/gtk.css`
+const USER_STYLES_GTK3 = `${USER_CONFIG}/gtk-3.0/gtk.css`
+const USER_STYLES_GTK4 = `${USER_CONFIG}/gtk-4.0/gtk.css`
 
 function fileExists(path) {
   return GLib.file_test(path, GLib.FileTest.EXISTS)
@@ -33,16 +34,21 @@ function getFileContents(path) {
 }
 
 function setFileContents(path, contents) {
+  if (!fileExists(path)) {
+    const dirname = GLib.path_get_dirname(path)
+    GLib.mkdir_with_parents(dirname, parseInt('0700', 8))
+  }
+
   GLib.file_set_contents(path, contents)
 }
 
-function resetGtkStyles() {
-  let style = getFileContents(USER_STYLES)
+function resetGtkStyles(filepath) {
+  let style = getFileContents(filepath)
 
   style = style.replace(/\/\* UNITE ([\s\S]*?) UNITE \*\/\n/g, '')
   style = style.replace(/@import.*unite@hardpixel\.eu.*css['"]\);\n/g, '')
 
-  setFileContents(USER_STYLES, style)
+  setFileContents(filepath, style)
 }
 
 var Signals = class Signals {
@@ -51,14 +57,13 @@ var Signals = class Signals {
   }
 
   registerHandler(object, name, callback) {
-    const key = `${object}[${name}]`
+    const uid = GLib.uuid_string_random()
+    const key = `[signal ${name} uuid@${uid}]`
 
-    if (!this.hasSignal(key)) {
-      this.signals.set(key, {
-        object:   object,
-        signalId: object.connect(name, callback)
-      })
-    }
+    this.signals.set(key, {
+      object:   object,
+      signalId: object.connect(name, callback)
+    })
 
     return key
   }
@@ -155,22 +160,23 @@ var WidgetStyle = class WidgetStyle {
 }
 
 var GtkStyle = class GtkStyle {
-  constructor(name, contents) {
+  constructor(filepath, name, contents) {
+    this.filepath = filepath
     this.contents = `/* UNITE ${name} */\n${contents}\n/* ${name} UNITE */\n`
   }
 
   get existing() {
-    return getFileContents(USER_STYLES)
+    return getFileContents(this.filepath)
   }
 
   load() {
     const style = this.contents + this.existing
-    setFileContents(USER_STYLES, style)
+    setFileContents(this.filepath, style)
   }
 
   unload() {
     const style = this.existing.replace(this.contents, '')
-    setFileContents(USER_STYLES, style)
+    setFileContents(this.filepath, style)
   }
 }
 
@@ -215,9 +221,14 @@ var Styles = class Styles {
     this.setStyle(name, WidgetStyle, widget, styles)
   }
 
-  addGtkStyle(name, contents) {
+  addGtk3Style(name, contents) {
     this.deleteStyle(name)
-    this.setStyle(name, GtkStyle, name, contents)
+    this.setStyle(name, GtkStyle, USER_STYLES_GTK3, name, contents)
+  }
+
+  addGtk4Style(name, contents) {
+    this.deleteStyle(name)
+    this.setStyle(name, GtkStyle, USER_STYLES_GTK4, name, contents)
   }
 
   removeAll() {
@@ -227,4 +238,5 @@ var Styles = class Styles {
   }
 }
 
-resetGtkStyles()
+resetGtkStyles(USER_STYLES_GTK3)
+resetGtkStyles(USER_STYLES_GTK4)

@@ -114,7 +114,7 @@
     "diffEditor.renderSideBySide": true,
     "editor.minimap.showSlider": "always",
     "editor.cursorBlinking": "phase",
-    "vscode-neovim.neovimExecutablePaths.linux": "/opt/nvim/nvim.appimage",
+    "vscode-neovim.neovimExecutablePaths.linux": "/opt/nvim/nvim",
     "workbench.editor.showIcons": false,
     "gitlens.hovers.enabled": false,
     "gitlens.codeLens.authors.enabled": false,
@@ -124,4 +124,5 @@
     },
     "editor.lineNumbers": "relative",
     "workbench.editor.showTabs": true,
+    "window.zoomLevel": 1,
 }

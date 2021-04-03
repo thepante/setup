@@ -6,11 +6,11 @@ const Gtk = imports.gi.Gtk;
 
 // Bootstrap
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-Extension.imports._gsconnect;
+const Utils = Extension.imports.shell.utils;
 
 
 function init() {
-    gsconnect.installService();
+    Utils.installService();
 }
 
 function buildPrefsWidget() {
@@ -22,7 +22,7 @@ function buildPrefsWidget() {
         return false;
     });
 
-    Gio.Subprocess.new([Extension.path + '/gsconnect-preferences'], 0);
+    Gio.Subprocess.new([`${Extension.path}/gsconnect-preferences`], 0);
 
     return widget;
 }

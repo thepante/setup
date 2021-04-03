@@ -1,7 +1,11 @@
 const Gi         = imports._gi
 const System     = imports.system
 const GObject    = imports.gi.GObject
+const GLib       = imports.gi.GLib
+const St         = imports.gi.St
+const Pango      = imports.gi.Pango
 const Clutter    = imports.gi.Clutter
+const Meta       = imports.gi.Meta
 const Shell      = imports.gi.Shell
 const AppSystem  = imports.gi.Shell.AppSystem.get_default()
 const WinTracker = imports.gi.Shell.WindowTracker.get_default()
@@ -11,6 +15,7 @@ const AppMenu    = Main.panel.statusArea.appMenu
 const Activities = Main.panel.statusArea.activities
 const Buttons    = Unite.imports.buttons
 const Handlers   = Unite.imports.handlers
+const VERSION    = Unite.imports.constants.VERSION
 
 var PanelExtension = class PanelExtension {
   constructor(settings, key, callback) {
@@ -74,11 +79,7 @@ var WindowButtons = class WindowButtons extends PanelExtension {
     )
 
     this.settings.connect(
-      'window-buttons-layout', this._onLayoutChange.bind(this)
-    )
-
-    this.settings.connect(
-      'window-buttons-position', this._onPositionChange.bind(this)
+      'button-layout', this._onPositionChange.bind(this)
     )
 
     this.settings.connect(
@@ -137,7 +138,7 @@ var WindowButtons = class WindowButtons extends PanelExtension {
   _onLayoutChange() {
     const buttons = this.settings.get('window-buttons-layout')
 
-    if (this.side == 'right' && this.position == 'left') {
+    if (this.side != this.position) {
       buttons.reverse()
     }
 
@@ -151,9 +152,13 @@ var WindowButtons = class WindowButtons extends PanelExtension {
     if (controls.reparent) {
       controls.reparent(this.container)
     } else {
-      controls.unparent()
-      controls.set_parent(this.container)
-    }
+      const currentParent = controls.get_parent()
+
+      if (currentParent) {
+        currentParent.remove_child(controls)
+        this.container.add_child(controls)
+      }
+   }
 
     if (this.index != null) {
       this.container.set_child_at_index(controls, this.index)
@@ -204,12 +209,27 @@ var ExtendLeftBox = class ExtendLeftBox extends PanelExtension {
   _init() {
     this._default = Main.panel.__proto__.vfunc_allocate
 
-    Main.panel.__proto__[Gi.hook_up_vfunc_symbol]('allocate', (box, flags) => {
-      Main.panel.vfunc_allocate.call(Main.panel, box, flags)
-      this._allocate(Main.panel, box, flags)
-    })
+    if (VERSION < 37) {
+      Main.panel.__proto__[Gi.hook_up_vfunc_symbol]('allocate', (box, flags) => {
+        Main.panel.vfunc_allocate.call(Main.panel, box, flags)
+        this._allocate(Main.panel, box, flags)
+      })
+    } else {
+      Main.panel.__proto__[Gi.hook_up_vfunc_symbol]('allocate', (box) => {
+        Main.panel.vfunc_allocate.call(Main.panel, box)
+        this._allocate(Main.panel, box)
+      })
+    }
 
     Main.panel.queue_relayout()
+  }
+
+  _boxAllocate(box, childBox, flags) {
+    if (VERSION < 37) {
+      box.allocate(childBox, flags)
+    } else {
+      box.allocate(childBox)
+    }
   }
 
   _allocate(actor, box, flags) {
@@ -238,7 +258,7 @@ var ExtendLeftBox = class ExtendLeftBox extends PanelExtension {
       childBox.x2 = Math.min(Math.floor(sideWidth), leftNaturalWidth)
     }
 
-    leftBox.allocate(childBox, flags)
+    this._boxAllocate(leftBox, childBox, flags)
 
     childBox.y1 = 0
     childBox.y2 = allocHeight
@@ -251,7 +271,7 @@ var ExtendLeftBox = class ExtendLeftBox extends PanelExtension {
       childBox.x2 = childBox.x1 + centerNaturalWidth
     }
 
-    centerBox.allocate(childBox, flags)
+    this._boxAllocate(centerBox, childBox, flags)
 
     childBox.y1 = 0
     childBox.y2 = allocHeight
@@ -264,7 +284,7 @@ var ExtendLeftBox = class ExtendLeftBox extends PanelExtension {
       childBox.x2 = allocWidth
     }
 
-    rightBox.allocate(childBox, flags)
+    this._boxAllocate(rightBox, childBox, flags)
   }
 
   _destroy() {
@@ -469,6 +489,200 @@ var TrayIcons = class TrayIcons extends PanelExtension {
   }
 }
 
+var TitlebarActions = class TitlebarActions extends PanelExtension {
+  constructor({ settings }) {
+    const active = val => val == true
+    super(settings, 'enable-titlebar-actions', active)
+  }
+
+  _init() {
+    this.signals  = new Handlers.Signals()
+    this.settings = new Handlers.Settings()
+
+    this.signals.connect(
+      Main.panel, 'button-press-event', this._onButtonPressEvent.bind(this)
+    )
+  }
+
+  _onButtonPressEvent(actor, event) {
+    const focusWindow = global.unite.focusWindow
+
+    if (!focusWindow || !focusWindow.hideTitlebars) {
+      return Clutter.EVENT_PROPAGATE
+    }
+
+    const [mouseX, mouseY] = event.get_coords()
+
+    const ccount = event.get_click_count()
+    const button = event.get_button()
+
+    const clickOnChildren = Main.panel.get_children().some(({ x, y, width, height }) => {
+      return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height
+    })
+
+    if (clickOnChildren) {
+      return Clutter.EVENT_PROPAGATE
+    }
+
+    let action = null
+
+    if (button == 1 && ccount == 2) {
+      action = this.settings.get('action-double-click-titlebar')
+    }
+
+    if (button == 2) {
+      action = this.settings.get('action-middle-click-titlebar')
+    }
+
+    if (button == 3) {
+      action = this.settings.get('action-right-click-titlebar')
+    }
+
+    if (action == 'menu') {
+      this._openWindowMenu(focusWindow.win, mouseX)
+      return Clutter.EVENT_STOP
+    }
+
+    if (action && action != 'none') {
+      return this._handleClickAction(action, focusWindow)
+    }
+
+    return Clutter.EVENT_PROPAGATE
+  }
+
+  _handleClickAction(action, win) {
+    const mapping = {
+      'toggle-maximize':              'maximize',
+      'toggle-maximize-horizontally': 'maximizeX',
+      'toggle-maximize-vertically':   'maximizeY',
+      'toggle-shade':                 'shade',
+      'minimize':                     'minimize',
+      'lower':                        'lower'
+    }
+
+    const method = mapping[action]
+
+    if (method) {
+      win[method].call(win)
+      return Clutter.EVENT_STOP
+    }
+
+    return Clutter.EVENT_PROPAGATE
+  }
+
+  _openWindowMenu(win, x) {
+    const size = Main.panel.height + 4
+    const rect = { x, y: 0, width: size, height: size }
+    const type = Meta.WindowMenuType.WM
+
+    Main.wm._windowMenuManager.showWindowMenuForWindow(win, type, rect)
+  }
+
+  _destroy() {
+    this.signals.disconnectAll()
+    this.settings.disconnectAll()
+  }
+}
+
+var AppMenuCustomizer = class AppMenuCustomizer extends PanelExtension {
+  constructor({ settings }) {
+    const active = val => val > 0
+    super(settings, 'app-menu-max-width', active)
+  }
+
+  _init() {
+    this.signals  = new Handlers.Signals()
+    this.settings = new Handlers.Settings()
+    this.tooltip  = new St.Label({ visible: false, style_class: 'dash-label' })
+
+    this.signals.connect(
+      AppMenu, 'notify::hover', this._onAppMenuHover.bind(this)
+    )
+
+    this.signals.connect(
+      AppMenu, 'button-press-event', this._onAppMenuClicked.bind(this)
+    )
+
+    this.settings.connect(
+      'app-menu-max-width', this._onMaxWidthChange.bind(this)
+    )
+
+    this.settings.connect(
+      'app-menu-ellipsize-mode', this._onEllipsizeModeChange.bind(this)
+    )
+
+    Main.uiGroup.add_child(this.tooltip)
+
+    this._onMaxWidthChange()
+  }
+
+  get maxWidth() {
+    return this.settings.get('app-menu-max-width')
+  }
+
+  get ellipsizeMode() {
+    return this.settings.get('app-menu-ellipsize-mode')
+  }
+
+  setLabelMaxWidth(width) {
+    const label = AppMenu._label
+    label && label.set_style('max-width' + (width ? `: ${width}px` : ''))
+  }
+
+  setTextEllipsizeMode(mode) {
+    const modeK = mode.toUpperCase()
+    const label = AppMenu._label
+
+    label && label.get_clutter_text().set_ellipsize(Pango.EllipsizeMode[modeK])
+  }
+
+  _onAppMenuHover(appMenu) {
+    if (!appMenu._label) return
+
+    this.isHovered = appMenu.get_hover()
+
+    if (!this.isHovered) {
+      return this.tooltip.hide()
+    }
+
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 400, () => {
+      if (this.isHovered && !this.tooltip.visible) {
+        const [mouseX, mouseY] = global.get_pointer()
+
+        this.tooltip.set_position(mouseX + 20, mouseY)
+        this.tooltip.set_text(appMenu._label.get_text())
+        this.tooltip.show()
+      }
+
+      return GLib.SOURCE_REMOVE
+    })
+  }
+
+  _onAppMenuClicked() {
+    this.isHovered = false
+    this.tooltip.hide()
+  }
+
+  _onMaxWidthChange() {
+    this.setLabelMaxWidth(this.maxWidth)
+    this.setTextEllipsizeMode(this.ellipsizeMode)
+  }
+
+  _onEllipsizeModeChange() {
+    this.setTextEllipsizeMode(this.ellipsizeMode)
+  }
+
+  _destroy() {
+    this.tooltip.destroy()
+
+    this.setLabelMaxWidth(null)
+    this.setTextEllipsizeMode('end')
+
+    this.signals.disconnectAll()
+    this.settings.disconnectAll()
+  }
+}
+
 var PanelManager = GObject.registerClass(
   class UnitePanelManager extends GObject.Object {
     _init() {
@@ -478,6 +692,8 @@ var PanelManager = GObject.registerClass(
       this.activities = new ActivitiesButton(this)
       this.desktop    = new DesktopName(this)
       this.tray       = new TrayIcons(this)
+      this.titlebar   = new TitlebarActions(this)
+      this.appmenu    = new AppMenuCustomizer(this)
     }
 
     activate() {
@@ -486,6 +702,8 @@ var PanelManager = GObject.registerClass(
       this.activities.activate()
       this.desktop.activate()
       this.tray.activate()
+      this.titlebar.activate()
+      this.appmenu.activate()
     }
 
     destroy() {
@@ -494,6 +712,8 @@ var PanelManager = GObject.registerClass(
       this.activities.destroy()
       this.desktop.destroy()
       this.tray.destroy()
+      this.titlebar.destroy()
+      this.appmenu.destroy()
 
       this.settings.disconnectAll()
     }

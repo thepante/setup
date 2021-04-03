@@ -28,7 +28,7 @@ const REPLY_REGEX = new RegExp(/^([^|]+)\|([\s\S]+)\|([0-9a-f]{8}-[0-9a-f]{4}-[1
  * A slightly modified Notification Banner with an entry field
  */
 const NotificationBanner = GObject.registerClass({
-    GTypeName: 'GSConnectNotificationBanner'
+    GTypeName: 'GSConnectNotificationBanner',
 }, class NotificationBanner extends MessageTray.NotificationBanner {
 
     _init(notification) {
@@ -42,7 +42,7 @@ const NotificationBanner = GObject.registerClass({
         if (!this._buttonBox) {
             this._buttonBox = new St.BoxLayout({
                 style_class: 'notification-actions',
-                x_expand: true
+                x_expand: true,
             });
             this.setActionArea(this._buttonBox);
             global.focus_manager.add_group(this._buttonBox);
@@ -53,7 +53,7 @@ const NotificationBanner = GObject.registerClass({
             style_class: 'notification-button',
             label: _('Reply'),
             x_expand: true,
-            can_focus: true
+            can_focus: true,
         });
 
         button.connect(
@@ -69,7 +69,7 @@ const NotificationBanner = GObject.registerClass({
             hint_text: _('Type a message'),
             style_class: 'chat-response',
             x_expand: true,
-            visible: false
+            visible: false,
         });
 
         this._buttonBox.add_child(this._replyEntry);
@@ -78,9 +78,8 @@ const NotificationBanner = GObject.registerClass({
     _onEntryRequested(button) {
         this.focused = true;
 
-        for (let child of this._buttonBox.get_children()) {
+        for (let child of this._buttonBox.get_children())
             child.visible = (child === this._replyEntry);
-        }
 
         // Release the notification focus with the entry focus
         this._replyEntry.connect(
@@ -103,7 +102,8 @@ const NotificationBanner = GObject.registerClass({
 
     _onEntryActivated(clutter_text) {
         // Refuse to send empty replies
-        if (clutter_text.text === '') return;
+        if (clutter_text.text === '')
+            return;
 
         // Copy the text, then clear the entry
         let text = clutter_text.text;
@@ -115,7 +115,7 @@ const NotificationBanner = GObject.registerClass({
             deviceId,
             'replyNotification',
             true,
-            new GLib.Variant('(ssa{ss})', [requestReplyId, text, {}])
+            new GLib.Variant('(ssa{ss})', [requestReplyId, text, {}]),
         ]);
         let platformData = NotificationDaemon.getPlatformData();
 
@@ -129,7 +129,13 @@ const NotificationBanner = GObject.registerClass({
             Gio.DBusCallFlags.NO_AUTO_START,
             -1,
             null,
-            null
+            (connection, res) => {
+                try {
+                    connection.call_finish(res);
+                } catch (e) {
+                    // Silence errors
+                }
+            }
         );
 
         this.close();
@@ -143,18 +149,16 @@ const NotificationBanner = GObject.registerClass({
  * into existing sources.
  */
 const Source = GObject.registerClass({
-    GTypeName: 'GSConnectNotificationSource'
+    GTypeName: 'GSConnectNotificationSource',
 }, class Source extends NotificationDaemon.GtkNotificationDaemonAppSource {
 
     _closeGSConnectNotification(notification, reason) {
-        if (reason !== MessageTray.NotificationDestroyedReason.DISMISSED) {
+        if (reason !== MessageTray.NotificationDestroyedReason.DISMISSED)
             return;
-        }
 
         // Avoid sending the request multiple times
-        if (notification._remoteClosed || notification.remoteId === undefined) {
+        if (notification._remoteClosed || notification.remoteId === undefined)
             return;
-        }
 
         notification._remoteClosed = true;
 
@@ -162,7 +166,7 @@ const Source = GObject.registerClass({
             notification.deviceId,
             'closeNotification',
             true,
-            new GLib.Variant('s', notification.remoteId)
+            new GLib.Variant('s', notification.remoteId),
         ]);
         let platformData = NotificationDaemon.getPlatformData();
 
@@ -187,7 +191,7 @@ const Source = GObject.registerClass({
         );
     }
 
-    /**
+    /*
      * Override to control notification spawning
      */
     addNotification(notificationId, notificationParams, showBanner) {
@@ -227,9 +231,9 @@ const Source = GObject.registerClass({
 
             // Bail early If @notificationParams represents an exact repeat
             let title = notificationParams.title.unpack();
-            let body = notificationParams.body ?
-                notificationParams.body.unpack() :
-                null;
+            let body = notificationParams.body
+                ? notificationParams.body.unpack()
+                : null;
 
             if (notification.title === title &&
                 notification.bannerBodyText === body) {
@@ -272,7 +276,7 @@ const Source = GObject.registerClass({
         this._notificationPending = false;
     }
 
-    /**
+    /*
      * Override to raise the usual notification limit (3)
      */
     pushNotification(notification) {
@@ -328,7 +332,8 @@ function patchGSConnectNotificationSource() {
  */
 const __ensureAppSource = NotificationDaemon.GtkNotificationDaemon.prototype._ensureAppSource;
 
-const _ensureAppSource = function(appId) {
+// eslint-disable-next-line func-style
+const _ensureAppSource = function (appId) {
     let source = __ensureAppSource.call(this, appId);
 
     if (source._appId === APP_ID) {
@@ -359,7 +364,8 @@ const _addNotification = NotificationDaemon.GtkNotificationDaemonAppSource.proto
 
 function patchGtkNotificationSources() {
     // This should diverge as little as possible from the original
-    let addNotification = function(notificationId, notificationParams, showBanner) {
+    // eslint-disable-next-line func-style
+    let addNotification = function (notificationId, notificationParams, showBanner) {
         this._notificationPending = true;
 
         if (this._notifications[notificationId])
@@ -380,15 +386,14 @@ function patchGtkNotificationSources() {
         this._notificationPending = false;
     };
 
-    let _withdrawGSConnectNotification = function(id, notification, reason) {
-        if (reason !== MessageTray.NotificationDestroyedReason.DISMISSED) {
+    // eslint-disable-next-line func-style
+    let _withdrawGSConnectNotification = function (id, notification, reason) {
+        if (reason !== MessageTray.NotificationDestroyedReason.DISMISSED)
             return;
-        }
 
         // Avoid sending the request multiple times
-        if (notification._remoteWithdrawn) {
+        if (notification._remoteWithdrawn)
             return;
-        }
 
         notification._remoteWithdrawn = true;
 
@@ -397,7 +402,7 @@ function patchGtkNotificationSources() {
             '*',
             'withdrawNotification',
             true,
-            new GLib.Variant('s', `gtk|${this._appId}|${id}`)
+            new GLib.Variant('s', `gtk|${this._appId}|${id}`),
         ]);
         let platformData = NotificationDaemon.getPlatformData();
 

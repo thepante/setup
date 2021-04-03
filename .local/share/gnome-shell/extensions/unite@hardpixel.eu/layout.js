@@ -3,13 +3,11 @@ const St          = imports.gi.St
 const Clutter     = imports.gi.Clutter
 const GtkSettings = imports.gi.Gtk.Settings.get_default()
 const Main        = imports.ui.main
-const Config      = imports.misc.config
 const Unite       = imports.misc.extensionUtils.getCurrentExtension()
 const AppMenu     = Main.panel.statusArea.appMenu
 const AggMenu     = Main.panel.statusArea.aggregateMenu
 const Handlers    = Unite.imports.handlers
-
-const VERSION = parseInt(Config.PACKAGE_VERSION.split('.')[1])
+const VERSION     = Unite.imports.constants.VERSION
 
 function actorHasClass(actor, name) {
   return actor.has_style_class_name && actor.has_style_class_name(name)
@@ -81,27 +79,29 @@ var LayoutManager = GObject.registerClass(
         'hide-app-menu-icon', this._onHideAppMenuIcon.bind(this)
       )
 
-      this.settings.connect(
-        'hide-app-menu-arrow', this._onHideAppMenuArrow.bind(this)
-      )
+      if (VERSION < 40) {
+        this.settings.connect(
+          'hide-app-menu-arrow', this._onHideAppMenuArrow.bind(this)
+        )
 
-      this.settings.connect(
-        'hide-aggregate-menu-arrow', this._onHideAggMenuArrow.bind(this)
-      )
+        this.settings.connect(
+          'hide-aggregate-menu-arrow', this._onHideAggMenuArrow.bind(this)
+        )
 
-      this.settings.connect(
-        'hide-dropdown-arrows', this._onHideDropdownArrows.bind(this)
-      )
-
-      this.settings.connect(
-        'use-system-fonts', this._onChangeStyles.bind(this)
-      )
+        this.settings.connect(
+          'hide-dropdown-arrows', this._onHideDropdownArrows.bind(this)
+        )
+      }
 
       this.settings.connect(
         'reduce-panel-spacing', this._onChangeStyles.bind(this)
       )
 
       if (VERSION < 36) {
+        this.settings.connect(
+          'use-system-fonts', this._onChangeStyles.bind(this)
+        )
+
         this.signals.connect(
           GtkSettings, 'notify::gtk-font-name', this._onChangeStyles.bind(this)
         )
@@ -245,18 +245,26 @@ var LayoutManager = GObject.registerClass(
     activate() {
       this._onNotificationsChange()
       this._onHideAppMenuIcon()
-      this._onHideAppMenuArrow()
-      this._onHideAggMenuArrow()
-      this._onHideDropdownArrows()
+
+      if (VERSION < 40) {
+        this._onHideAppMenuArrow()
+        this._onHideAggMenuArrow()
+        this._onHideDropdownArrows()
+      }
+
       this._onChangeStyles()
     }
 
     destroy() {
       this._resetNotifications()
       this._resetAppMenuIcon()
-      this._resetAppMenuArrow()
-      this._resetAggMenuArrow()
-      this._resetDropdownArrows()
+
+      if (VERSION < 40) {
+        this._resetAppMenuArrow()
+        this._resetAggMenuArrow()
+        this._resetDropdownArrows()
+      }
+
       this._resetStyles()
       this._syncStyles()
 

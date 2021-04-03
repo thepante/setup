@@ -15,38 +15,43 @@ const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
 
-// Find the root datadir of the extension
+
+// Bootstrap
 function get_datadir() {
     let m = /@(.+):\d+/.exec((new Error()).stack.split('\n')[1]);
     return Gio.File.new_for_path(m[1]).get_parent().get_path();
 }
 
-globalThis.gsconnect = {extdatadir: get_datadir()};
-imports.searchPath.unshift(gsconnect.extdatadir);
-imports._gsconnect;
+imports.searchPath.unshift(get_datadir());
+imports.config.PACKAGE_DATADIR = imports.searchPath[0];
 
-const Remote = imports.utils.remote;
+
+// Local Imports
+const Config = imports.config;
 const Settings = imports.preferences.service;
 
 
+/**
+ * Class representing the GSConnect service daemon.
+ */
 const Preferences = GObject.registerClass({
-    GTypeName: 'GSConnectPreferences'
+    GTypeName: 'GSConnectPreferences',
 }, class Preferences extends Gtk.Application {
 
     _init() {
         super._init({
-            application_id: `${gsconnect.app_id}.Preferences`
+            application_id: 'org.gnome.Shell.Extensions.GSConnect.Preferences',
+            resource_base_path: '/org/gnome/Shell/Extensions/GSConnect',
         });
 
-        GLib.set_prgname(_('GSConnect Preferences'));
+        GLib.set_prgname('gsconnect-preferences');
         GLib.set_application_name(_('GSConnect Preferences'));
-        this.set_resource_base_path(gsconnect.app_path);
     }
 
     vfunc_activate() {
         if (this._window === undefined) {
             this._window = new Settings.Window({
-                application: this
+                application: this,
             });
         }
 
@@ -58,7 +63,7 @@ const Preferences = GObject.registerClass({
 
         // Init some resources
         let provider = new Gtk.CssProvider();
-        provider.load_from_resource(gsconnect.app_path + '/application.css');
+        provider.load_from_resource(`${Config.APP_PATH}/application.css`);
         Gtk.StyleContext.add_provider_for_screen(
             Gdk.Screen.get_default(),
             provider,
@@ -67,13 +72,13 @@ const Preferences = GObject.registerClass({
 
         let actions = [
             ['refresh', null],
-            ['connect', GLib.VariantType.new('s')]
+            ['connect', GLib.VariantType.new('s')],
         ];
 
         for (let [name, type] of actions) {
             let action = new Gio.SimpleAction({
                 name: name,
-                parameter_type: type
+                parameter_type: type,
             });
             this.add_action(action);
         }
@@ -83,9 +88,8 @@ const Preferences = GObject.registerClass({
         try {
             let paramArray = [];
 
-            if (parameter instanceof GLib.Variant) {
+            if (parameter instanceof GLib.Variant)
                 paramArray[0] = parameter;
-            }
 
             this.get_dbus_connection().call(
                 'org.gnome.Shell.Extensions.GSConnect',

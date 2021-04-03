@@ -14,7 +14,6 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Settings = Me.imports.settings;
 const Util = Me.imports.util;
 
-const Compat = Me.imports.compat;
 const Transitions = Me.imports.transitions;
 const Theming = Me.imports.theming;
 
@@ -51,10 +50,6 @@ function forceSyncCheck() {
 }
 
 function syncCheck() {
-    if (Settings.check_overrides() || Settings.check_triggers()) {
-        override_optimization = true;
-    }
-
     /* Prevent any asynchronous checks from occuring in the loop. */
     continueCheck = false;
     /* Stop the asynchronous loop... */
@@ -74,10 +69,6 @@ function forceAsyncCheck() {
 }
 
 function asyncCheck() {
-    if (Settings.check_overrides() || Settings.check_triggers()) {
-        override_optimization = true;
-    }
-
     if (timeoutId <= 0) {
         _check();
 
@@ -100,7 +91,7 @@ function asyncCheck() {
 
 
 function _updateBounds() {
-    const panel = Compat.getActorOf(Main.panel);
+    const panel = Main.panel;
 
     this.panel_bounds = {
         x: panel.get_x(),
@@ -112,13 +103,13 @@ function _updateBounds() {
 
     this.scale_factor = St.ThemeContext.get_for_stage(global.stage).scale_factor;
 
-	 let pivot_y = -Main.layoutManager.panelBox.get_pivot_point()[1];
+    let [, pivot_y] = Main.layoutManager.panelBox.get_pivot_point();
 
-	// Adjust for bottom panel.
-	if (pivot_y > 0) {
-	this.panel_bounds.y = pivot_y;
-	this.panel_bounds.is_top = false;
-	}
+    // Adjust for bottom panel.
+    if (pivot_y < 0) {
+        this.panel_bounds.y = -pivot_y;
+        this.panel_bounds.is_top = false;
+    }
 }
 
 /* Main extension logic. Modified to fit Gnome Shell 3.26 design patterns. */
@@ -163,26 +154,6 @@ function _check() {
                 continue;
             }
 
-            if (Settings.check_triggers()) {
-                /* Check if the current WM_CLASS is a trigger. */
-                if (Settings.get_trigger_windows().indexOf(current_window.get_wm_class()) !== -1) {
-                    add_transparency = false;
-                    maximized_window = current_window;
-
-                    break;
-                }
-
-                let app = this._wm_tracker.get_window_app(current_window);
-
-                /* Check if the found app exists and if it is a trigger app. */
-                if (app && Settings.get_trigger_apps().indexOf(app.get_id()) !== -1) {
-                    add_transparency = false;
-                    maximized_window = current_window;
-
-                    break;
-                }
-            }
-
             /* Make sure the window is on the correct monitor, isn't minimized, isn't supposed to be excluded, and is actually maximized. */
             if (!Util.is_valid(current_window)) {
                 continue;
@@ -196,9 +167,7 @@ function _check() {
 
                 add_transparency = false;
 
-                if (!Settings.check_triggers()) {
-                    break;
-                }
+                break;
             }
 
             let frame = current_window.get_frame_rect();
@@ -213,9 +182,7 @@ function _check() {
                     force_transparency = true;
                     maximized_window = null;
 
-                    if (!Settings.check_triggers()) {
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -237,9 +204,7 @@ function _check() {
                         maximized_window = current_window;
                     }
 
-                    if (!Settings.check_triggers()) {
-                        break;
-                    }
+                    break;
                 }
             }
         }

@@ -4,10 +4,6 @@ imports.gi.versions.Atspi = '2.0';
 
 const Atspi = imports.gi.Atspi;
 const Gdk = imports.gi.Gdk;
-const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
-const GObject = imports.gi.GObject;
-const Gtk = imports.gi.Gtk;
 
 
 /**
@@ -23,10 +19,13 @@ const XKeycode = {
     Alt_L: 0x40,
     Control_L: 0x25,
     Shift_L: 0x32,
-    Super_L: 0x85
+    Super_L: 0x85,
 };
 
 
+/**
+ * A thin wrapper around Atspi for X11 sessions without Pipewire support.
+ */
 var Controller = class {
     constructor() {
         // Atspi.init() return 2 on fail, but still marks itself as inited. We
@@ -68,7 +67,7 @@ var Controller = class {
         }
     }
 
-    /**
+    /*
      * Pointer events
      */
     clickPointer(button) {
@@ -127,14 +126,13 @@ var Controller = class {
     }
 
     scrollPointer(dx, dy) {
-        if (dy > 0) {
+        if (dy > 0)
             this.clickPointer(4);
-        } else if (dy < 0) {
+        else if (dy < 0)
             this.clickPointer(5);
-        }
     }
 
-    /**
+    /*
      * Phony virtual keyboard helpers
      */
     _modeLock(keycode) {
@@ -153,17 +151,21 @@ var Controller = class {
         );
     }
 
-    /**
+    /*
      * Simulate a printable-ASCII character.
      *
      */
     _pressASCII(key, modifiers) {
         try {
             // Press Modifiers
-            if (modifiers & Gdk.ModifierType.MOD1_MASK) this._modeLock(XKeycode.Alt_L);
-            if (modifiers & Gdk.ModifierType.CONTROL_MASK) this._modeLock(XKeycode.Control_L);
-            if (modifiers & Gdk.ModifierType.SHIFT_MASK) this._modeLock(XKeycode.Shift_L);
-            if (modifiers & Gdk.ModifierType.SUPER_MASK) this._modeLock(XKeycode.Super_L);
+            if (modifiers & Gdk.ModifierType.MOD1_MASK)
+                this._modeLock(XKeycode.Alt_L);
+            if (modifiers & Gdk.ModifierType.CONTROL_MASK)
+                this._modeLock(XKeycode.Control_L);
+            if (modifiers & Gdk.ModifierType.SHIFT_MASK)
+                this._modeLock(XKeycode.Shift_L);
+            if (modifiers & Gdk.ModifierType.SUPER_MASK)
+                this._modeLock(XKeycode.Super_L);
 
             Atspi.generate_keyboard_event(
                 0,
@@ -172,10 +174,14 @@ var Controller = class {
             );
 
             // Release Modifiers
-            if (modifiers & Gdk.ModifierType.MOD1_MASK) this._modeUnlock(XKeycode.Alt_L);
-            if (modifiers & Gdk.ModifierType.CONTROL_MASK) this._modeUnlock(XKeycode.Control_L);
-            if (modifiers & Gdk.ModifierType.SHIFT_MASK) this._modeUnlock(XKeycode.Shift_L);
-            if (modifiers & Gdk.ModifierType.SUPER_MASK) this._modeUnlock(XKeycode.Super_L);
+            if (modifiers & Gdk.ModifierType.MOD1_MASK)
+                this._modeUnlock(XKeycode.Alt_L);
+            if (modifiers & Gdk.ModifierType.CONTROL_MASK)
+                this._modeUnlock(XKeycode.Control_L);
+            if (modifiers & Gdk.ModifierType.SHIFT_MASK)
+                this._modeUnlock(XKeycode.Shift_L);
+            if (modifiers & Gdk.ModifierType.SUPER_MASK)
+                this._modeUnlock(XKeycode.Super_L);
         } catch (e) {
             logError(e);
         }
@@ -184,10 +190,14 @@ var Controller = class {
     _pressKeysym(keysym, modifiers) {
         try {
             // Press Modifiers
-            if (modifiers & Gdk.ModifierType.MOD1_MASK) this._modeLock(XKeycode.Alt_L);
-            if (modifiers & Gdk.ModifierType.CONTROL_MASK) this._modeLock(XKeycode.Control_L);
-            if (modifiers & Gdk.ModifierType.SHIFT_MASK) this._modeLock(XKeycode.Shift_L);
-            if (modifiers & Gdk.ModifierType.SUPER_MASK) this._modeLock(XKeycode.Super_L);
+            if (modifiers & Gdk.ModifierType.MOD1_MASK)
+                this._modeLock(XKeycode.Alt_L);
+            if (modifiers & Gdk.ModifierType.CONTROL_MASK)
+                this._modeLock(XKeycode.Control_L);
+            if (modifiers & Gdk.ModifierType.SHIFT_MASK)
+                this._modeLock(XKeycode.Shift_L);
+            if (modifiers & Gdk.ModifierType.SUPER_MASK)
+                this._modeLock(XKeycode.Super_L);
 
             Atspi.generate_keyboard_event(
                 keysym,
@@ -196,10 +206,14 @@ var Controller = class {
             );
 
             // Release Modifiers
-            if (modifiers & Gdk.ModifierType.MOD1_MASK) this._modeUnlock(XKeycode.Alt_L);
-            if (modifiers & Gdk.ModifierType.CONTROL_MASK) this._modeUnlock(XKeycode.Control_L);
-            if (modifiers & Gdk.ModifierType.SHIFT_MASK) this._modeUnlock(XKeycode.Shift_L);
-            if (modifiers & Gdk.ModifierType.SUPER_MASK) this._modeUnlock(XKeycode.Super_L);
+            if (modifiers & Gdk.ModifierType.MOD1_MASK)
+                this._modeUnlock(XKeycode.Alt_L);
+            if (modifiers & Gdk.ModifierType.CONTROL_MASK)
+                this._modeUnlock(XKeycode.Control_L);
+            if (modifiers & Gdk.ModifierType.SHIFT_MASK)
+                this._modeUnlock(XKeycode.Shift_L);
+            if (modifiers & Gdk.ModifierType.SUPER_MASK)
+                this._modeUnlock(XKeycode.Super_L);
         } catch (e) {
             logError(e);
         }
@@ -209,13 +223,13 @@ var Controller = class {
      * Simulate the composition of a unicode character with:
      *     Control+Shift+u, [hex], Return
      *
-     * @param {object} input - 'body' of a 'kdeconnect.mousepad.request' packet
+     * @param {number} key - An XKeycode
+     * @param {number} modifiers - A modifier mask
      */
     _pressUnicode(key, modifiers) {
         try {
-            if (modifiers > 0) {
+            if (modifiers > 0)
                 log('GSConnect: ignoring modifiers for unicode keyboard event');
-            }
 
             // TODO: Using Control and Shift keysym is not working (it triggers
             // key release). Probably using LOCKMODIFIERS will not work either
@@ -246,7 +260,7 @@ var Controller = class {
         }
     }
 
-    /**
+    /*
      * Keyboard Events
      */
     pressKeysym(keysym) {
@@ -275,17 +289,16 @@ var Controller = class {
 
     pressKey(input, modifiers) {
         // We were passed a keysym
-        if (typeof input === 'number') {
+        if (typeof input === 'number')
             this._pressKeysym(input, modifiers);
 
         // Regular ASCII
-        } else if (_ASCII.test(input)) {
+        else if (_ASCII.test(input))
             this._pressASCII(input, modifiers);
 
         // Unicode
-        } else {
+        else
             this._pressUnicode(input, modifiers);
-        }
     }
 
     destroy() {

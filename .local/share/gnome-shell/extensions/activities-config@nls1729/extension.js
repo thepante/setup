@@ -82,7 +82,7 @@ class ActivitiesIconButton extends PanelMenu.Button {
             this.remove_style_pseudo_class('overview');
             this.remove_accessible_state(Atk.StateType.CHECKED);
         });
-
+        this._waylandDragOverTimedOutId = 0;
         this._xdndTimeOut = 0;
     }
 
@@ -122,13 +122,45 @@ class ActivitiesIconButton extends PanelMenu.Button {
             event.type() == Clutter.EventType.TOUCH_BEGIN) {
             if (!Main.overview.shouldToggleByCornerOrButton())
                 return Clutter.EVENT_STOP;
+        } else if (Meta.is_wayland_compositor() && toggleThreshold == DISABLE_TOGGLE) {
+            // Handle Drag Over in Wayland when Hot Corner Disabled
+            switch (event.type()) {
+                case Clutter.EventType.ENTER:
+                    this._motionUnHandled = true;
+                    break;
+                case Clutter.EventType.MOTION:
+                    if (this._motionUnHandled) {
+                        if(event.get_state() & Clutter.ModifierType.BUTTON1_MASK) {
+                            if (this._waylandDragOverTimedOutId != 0)
+                                Mainloop.source_remove(this._waylandDragOverTimedOutId);
+                            this._waylandDragOverTimedOutId = Mainloop.timeout_add(500, () => {
+                                if (Main.overview.shouldToggleByCornerOrButton())
+                                    Main.overview.toggle();
+                                this._waylandDragOverTimedOutId = 0;
+                            });
+                        }
+                    }
+                    this._motionUnHandled = false;
+                    break;
+                case Clutter.EventType.LEAVE:
+                    if (this._waylandDragOverTimedOutId != 0) {
+                        Mainloop.source_remove(this._waylandDragOverTimedOutId);
+                        this._waylandDragOverTimedOutId = 0;
+                    }
+                    break;
+            }
         }
         return Clutter.EVENT_PROPAGATE;
     }
 
     vfunc_event(event) {
         if (event.type() == Clutter.EventType.BUTTON_RELEASE && event.get_button() == 3) {
-            Util.spawn(["gnome-shell-extension-prefs"]);
+            let app_path = '/usr/bin/gnome-extensions-app';
+            if (GLib.file_test(app_path, GLib.FileTest.EXISTS)) {
+                Util.spawn([app_path]);
+            } else {
+                ExtensionUtils.openPrefs();
+            }
             return Clutter.EVENT_PROPAGATE;
         } else if (event.type() == Clutter.EventType.TOUCH_END ||
             event.type() == Clutter.EventType.BUTTON_RELEASE) {
@@ -170,6 +202,10 @@ class ActivitiesIconButton extends PanelMenu.Button {
         if (this._xdndTimeOut != 0) {
             GLib.source_remove(this._xdndTimeOut);
             this._xdndTimeOut = 0;
+        }
+        if (this._waylandDragOverTimedOutId != 0) {
+            Mainloop.source_remove(this._waylandDragOverTimedOutId);
+            this._waylandDragOverTimedOutId = 0;
         }
         super.destroy();
     }
@@ -226,6 +262,7 @@ class Configurator {
         this._keyChanged = false;
         this._keyChangedSig = null;
         this._panelDelayTimeout = 0;
+        this._enableDelayValue = 1500;
     }
 
     _appStateChanged(appSystem, app) {
@@ -406,6 +443,7 @@ class Configurator {
         this._settingsSignals.push(this._settings.connect('changed::'+Keys.SHOW_OVERVIEW, this._setShowOver.bind(this)));
         this._settingsSignals.push(this._settings.connect('changed::'+Keys.BTN_POSITION, this._setPositionRight.bind(this)));
         this._settingsSignals.push(this._settings.connect('changed::'+Keys.OVERR_THEME, this._setOverrideTheme.bind(this)));
+        this._settingsSignals.push(this._settings.connect('changed::'+Keys.DISABLE_ENABLE_DELAY, this._setDisableEnableDelay.bind(this)));
         this._colorSig = this._settings.connect('changed::'+Keys.COLOURS, this._setPanelColor.bind(this));
         this._transparencySig = this._settings.connect('changed::'+Keys.TRS_PAN, this._setPanelTransparency.bind(this));
     }
@@ -566,11 +604,18 @@ class Configurator {
         }
     }
 
+    _monitorsChanged() {
+
+        this._setHotCorner();
+    }
+
     _hotCornersChanged() {
+
         this._savedToggleOverview = [];
         for(let i = 0; i < Main.layoutManager.hotCorners.length; i++) {
             if (Main.layoutManager.hotCorners[i] != null) {
                 if (!this._barriersSupported) {
+
                     this._savedToggleOverview[i] = Main.layoutManager.hotCorners[i]._toggleOverview;
                     Main.layoutManager.hotCorners[i]._toggleOverview = _overviewToggler;
                 }
@@ -598,12 +643,14 @@ class Configurator {
             toggleThreshold = DISABLE_TOGGLE;
         else
             toggleThreshold = this._activitiesIconButton._hotCornerThreshold;
-        if (this._barriersSupported)
-            this._handleBarrierSupport();
+        this._hotCornersChanged();
     }
 
     // Changed disabled Hot Corner behavior for DND to be the same as if Hot Corner is enabled.
     // Dragging an item into the Hot Corner will toggle the Overview when the Hot Corner is disabled.
+    // _dragBegin and _dragEnd are are functional in Xorg session.
+    // Wayland is handled in vfunc_captured_event of ActivitiesIconButton.
+
     _dragEnd() {
         if (this._settings.get_boolean(Keys.NO_HOTC)) {
             toggleThreshold = DISABLE_TOGGLE;
@@ -615,9 +662,9 @@ class Configurator {
     }
 
     _dragBegin() {
-       toggleThreshold = 50;
-       if (this._barriersSupported)
-           this._handleBarrierSupport();
+        toggleThreshold = 50;
+        if (this._barriersSupported)
+            this._handleBarrierSupport();
     }
 
     _setActivities() {
@@ -981,8 +1028,8 @@ class Configurator {
             });
             this._setHideAppMenuButtonIcon();
             this._setHotCorner();
-            this._hotCornersChanged();
-            this._signalHotCornersChanged = Main.layoutManager.connect('hot-corners-changed', this._hotCornersChanged.bind(this));
+            this._signalHotCornersChanged = Main.layoutManager.connect_after('hot-corners-changed', this._hotCornersChanged.bind(this));
+            this._signalMonitorsChanged = Main.layoutManager.connect_after('monitors-changed', this._monitorsChanged.bind(this));
         }
 
         if (!Meta.is_wayland_compositor()) {
@@ -1033,6 +1080,14 @@ class Configurator {
         }
     }
 
+    _setDisableEnableDelay() {
+        if (this._settings.get_boolean(Keys.DISABLE_ENABLE_DELAY)) {
+            this._enableDelayValue = 5;
+        } else {
+            this._enableDelayValue = 1500;
+        }
+    }
+
     enable() {
         // For extension to function in classic mode
         // Conflict Detection must be enabled.
@@ -1041,7 +1096,7 @@ class Configurator {
         // Extension must delay completion of enable to allow theme to be
         // loaded and for Conflict Detection to function if it is enabled.
         this._getHotCornerState();
-        this._timeoutId = Mainloop.timeout_add(1500, this._delayedEnable.bind(this));
+        this._timeoutId = Mainloop.timeout_add(this._enableDelayValue, this._delayedEnable.bind(this));
     }
 
     disable() {
@@ -1051,7 +1106,7 @@ class Configurator {
         }
         if (this._hideTimeoutId != 0) {
             Mainloop.source_remove(this._hideTimeoutId);
-            this.hideTimeoutId_ = 0;
+            this._hideTimeoutId = 0;
         }
         if (this._themeTimeoutId != 0) {
             Mainloop.source_remove(this._themeTimeoutId);

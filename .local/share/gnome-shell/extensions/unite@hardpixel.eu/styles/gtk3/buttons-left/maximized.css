@@ -1,0 +1,22 @@
+.maximized headerbar:not(.selection-mode),
+.maximized .titlebar:not(.selection-mode) {
+  padding-left: 0;
+}
+
+.maximized headerbar ~ headerbar:not(.selection-mode):not(.windowhandle),
+.maximized headerbar ~ .titlebar:not(.selection-mode):not(.windowhandle),
+.maximized .titlebar ~ .titlebar:not(.selection-mode):not(.windowhandle),
+.maximized .titlebar ~ headerbar:not(.selection-mode):not(.windowhandle) {
+  padding-left: 6px;
+}
+
+.maximized headerbar > box.left,
+.maximized .titlebar > box.left {
+  margin: 0 0 0 -200px;
+  opacity: 0;
+}
+
+.maximized .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
+}

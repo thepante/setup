@@ -34,17 +34,15 @@ const Session = class {
     }
 
     get idle() {
-        if (this._session === null) {
+        if (this._session === null)
             return false;
-        }
 
         return this._session.get_cached_property('IdleHint').unpack();
     }
 
     get locked() {
-        if (this._session === null) {
+        if (this._session === null)
             return false;
-        }
 
         return this._session.get_cached_property('LockedHint').unpack();
     }
@@ -83,7 +81,7 @@ const Session = class {
             g_connection: this._connection,
             g_name: 'org.freedesktop.login1',
             g_object_path: objectPath,
-            g_interface_name: 'org.freedesktop.login1.Session'
+            g_interface_name: 'org.freedesktop.login1.Session',
         });
 
         // Initialize the proxy
@@ -106,9 +104,7 @@ const Session = class {
     }
 
     destroy() {
-        if (this._session !== null) {
-            this._session.run_dispose();
-        }
+        this._session = null;
     }
 };
 

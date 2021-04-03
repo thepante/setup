@@ -7,9 +7,11 @@
   "shell-version": [
     "3.34",
     "3.32",
-    "3.36"
+    "3.36",
+    "3.38",
+    "40.0"
   ],
   "url": "https://github.com/hardpixel/unite-shell",
   "uuid": "unite@hardpixel.eu",
-  "version": 41
+  "version": 48
 }

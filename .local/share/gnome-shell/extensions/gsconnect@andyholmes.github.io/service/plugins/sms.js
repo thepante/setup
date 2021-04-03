@@ -4,22 +4,22 @@ const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 
-const PluginsBase = imports.service.plugins.base;
+const PluginBase = imports.service.plugin;
+const LegacyMessaging = imports.service.ui.legacyMessaging;
 const Messaging = imports.service.ui.messaging;
-const TelephonyUI = imports.service.ui.telephony;
-const URI = imports.utils.uri;
+const URI = imports.service.utils.uri;
 
 
 var Metadata = {
     label: _('SMS'),
     id: 'org.gnome.Shell.Extensions.GSConnect.Plugin.SMS',
     incomingCapabilities: [
-        'kdeconnect.sms.messages'
+        'kdeconnect.sms.messages',
     ],
     outgoingCapabilities: [
         'kdeconnect.sms.request',
         'kdeconnect.sms.request_conversation',
-        'kdeconnect.sms.request_conversations'
+        'kdeconnect.sms.request_conversations',
     ],
     actions: {
         // SMS Actions
@@ -29,7 +29,7 @@ var Metadata = {
 
             parameter_type: null,
             incoming: [],
-            outgoing: ['kdeconnect.sms.request']
+            outgoing: ['kdeconnect.sms.request'],
         },
         uriSms: {
             label: _('New SMS (URI)'),
@@ -37,7 +37,7 @@ var Metadata = {
 
             parameter_type: new GLib.VariantType('s'),
             incoming: [],
-            outgoing: ['kdeconnect.sms.request']
+            outgoing: ['kdeconnect.sms.request'],
         },
         replySms: {
             label: _('Reply SMS'),
@@ -45,7 +45,7 @@ var Metadata = {
 
             parameter_type: new GLib.VariantType('s'),
             incoming: [],
-            outgoing: ['kdeconnect.sms.request']
+            outgoing: ['kdeconnect.sms.request'],
         },
         sendMessage: {
             label: _('Send Message'),
@@ -53,7 +53,7 @@ var Metadata = {
 
             parameter_type: new GLib.VariantType('(aa{sv})'),
             incoming: [],
-            outgoing: ['kdeconnect.sms.request']
+            outgoing: ['kdeconnect.sms.request'],
         },
         sendSms: {
             label: _('Send SMS'),
@@ -61,7 +61,7 @@ var Metadata = {
 
             parameter_type: new GLib.VariantType('(ss)'),
             incoming: [],
-            outgoing: ['kdeconnect.sms.request']
+            outgoing: ['kdeconnect.sms.request'],
         },
         shareSms: {
             label: _('Share SMS'),
@@ -69,9 +69,9 @@ var Metadata = {
 
             parameter_type: new GLib.VariantType('s'),
             incoming: [],
-            outgoing: ['kdeconnect.sms.request']
-        }
-    }
+            outgoing: ['kdeconnect.sms.request'],
+        },
+    },
 };
 
 
@@ -81,7 +81,7 @@ var Metadata = {
  * TEXT_MESSAGE: Has a "body" field which contains pure, human-readable text
  */
 var MessageEvent = {
-    TEXT_MESSAGE: 0x1
+    TEXT_MESSAGE: 0x1,
 };
 
 
@@ -94,7 +94,7 @@ var MessageEvent = {
  */
 var MessageStatus = {
     UNREAD: 0,
-    READ: 1
+    READ: 1,
 };
 
 
@@ -113,7 +113,8 @@ var MessageBox = {
     SENT: 2,
     DRAFT: 3,
     OUTBOX: 4,
-    FAILED: 5
+    FAILED: 5,
+    QUEUED: 6,
 };
 
 
@@ -132,15 +133,14 @@ var Plugin = GObject.registerClass({
             new GLib.VariantType('aa{sv}'),
             null,
             GObject.ParamFlags.READABLE
-        )
-    }
-}, class Plugin extends PluginsBase.Plugin {
+        ),
+    },
+}, class Plugin extends PluginBase.Plugin {
 
     _init(device) {
         super._init(device, 'sms');
 
         this.cacheProperties(['_threads']);
-        this._version = 1;
     }
 
     get threads() {
@@ -152,33 +152,29 @@ var Plugin = GObject.registerClass({
 
     get window() {
         if (this.settings.get_boolean('legacy-sms')) {
-            return new TelephonyUI.LegacyMessagingDialog({
+            return new LegacyMessaging.Dialog({
                 device: this.device,
-                plugin: this
+                plugin: this,
             });
         }
 
         if (this._window === undefined) {
             this._window = new Messaging.Window({
-                application: this.service,
+                application: Gio.Application.get_default(),
                 device: this.device,
-                plugin: this
+                plugin: this,
+            });
+
+            this._window.connect('destroy', () => {
+                this._window = undefined;
             });
         }
 
         return this._window;
     }
 
-    handlePacket(packet) {
-        // Currently only one incoming packet type
-        if (packet.type === 'kdeconnect.sms.messages') {
-            this._handleMessages(packet.body.messages);
-        }
-    }
-
     clearCache() {
         this._threads = {};
-        this.__cache_write();
         this.notify('threads');
     }
 
@@ -188,7 +184,15 @@ var Plugin = GObject.registerClass({
 
     connected() {
         super.connected();
-        this.requestConversations();
+        this._requestConversations();
+    }
+
+    handlePacket(packet) {
+        switch (packet.type) {
+            case 'kdeconnect.sms.messages':
+                this._handleMessages(packet.body.messages);
+                break;
+        }
     }
 
     /**
@@ -200,9 +204,8 @@ var Plugin = GObject.registerClass({
     _handleDigest(messages, thread_ids) {
         // Prune threads
         for (let thread_id of Object.keys(this.threads)) {
-            if (!thread_ids.includes(thread_id)) {
+            if (!thread_ids.includes(thread_id))
                 delete this.threads[thread_id];
-            }
         }
 
         // Request each new or newer thread
@@ -210,20 +213,23 @@ var Plugin = GObject.registerClass({
             let message = messages[i];
             let cache = this.threads[message.thread_id];
 
-            // If this message is marked read and it's for an existing
-            // thread, we should mark the rest in this thread as read
-            if (cache && message.read === MessageStatus.READ) {
-                cache.forEach(msg => msg.read = MessageStatus.READ);
+            if (cache === undefined) {
+                this._requestConversation(message.thread_id);
+                continue;
+            }
+
+            // If this message is marked read, mark the rest as read
+            if (message.read === MessageStatus.READ) {
+                for (let msg of cache)
+                    msg.read = MessageStatus.READ;
             }
 
             // If we don't have a thread for this message or it's newer
             // than the last message in the cache, request the thread
-            if (!cache || cache[cache.length - 1].date < message.date) {
-                this.requestConversation(message.thread_id);
-            }
+            if (!cache.length || cache[cache.length - 1].date < message.date)
+                this._requestConversation(message.thread_id);
         }
 
-        this.__cache_write();
         this.notify('threads');
     }
 
@@ -236,14 +242,12 @@ var Plugin = GObject.registerClass({
         let conversation = null;
 
         // If the window is open, try and find an active conversation
-        if (this._window) {
+        if (this._window)
             conversation = this._window.getConversationForMessage(message);
-        }
 
         // If there's an active conversation, we should log the message now
-        if (conversation) {
+        if (conversation)
             conversation.logNext(message);
-        }
     }
 
     /**
@@ -252,52 +256,49 @@ var Plugin = GObject.registerClass({
      * @param {Object[]} thread - A list of sms message objects from a thread
      */
     _handleThread(thread) {
-        try {
-            // If there are no addresses this will cause major problems...
-            if (!thread[0].addresses || !thread[0].addresses[0]) return;
+        // If there are no addresses this will cause major problems...
+        if (!thread[0].addresses || !thread[0].addresses[0])
+            return;
 
-            let thread_id = thread[0].thread_id;
-            let cache = this.threads[thread_id] || [];
+        let thread_id = thread[0].thread_id;
+        let cache = this.threads[thread_id] || [];
 
-            // Handle each message
-            for (let i = 0, len = thread.length; i < len; i++) {
-                let message = thread[i];
+        // Handle each message
+        for (let i = 0, len = thread.length; i < len; i++) {
+            let message = thread[i];
 
-                // TODO: invalid MessageBox
-                if (message.type < 0 || message.type > 5) continue;
+            // TODO: We only cache messages of a known MessageBox since we
+            // have no reliable way to determine its direction, let alone
+            // what to do with it.
+            if (message.type < 0 || message.type > 6)
+                continue;
 
-                // If the message exists, just update it
-                let cacheMessage = cache.find(m => m.date === message.date);
+            // If the message exists, just update it
+            let cacheMessage = cache.find(m => m.date === message.date);
 
-                if (cacheMessage) {
-                    Object.assign(cacheMessage, message);
-                } else {
-                    cache.push(message);
-                    this._handleMessage(message);
-                }
+            if (cacheMessage) {
+                Object.assign(cacheMessage, message);
+            } else {
+                cache.push(message);
+                this._handleMessage(message);
             }
-
-            // Sort the thread by ascending date and write to cache
-            this.threads[thread_id] = cache.sort((a, b) => {
-                return (a.date < b.date) ? -1 : 1;
-            });
-
-            this.__cache_write();
-            this.notify('threads');
-        } catch (e) {
-            logError(e);
         }
+
+        // Sort the thread by ascending date and notify
+        this.threads[thread_id] = cache.sort((a, b) => a.date - b.date);
+        this.notify('threads');
     }
 
     /**
      * Handle a response to telephony.request_conversation(s)
      *
-     * @param {object[]} messages - A list of sms message objects
+     * @param {Object[]} messages - A list of sms message objects
      */
     _handleMessages(messages) {
         try {
             // If messages is empty there's nothing to do...
-            if (messages.length === 0) return;
+            if (messages.length === 0)
+                return;
 
             let thread_ids = [];
 
@@ -307,7 +308,7 @@ var Plugin = GObject.registerClass({
 
                 // COERCION: thread_id's to strings
                 message.thread_id = `${message.thread_id}`;
-                thread_ids.push (message.thread_id);
+                thread_ids.push(message.thread_id);
 
                 // TODO: Remove bogus `insert-address-token` entries
                 let a = message.addresses.length;
@@ -320,38 +321,37 @@ var Plugin = GObject.registerClass({
             }
 
             // If there's multiple thread_id's it's a summary of threads
-            if (thread_ids.some(id => id !== thread_ids[0])) {
+            if (thread_ids.some(id => id !== thread_ids[0]))
                 this._handleDigest(messages, thread_ids);
 
             // Otherwise this is single thread or new message
-            } else {
+            else
                 this._handleThread(messages);
-            }
         } catch (e) {
-            logError(e);
+            debug(e, this.device.name);
         }
     }
 
     /**
      * Request a list of messages from a single thread.
      *
-     * @param {Number} thread_id - The id of the thread to request
+     * @param {number} thread_id - The id of the thread to request
      */
-    requestConversation(thread_id) {
+    _requestConversation(thread_id) {
         this.device.sendPacket({
             type: 'kdeconnect.sms.request_conversation',
             body: {
-                threadID: thread_id
-            }
+                threadID: thread_id,
+            },
         });
     }
 
     /**
      * Request a list of the last message in each unarchived thread.
      */
-    requestConversations() {
+    _requestConversations() {
         this.device.sendPacket({
-            type: 'kdeconnect.sms.request_conversations'
+            type: 'kdeconnect.sms.request_conversations',
         });
     }
 
@@ -363,7 +363,7 @@ var Plugin = GObject.registerClass({
     replySms(hint) {
         this.window.present();
         // FIXME: causes problems now that non-numeric addresses are allowed
-        //this.window.address = hint.toPhoneNumber();
+        // this.window.address = hint.toPhoneNumber();
     }
 
     /**
@@ -373,13 +373,20 @@ var Plugin = GObject.registerClass({
      * @param {string} messageBody - The message to send
      */
     sendSms(phoneNumber, messageBody) {
-        this.sendMessage([{address: phoneNumber}], messageBody, 1, true);
+        this.device.sendPacket({
+            type: 'kdeconnect.sms.request',
+            body: {
+                sendSms: true,
+                phoneNumber: phoneNumber,
+                messageBody: messageBody,
+            },
+        });
     }
 
     /**
      * Send a message
      *
-     * @param {Array of Address} addresses - A list of address objects
+     * @param {Object[]} addresses - A list of address objects
      * @param {string} messageBody - The message text
      * @param {number} [event] - An event bitmask
      * @param {boolean} [forceSms] - Whether to force SMS
@@ -393,10 +400,10 @@ var Plugin = GObject.registerClass({
             body: {
                 sendSms: true,
                 phoneNumber: addresses[0].address,
-                messageBody: messageBody
-            }
+                messageBody: messageBody,
+            },
         });
-        // } else if (this._version == 2) {
+        // } else if (this._version === 2) {
         //     this.device.sendPacket({
         //         type: 'kdeconnect.sms.request',
         //         body: {
@@ -427,10 +434,10 @@ var Plugin = GObject.registerClass({
         // If there are active threads, show the chooser dialog
         } else if (Object.values(this.threads).length > 0) {
             let window = new Messaging.ConversationChooser({
-                application: this.service,
+                application: Gio.Application.get_default(),
                 device: this.device,
                 message: url,
-                plugin: this
+                plugin: this,
             });
 
             window.present();
@@ -470,26 +477,11 @@ var Plugin = GObject.registerClass({
             window.setContacts(contacts);
 
             // Set the outgoing message if the uri has a body variable
-            if (uri.body) {
+            if (uri.body)
                 window.setMessage(uri.body);
-            }
         } catch (e) {
-            logError(e, `${this.device.name}: "${uri}"`);
+            debug(e, `${this.device.name}: "${uri}"`);
         }
-    }
-
-    addressesIncludesAddress(addresses, addressObj) {
-        let number = addressObj.address.toPhoneNumber();
-
-        for (let taddressObj of addresses) {
-            let tnumber = taddressObj.address.toPhoneNumber();
-
-            if (number.endsWith(tnumber) || tnumber.endsWith(number)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     _threadHasAddress(thread, addressObj) {
@@ -498,9 +490,8 @@ var Plugin = GObject.registerClass({
         for (let taddressObj of thread[0].addresses) {
             let tnumber = taddressObj.address.toPhoneNumber();
 
-            if (number.endsWith(tnumber) || tnumber.endsWith(number)) {
+            if (number.endsWith(tnumber) || tnumber.endsWith(number))
                 return true;
-            }
         }
 
         return false;
@@ -509,26 +500,26 @@ var Plugin = GObject.registerClass({
     /**
      * Try to find a thread_id in @smsPlugin for @addresses.
      *
-     * @param {Array of Object} - a list of address objects
+     * @param {Object[]} addresses - a list of address objects
+     * @return {string|null} a thread ID
      */
-    getThreadIdForAddresses(addresses) {
+    getThreadIdForAddresses(addresses = []) {
         let threads = Object.values(this.threads);
 
         for (let thread of threads) {
-            if (addresses.length !== thread[0].addresses.length) continue;
+            if (addresses.length !== thread[0].addresses.length)
+                continue;
 
-            if (addresses.every(addressObj => this._threadHasAddress(thread, addressObj))) {
+            if (addresses.every(addressObj => this._threadHasAddress(thread, addressObj)))
                 return thread[0].thread_id;
-            }
         }
 
         return null;
     }
 
     destroy() {
-        if (this._window) {
+        if (this._window !== undefined)
             this._window.destroy();
-        }
 
         super.destroy();
     }

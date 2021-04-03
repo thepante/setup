@@ -1,0 +1,22 @@
+.tiled headerbar:not(.selection-mode),
+.tiled .titlebar:not(.selection-mode) {
+  padding-left: 0;
+}
+
+.tiled headerbar ~ headerbar:not(.selection-mode):not(.windowhandle),
+.tiled headerbar ~ .titlebar:not(.selection-mode):not(.windowhandle),
+.tiled .titlebar ~ .titlebar:not(.selection-mode):not(.windowhandle),
+.tiled .titlebar ~ headerbar:not(.selection-mode):not(.windowhandle) {
+  padding-left: 6px;
+}
+
+.tiled headerbar > box.left,
+.tiled .titlebar > box.left {
+  margin: 0 0 0 -200px;
+  opacity: 0;
+}
+
+.tiled .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
+}

@@ -1,0 +1,13 @@
+window headerbar windowhandle {
+  margin-left: -6px;
+}
+
+window headerbar windowcontrols.start {
+  margin: 0 0 0 -200px;
+  opacity: 0;
+}
+
+window .titlebar.default-decoration {
+  margin: -200px 0 0;
+  opacity: 0;
+}

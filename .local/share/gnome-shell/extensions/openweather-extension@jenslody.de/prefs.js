@@ -8,7 +8,7 @@
  *     Canek Pelaez <canek@ciencias.unam.mx>,
  *     Christian METZLER <neroth@xeked.com>,
  *     Jens Lody <jens@jenslody.de>,
- * Copyright (C) 2014 -2018
+ * Copyright (C) 2014 -2020
  *     Jens Lody <jens@jenslody.de>,
  *
  * This file is part of gnome-shell-extension-openweather.
@@ -535,7 +535,8 @@ const WeatherPrefsWidget = new GObject.Class({
 
         let config = this.configWidgets;
         for (let i in config) {
-            if ((config[i][0].active !== undefined) &&
+            if (!config[i][0].toString().includes("FINALIZED") &&
+                (config[i][0].active !== undefined) &&
                 (config[i][0].active != this[config[i][1]]))
                 config[i][0].active = this[config[i][1]];
         }

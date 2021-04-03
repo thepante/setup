@@ -69,34 +69,27 @@ function minimum_fade_in() {
  *
  */
 function fade_in() {
-    let custom = Settings.get_panel_color({ app_info: true });
-
     if (!Settings.remove_panel_styling()) {
         Theming.reapply_panel_styling();
         Theming.reapply_panel_background_image();
     }
 
-    if (custom.app_info !== null && Settings.check_overrides() && (Settings.window_settings_manager['enable_background_tweaks'][custom.app_info] || Settings.app_settings_manager['enable_background_tweaks'][custom.app_info])) {
-        let prefix = custom.app_info.split('.').join('-');
+    Theming.remove_panel_transparency();
 
-        Theming.set_maximized_background_color('tweak-' + prefix);
-        Theming.remove_background_color({
-            exclude: 'tweak-' + prefix
-        });
-    } else if (Settings.enable_custom_background_color()) {
-        Theming.set_maximized_background_color();
-        Theming.remove_background_color({
-            exclude_base: true
-        });
+    if (Settings.enable_custom_background_color()) {
+        Theming.set_maximized_background_color('custom');
+
+        Theming.remove_unmaximized_background_color();
+        Theming.remove_unmaximized_background_color('custom');
     } else {
-        Theming.set_maximized_background_color(Settings.get_current_user_theme());
-        Theming.remove_background_color({
-            exclude: Settings.get_current_user_theme(),
-        });
+        Theming.set_maximized_background_color();
+
+        Theming.remove_unmaximized_background_color();
+        Theming.remove_unmaximized_background_color('custom');
     }
 
     if (!Settings.get_hide_corners()) {
-        let speed = St.get_slow_down_factor() * Settings.get_transition_speed();
+        let speed = St.Settings.get().slow_down_factor * Settings.get_transition_speed();
 
         let maximized = Settings.get_maximized_opacity();
         let unmaximized = !this.status.is_transparent() ? maximized : Settings.get_unmaximized_opacity();
@@ -124,6 +117,8 @@ function fade_in() {
 
             return true;
         }).bind(this));
+    } else {
+        update_corner_alpha();
     }
 
     this.status.set_transparent(false);
@@ -139,22 +134,22 @@ function fade_out() {
     Theming.strip_panel_styling();
 
     if (Settings.enable_custom_background_color()) {
-        Theming.set_unmaximized_background_color();
-        Theming.remove_background_color({
-            exclude_base: true,
-            exclude_unmaximized_variant_only: true
-        });
+        Theming.set_unmaximized_background_color('custom');
+
+        Theming.remove_maximized_background_color();
+        Theming.remove_maximized_background_color('custom');
     } else {
-        Theming.set_unmaximized_background_color(Settings.get_current_user_theme());
-        Theming.remove_background_color({
-            exclude: Settings.get_current_user_theme(),
-            exclude_unmaximized_variant_only: true
-        });
+        Theming.set_unmaximized_background_color();
+
+        Theming.remove_maximized_background_color();
+        Theming.remove_maximized_background_color('custom');
     }
+
+    Theming.remove_panel_transparency();
 
     // TODO: Figure out how to write the panel corners in pure CSS.
     if (!Settings.get_hide_corners()) {
-        let speed = St.get_slow_down_factor() * Settings.get_transition_speed();
+        let speed = St.Settings.get().slow_down_factor * Settings.get_transition_speed();
 
         let unmaximized = Settings.get_unmaximized_opacity();
         let maximized = this.status.is_transparent() ? unmaximized : Settings.get_maximized_opacity();
@@ -182,6 +177,8 @@ function fade_out() {
             }
             return true;
         }).bind(this));
+    } else {
+        update_corner_alpha();
     }
 
     /* Keep the status up to date */
@@ -194,18 +191,20 @@ function fade_out() {
  *
  */
 function blank_fade_out() {
+    this.status.set_transparent(true);
+    this.status.set_blank(true);
+
     /* Completely remove every possible background style... */
     Theming.remove_background_color();
 
     Theming.strip_panel_background_image();
     Theming.strip_panel_styling();
 
-    this.status.set_transparent(true);
-    this.status.set_blank(true);
+    Theming.apply_panel_transparency();
 
     // TODO: These corners...
     if (!Settings.get_hide_corners()) {
-        let speed = St.get_slow_down_factor() * Settings.get_transition_speed();
+        let speed = St.Settings.get().slow_down_factor * Settings.get_transition_speed();
 
         let maximized = Settings.get_maximized_opacity();
 
@@ -228,6 +227,8 @@ function blank_fade_out() {
             }
             return true;
         }).bind(this));
+    } else {
+        update_corner_alpha();
     }
 }
 

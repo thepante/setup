@@ -582,6 +582,32 @@ https://nls1729.github.io
 2020-05-05 On disable for lock screen prevent showing "Activities" in session mode
            'unlock-dialog' due to changes in GS 3.36. Uploaded for review.
 
-...
+2020-07-05 When the screen is locked all enabled extensions are disabled.
+           When the screen is unlocked the extensions are re-enabled.  To
+           insure the Activities Configurator button is in the left-most
+           corner of the panel where the Activities button normally resides
+           a delay is provided. In the past the delay  was required for some
+           functions of the Activities Configurator to operate properly.
+           Now the Activities Configurator can operate if displaced by
+           another extension. I received requests to be able to disable
+           the 1.5 second delay before performing the enable because when
+           unlocking the screen the delay was a distraction. A preference to
+           disable the enable delay is now provided.
 
-zip file: 2020-05-05 11:55 29e8e49e
+2020-08-02 Re-implemented the ability to drag through the hot corner when
+           the hot corner is disabled in a Wayland session.
+           Reviewing the journal I found "gnome-shell-extension-prefs is
+           deprecated" messages produced by the Activities Configurator.
+           gnome-shell-extension-prefs is replaced with gnome-extensions-app
+           if it is installed or ExtensionUtils.openPrefs() if not. Added
+           additonal logic to handle hot corner changes due to monitor
+           changes.  Thanks to Jeremias Ortega for a pull request correcting
+           an error in a timeout removal.  Uploaded for review.
+
+2020-11-05 Changed prefs.js to get installed Gnome Shell version for display.
+           This allows correct display of shell version on the preferences
+           dialog when the extension change was to the shell versions in
+           metadata.json.
+
+...
+zip file: 2020-11-05 12:23 aef3a9f1

@@ -4,13 +4,11 @@ const GObject    = imports.gi.GObject
 const Meta       = imports.gi.Meta
 const WinTracker = imports.gi.Shell.WindowTracker.get_default()
 const Main       = imports.ui.main
-const Config     = imports.misc.config
 const Util       = imports.misc.util
 const Unite      = imports.misc.extensionUtils.getCurrentExtension()
 const AppMenu    = Main.panel.statusArea.appMenu
 const Handlers   = Unite.imports.handlers
-
-const VERSION = parseInt(Config.PACKAGE_VERSION.split('.')[1])
+const VERSION    = Unite.imports.constants.VERSION
 
 const VALID_TYPES = [
   Meta.WindowType.NORMAL,
@@ -24,6 +22,14 @@ const MOTIF_HINTS = '_MOTIF_WM_HINTS'
 
 const _SHOW_FLAGS = ['0x2', '0x0', '0x1', '0x0', '0x0']
 const _HIDE_FLAGS = ['0x2', '0x0', '0x2', '0x0', '0x0']
+
+function safeSpawn(command) {
+  try {
+    return GLib.spawn_command_line_sync(command)
+  } catch (e) {
+    return [false, Bytes.fromString('')]
+  }
+}
 
 function isValid(win) {
   return win && VALID_TYPES.includes(win.window_type)
@@ -41,7 +47,7 @@ function getXid(win) {
 }
 
 function getHint(xid, name, fallback) {
-  const result = GLib.spawn_command_line_sync(`xprop -id ${xid} ${name}`)
+  const result = safeSpawn(`xprop -id ${xid} ${name}`)
   const string = Bytes.toString(result[1])
 
   if (!string.match(/=/)) {
@@ -134,7 +140,6 @@ var MetaWindow = GObject.registerClass(
       win._uniteShellManaged = true
 
       this.win = win
-      this.app = WinTracker.get_window_app(win)
       this.xid = getXid(win)
 
       this.signals  = new Handlers.Signals()
@@ -171,6 +176,10 @@ var MetaWindow = GObject.registerClass(
       )
 
       this.syncComponents()
+    }
+
+    get app() {
+      return WinTracker.get_window_app(this.win)
     }
 
     get hasFocus() {
@@ -249,6 +258,34 @@ var MetaWindow = GObject.registerClass(
       }
     }
 
+    maximizeX() {
+      if (this.win.maximized_horizontally) {
+        this.win.unmaximize(Meta.MaximizeFlags.HORIZONTAL)
+      } else {
+        this.win.maximize(Meta.MaximizeFlags.HORIZONTAL)
+      }
+    }
+
+    maximizeY() {
+      if (this.win.maximized_vertically) {
+        this.win.unmaximize(Meta.MaximizeFlags.VERTICAL)
+      } else {
+        this.win.maximize(Meta.MaximizeFlags.VERTICAL)
+      }
+    }
+
+    shade() {
+      if (this.win.is_shaded) {
+        this.win.shade(true)
+      } else {
+        this.win.unshade(true)
+      }
+    }
+
+    lower() {
+      this.win.lower()
+    }
+
     close() {
       const time = global.get_current_time()
       time && this.win.delete(time)
@@ -276,7 +313,9 @@ var MetaWindow = GObject.registerClass(
 
       if (label && this.hasFocus && this.title) {
         const current = label.get_text()
-        current != this.title && label.set_text(this.title)
+        const newText = this.title.replace(/\r?\n|\r/g, ' ')
+
+        current != newText && label.set_text(newText)
       }
     }
 
@@ -332,6 +371,10 @@ var WindowManager = GObject.registerClass(
       )
 
       this.signals.connect(
+        global.display, 'window-entered-monitor', this._onWindowEntered.bind(this)
+      )
+
+      this.signals.connect(
         global.display, 'notify::focus-window', this._onFocusWindow.bind(this)
       )
 
@@ -344,7 +387,7 @@ var WindowManager = GObject.registerClass(
       )
 
       this.settings.connect(
-        'window-buttons-position', this._onStylesChange.bind(this)
+        'button-layout', this._onStylesChange.bind(this)
       )
 
       if (VERSION < 36) {
@@ -405,6 +448,12 @@ var WindowManager = GObject.registerClass(
       }
     }
 
+    _onWindowEntered(display, index, meta_window) {
+      if (isValid(meta_window)) {
+        this.setWindow(meta_window)
+      }
+    }
+
     _onFocusWindow(display) {
       if (this.focusWindow) {
         this.focusWindow.syncComponents()
@@ -427,12 +476,14 @@ var WindowManager = GObject.registerClass(
     _onStylesChange() {
       if (this.hideTitlebars != 'never') {
         const variant = this.settings.get('window-buttons-position')
-        const folder  = `${Unite.path}/styles/buttons-${variant}`
-        const content = `@import url('${folder}/${this.hideTitlebars}.css');`
+        const folder  = path => `${Unite.path}/styles/${path}/buttons-${variant}`
+        const content = path => `@import url('${folder(path)}/${this.hideTitlebars}.css');`
 
-        this.styles.addGtkStyle('windowDecorations', content)
+        this.styles.addGtk3Style('windowDecorationsGTK3', content('gtk3'))
+        this.styles.addGtk4Style('windowDecorationsGTK4', content('gtk4'))
       } else {
-        this.styles.deleteStyle('windowDecorations')
+        this.styles.deleteStyle('windowDecorationsGTK3')
+        this.styles.deleteStyle('windowDecorationsGTK4')
       }
     }
 

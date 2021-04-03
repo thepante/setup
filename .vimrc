@@ -22,7 +22,8 @@ set undofile
 syntax enable
 
 " Escape insert mode
-inoremap ,m <Esc>
+inoremap kj <Esc>
+cnoremap kj <C-c>
 
 " Set leader
 nnoremap <SPACE> <Nop>

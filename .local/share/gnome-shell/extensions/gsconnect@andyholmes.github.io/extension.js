@@ -1,7 +1,6 @@
 'use strict';
 
 const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
 const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
 
@@ -12,67 +11,18 @@ const AggregateMenu = Main.panel.statusArea.aggregateMenu;
 
 // Bootstrap
 const Extension = imports.misc.extensionUtils.getCurrentExtension();
-Extension.imports._gsconnect;
+const Utils = Extension.imports.shell.utils;
 
 // eslint-disable-next-line no-redeclare
 const _ = Extension._;
 const Clipboard = Extension.imports.shell.clipboard;
+const Config = Extension.imports.config;
 const Device = Extension.imports.shell.device;
 const Keybindings = Extension.imports.shell.keybindings;
 const Notification = Extension.imports.shell.notification;
 const Remote = Extension.imports.utils.remote;
 
-
-/**
- * A function to fetch a GIcon with fallback support for getting unthemed icons
- * from our GResource
- */
-Extension.getIcon = function(name) {
-    if (Extension.getIcon._extension === undefined) {
-        // Setup the desktop icons
-        let settings = imports.gi.St.Settings.get();
-        Extension.getIcon._desktop = new Gtk.IconTheme();
-        Extension.getIcon._desktop.set_custom_theme(settings.gtk_icon_theme);
-        settings.connect('notify::gtk-icon-theme', (settings) => {
-            Extension.getIcon._desktop.set_custom_theme(settings.gtk_icon_theme);
-        });
-
-        // Preload our fallbacks
-        let basePath = 'resource://org/gnome/Shell/Extensions/GSConnect/icons/';
-        let iconNames = [
-            'org.gnome.Shell.Extensions.GSConnect',
-            'org.gnome.Shell.Extensions.GSConnect-symbolic',
-            'computer-symbolic',
-            'laptop-symbolic',
-            'smartphone-symbolic',
-            'tablet-symbolic',
-            'tv-symbolic',
-            'phonelink-ring-symbolic',
-            'sms-symbolic'
-        ];
-
-        Extension.getIcon._extension = {};
-
-        for (let iconName of iconNames) {
-            Extension.getIcon._extension[iconName] = new Gio.FileIcon({
-                file: Gio.File.new_for_uri(`${basePath}${iconName}.svg`)
-            });
-        }
-    }
-
-    // Check the desktop icon theme
-    if (Extension.getIcon._desktop.has_icon(name)) {
-        return new Gio.ThemedIcon({name: name});
-    }
-
-    // Check our GResource
-    if (Extension.getIcon._extension[name] !== undefined) {
-        return Extension.getIcon._extension[name];
-    }
-
-    // Fallback to hoping it's in the theme somewhere
-    return new Gio.ThemedIcon({name: name});
-};
+Extension.getIcon = Utils.getIcon;
 
 
 /**
@@ -80,7 +30,7 @@ Extension.getIcon = function(name) {
  * indicating that the extension is active when there are none.
  */
 const ServiceIndicator = GObject.registerClass({
-    GTypeName: 'GSConnectServiceIndicator'
+    GTypeName: 'GSConnectServiceIndicator',
 }, class ServiceIndicator extends PanelMenu.SystemIndicator {
 
     _init() {
@@ -88,15 +38,15 @@ const ServiceIndicator = GObject.registerClass({
 
         this._menus = {};
 
-        this.keybindingManager = new Keybindings.Manager();
+        this._keybindings = new Keybindings.Manager();
 
         // GSettings
         this.settings = new Gio.Settings({
-            settings_schema: gsconnect.gschema.lookup(
+            settings_schema: Config.GSCHEMA.lookup(
                 'org.gnome.Shell.Extensions.GSConnect',
                 null
             ),
-            path: '/org/gnome/shell/extensions/gsconnect/'
+            path: '/org/gnome/shell/extensions/gsconnect/',
         });
 
         this._enabledId = this.settings.connect(
@@ -143,7 +93,12 @@ const ServiceIndicator = GObject.registerClass({
         this._item.label.clutter_text.x_expand = true;
         this.menu.addMenuItem(this._item);
 
-        AggregateMenu.menu.addMenuItem(this.menu, 4);
+        // Find current index of network menu
+        let menuItems = AggregateMenu.menu._getMenuItems();
+        let networkMenuIndex = menuItems.indexOf(AggregateMenu._network.menu);
+        let menuIndex = networkMenuIndex > -1 ? networkMenuIndex : 3;
+        // Place our menu below the network menu
+        AggregateMenu.menu.addMenuItem(this.menu, menuIndex + 1);
 
         // Service Menu -> Devices Section
         this.deviceSection = new PopupMenu.PopupMenuSection();
@@ -174,11 +129,10 @@ const ServiceIndicator = GObject.registerClass({
 
     async _initService() {
         try {
-            if (this.settings.get_boolean('enabled')) {
+            if (this.settings.get_boolean('enabled'))
                 await this.service.start();
-            } else {
+            else
                 await this.service.reload();
-            }
         } catch (e) {
             logError(e, 'GSConnect');
         }
@@ -186,26 +140,25 @@ const ServiceIndicator = GObject.registerClass({
 
     _enable() {
         try {
-            // If the service state matches the enabled setting, we should
-            // toggle the service by toggling the setting
             let enabled = this.settings.get_boolean('enabled');
 
-            if (this.service.active === enabled) {
+            // If the service state matches the enabled setting, we should
+            // toggle the service by toggling the setting
+            if (this.service.active === enabled)
                 this.settings.set_boolean('enabled', !enabled);
 
             // Otherwise, we should change the service to match the setting
-            } else if (this.service.active) {
+            else if (this.service.active)
                 this.service.stop();
-            } else {
+            else
                 this.service.start();
-            }
         } catch (e) {
             logError(e, 'GSConnect');
         }
     }
 
     _preferences() {
-        Gio.Subprocess.new([Extension.path + '/gsconnect-preferences'], 0);
+        Gio.Subprocess.new([`${Extension.path}/gsconnect-preferences`], 0);
     }
 
     _sync() {
@@ -223,7 +176,6 @@ const ServiceIndicator = GObject.registerClass({
             let indicator = Main.panel.statusArea[device.g_object_path];
 
             indicator.visible = panelMode && isAvailable;
-            indicator.update_icon(device.icon_name);
 
             let menu = this._menus[device.g_object_path];
             menu.actor.visible = !panelMode && isAvailable;
@@ -248,7 +200,7 @@ const ServiceIndicator = GObject.registerClass({
             if (!this._item._battery) {
                 this._item._battery = new Device.Battery({
                     device: device,
-                    opacity: 128
+                    opacity: 128,
                 });
                 this._item.actor.insert_child_below(
                     this._item._battery,
@@ -277,14 +229,13 @@ const ServiceIndicator = GObject.registerClass({
 
     _onDeviceChanged(device, changed, invalidated) {
         try {
-            changed = changed.deepUnpack();
+            let properties = changed.deepUnpack();
 
-            if (changed.hasOwnProperty('Connected') ||
-                changed.hasOwnProperty('Paired')) {
+            if (properties.hasOwnProperty('Connected') ||
+                properties.hasOwnProperty('Paired'))
                 this._sync();
-            }
         } catch (e) {
-            logError(e, 'GSConnect' );
+            logError(e, 'GSConnect');
         }
     }
 
@@ -297,10 +248,19 @@ const ServiceIndicator = GObject.registerClass({
             // Device Menu
             let menu = new Device.Menu({
                 device: device,
-                menu_type: 'list'
+                menu_type: 'list',
             });
             this._menus[device.g_object_path] = menu;
             this.deviceSection.addMenuItem(menu);
+
+            // Device Settings
+            device.settings = new Gio.Settings({
+                settings_schema: Config.GSCHEMA.lookup(
+                    'org.gnome.Shell.Extensions.GSConnect.Device',
+                    true
+                ),
+                path: `/org/gnome/shell/extensions/gsconnect/device/${device.id}/`,
+            });
 
             // Keyboard Shortcuts
             device.__keybindingsChangedId = device.settings.connect(
@@ -324,14 +284,13 @@ const ServiceIndicator = GObject.registerClass({
     _onDeviceRemoved(service, device, sync = true) {
         try {
             // Stop watching for status changes
-            if (device.__deviceChangedId) {
+            if (device.__deviceChangedId)
                 device.disconnect(device.__deviceChangedId);
-            }
 
             // Release keybindings
             if (device.__keybindingsChangedId) {
                 device.settings.disconnect(device.__keybindingsChangedId);
-                device._keybindings.map(id => this.keybindingManager.remove(id));
+                device._keybindings.map(id => this._keybindings.remove(id));
             }
 
             // Destroy the indicator
@@ -341,9 +300,8 @@ const ServiceIndicator = GObject.registerClass({
             this._menus[device.g_object_path].destroy();
             delete this._menus[device.g_object_path];
 
-            if (sync) {
+            if (sync)
                 this._sync();
-            }
         } catch (e) {
             logError(e, 'GSConnect');
         }
@@ -352,9 +310,8 @@ const ServiceIndicator = GObject.registerClass({
     _onDeviceKeybindingsChanged(device) {
         try {
             // Reset any existing keybindings
-            if (device.hasOwnProperty('_keybindings')) {
-                device._keybindings.map(id => this.keybindingManager.remove(id));
-            }
+            if (device.hasOwnProperty('_keybindings'))
+                device._keybindings.map(id => this._keybindings.remove(id));
 
             device._keybindings = [];
 
@@ -365,14 +322,13 @@ const ServiceIndicator = GObject.registerClass({
             for (let [action, accelerator] of Object.entries(keybindings)) {
                 let [, name, parameter] = Gio.Action.parse_detailed_name(action);
 
-                let actionId = this.keybindingManager.add(
+                let actionId = this._keybindings.add(
                     accelerator,
                     () => device.action_group.activate_action(name, parameter)
                 );
 
-                if (actionId !== 0) {
+                if (actionId !== 0)
                     device._keybindings.push(actionId);
-                }
             }
         } catch (e) {
             logError(e, 'GSConnect');
@@ -381,11 +337,10 @@ const ServiceIndicator = GObject.registerClass({
 
     async _onEnabledChanged(settings, key) {
         try {
-            if (this.settings.get_boolean('enabled')) {
+            if (this.settings.get_boolean('enabled'))
                 await this.service.start();
-            } else {
+            else
                 await this.service.stop();
-            }
         } catch (e) {
             logError(e, 'GSConnect');
         }
@@ -401,9 +356,8 @@ const ServiceIndicator = GObject.registerClass({
                 this._enableItem.label.text = _('Turn On');
 
                 // If it's enabled, we should try to restart now
-                if (this.settings.get_boolean('enabled')) {
+                if (this.settings.get_boolean('enabled'))
                     await this.service.start();
-                }
             }
         } catch (e) {
             logError(e, 'GSConnect');
@@ -417,17 +371,17 @@ const ServiceIndicator = GObject.registerClass({
             this.service.disconnect(this._deviceAddedId);
             this.service.disconnect(this._deviceRemovedId);
 
-            for (let device of this.service.devices) {
+            for (let device of this.service.devices)
                 this._onDeviceRemoved(this.service, device, false);
-            }
 
             this.service.destroy();
         }
 
         // Disconnect any keybindings
-        this.keybindingManager.destroy();
+        this._keybindings.destroy();
 
         // Disconnect from any GSettings changes
+        this.settings.disconnect(this._enabledId);
         this.settings.disconnect(this._panelModeId);
         this.settings.run_dispose();
 
@@ -449,7 +403,7 @@ function init() {
     // DBus and systemd service files necessary for DBus activation and
     // GNotifications. Since there's no uninit()/uninstall() hook for extensions
     // and they're only used *by* GSConnect, they should be okay to leave.
-    gsconnect.installService();
+    Utils.installService();
 
     // These modify the notification source for GSConnect's GNotifications and
     // need to be active even when the extension is disabled (eg. lock screen).

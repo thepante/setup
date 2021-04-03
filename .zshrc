@@ -78,7 +78,7 @@ export EDITOR=nvim
 
 # Activate vim mode
 source ~/.zsh/zsh-vim-mode/zsh-vim-mode.plugin.zsh
-bindkey ,m vi-cmd-mode
+bindkey kj vi-cmd-mode
 
 bindkey '^[^M' autosuggest-execute	# alt+enter
 bindkey '^H' backward-kill-word     # ctrl+backspace
@@ -124,8 +124,8 @@ fzf_excluded='\
   -not \( -path "*go/pkg" -prune \) \
 '
 export FZF_DEFAULT_OPTS='--ansi --multi'
-export FZF_DEFAULT_COMMAND='find . '$fzf_excluded
-export FZF_DIRS_COMMAND='find . -type d '$fzf_excluded
+export FZF_DEFAULT_COMMAND='find -L . '$fzf_excluded
+export FZF_DIRS_COMMAND='find -L . -type d '$fzf_excluded
 
 open_with_fzf() {
   eval $FZF_DEFAULT_COMMAND | fzf --preview "batcat" | xargs -ro -d "\n" xdg-open 2>&-
