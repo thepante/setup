@@ -31,7 +31,7 @@
   color: var(--chrome-color);
 }
 
-/* Llamar a los .js */
+/* Inject .js */
 #alltabs-button {
   -moz-binding: url("userChrome.xml#js");
 }
@@ -40,7 +40,7 @@
   background: #var(--chrome-background-color);
 }
 
-/* Boton de ver lista pestañas cuando tab pinneada seleccionada*/
+/* Adjusts for 'view tabs' button when pinned tab selected */
 #alltabs-button {
   display: none;
   opacity: 0;
@@ -49,7 +49,7 @@
   min-height: 31px !important;
 }
 
-/* Sacar botones grandes en menu contextual + width */
+/* Hide big action buttons on contextual menu & Adjust width */
 #context-navigation,
 #context-sep-navigation {
   display: none !important;
@@ -58,7 +58,7 @@ menupopup#contentAreaContextMenu {
   max-width: 260px !important;
 }
 
-/* Colores barra url y tabs */
+/* URL&Tabs bar colors */
 #urlbar:-moz-lwtheme,
 #urlbar:-moz-lwtheme:hover,
 #navigator-toolbox .searchbar-textbox:-moz-lwtheme,
@@ -114,7 +114,7 @@ menupopup#contentAreaContextMenu {
   border-right: 0 transparent;
 }
 
-/* Iconos de conexión del dominio */
+/* Icons: Domain conection info */
 #urlbar[pageproxystate="valid"]
   > #identity-box.verifiedDomain
   > #connection-icon,
@@ -160,7 +160,7 @@ menupopup#contentAreaContextMenu {
   -moz-transition: background-color 0.35s;
 }
 
-/* colores como el de color.firefox */
+/* Some colors adjusts taken using color.firefox */
 #main-window {
   --lwt-accent-color: var(--chrome-background-color);
 }
@@ -194,13 +194,13 @@ menupopup#contentAreaContextMenu {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Texto seleccionado en barra URL */
+/* Selected text on URL bar */
 #urlbar html|input.textbox-input::-moz-selection {
   background-color: #257abd !important;
   color: white !important;
 }
 
-/* Espaciadores a los costados de las pestañas */
+/* Tab section spacers on sides */
 .titlebar-spacer[type="pre-tabs"] {
   width: 20px !important;
   border-inline-end: 0px !important;
@@ -210,7 +210,7 @@ menupopup#contentAreaContextMenu {
   border: none 0px !important;
 }
 
-/* Hide cuando está maximizado - combinar con Unite gnome addon */
+/* Hide window controls buttons: to use along with 'Unite' gnome extension or similar */
 #main-window[sizemode="maximized"] .titlebar-buttonbox {
   margin-left: -80px;
 }
@@ -225,7 +225,7 @@ menupopup#contentAreaContextMenu {
   transition: margin-left 0.05s;
 }
 
-/* Bordes de puntos en enlaces o menues · about:config : browser.display.focus_ring_width: 0; */
+/* Hide dotted borders on menus/links | Also: about:config → browser.display.focus_ring_width = 0 */
 ::-moz-focus-inner,
 input[type="range"]::-moz-focus-outer,
 *::-moz-focus-inner {
@@ -256,7 +256,7 @@ toolbarbutton .toolbarbutton-icon,
   filter: saturate(40%);
 }
 
-/* Color bookmark y descargas & Hide botón de screenshot */
+/* Bookmark and Downloads buttons colors & Hide screenshot button */
 #downloads-button {
   direction: ltr;
   opacity: 0.3;
@@ -293,7 +293,7 @@ toolbarbutton .toolbarbutton-icon,
   opacity: 0.8;
 }
 
-/* Esconder close / autohide */
+/* Hide close tab icon | autohide */
 /* .close-icon {
   border-radius: 2px !important;
 }*/
@@ -322,7 +322,7 @@ toolbarbutton .toolbarbutton-icon,
   width: 22px;
 }
 
-/* FIX close cuando hover pestaña no seleccionada*/
+/* Fix close button when hover an unselected tab */
 #tabbrowser-tabs[closebuttons="activetab"]
   > .tabbrowser-tab
   > .tab-stack
@@ -332,7 +332,7 @@ toolbarbutton .toolbarbutton-icon,
 }
 /*   #tabbrowser-tabs:not([pinned="true"]):hover .tab-content:hover {min-width: 60px !important;} */
 
-/* Icono media blocked */
+/* Media blocked icon */
 .tab-icon-sound[activemedia-blocked] {
   display: none !important;
 }
@@ -340,12 +340,12 @@ toolbarbutton .toolbarbutton-icon,
   -moz-transition: 0.25s;
 }
 
-/* Icono media tab pineada */
+/* Media icon on pinned tab */
 .tab-icon-overlay[soundplaying] {
   opacity: 0.4;
 }
 
-/* Esconder tabs-arrows buttons cuando overflow */
+/* Hide arrow btn to show tabs list when tabs overflow */
 #tabbrowser-tabs toolbarbutton.scrollbutton-up,
 #tabbrowser-tabs toolbarbutton.scrollbutton-down,
 #tabbrowser-tabs spacer.arrowscrollbox-overflow-end-indicator {
@@ -360,7 +360,7 @@ toolbarbutton .toolbarbutton-icon,
   display: none !important;
 }
 
-/* Ver todas las tabs de una, no-scroll */
+/* Display all tabs opened | no-scroll */
 #tabbrowser-tabs
   .tabbrowser-tab:not([pinned="true"]):not([selected="true"])[fadein] {
   min-width: 1px !important;
@@ -369,7 +369,7 @@ toolbarbutton .toolbarbutton-icon,
   min-width: 30px !important;
 }
 
-/* Fix 1px cuando muchas tabs y aparece flecha + fix 2px sobre tabs */
+/* Fix 1px bug when a lot of tabs opened and arrows would appear + fix 2px over tabs */
 :root #TabsToolbar,
 :root #TabsToolbar + * {
   min-height: 31px !important;
@@ -379,13 +379,13 @@ toolbarbutton .toolbarbutton-icon,
   margin-top: -1px !important;
 }
 
-/* Tamaño pestañas max-min */
+/* Tabs sizes: max/min width */
 .tabbrowser-tab:not([pinned="true"])[fadein] {
   max-width: 160px !important;
   min-width: 80px !important;
 }
 
-/* Contenido texto tab */
+/* Text displayed in tab */
 .tab-label-container {
   font-size: 12px !important;
 }
@@ -398,7 +398,7 @@ toolbarbutton .toolbarbutton-icon,
   color: #d3d3d3 !important;
 }
 
-/* Desaturar tabs no seleccionadas */
+/* Desaturate unselected tabs */
 .tab-icon-image {
   border-radius: 2px !important;
   filter: saturate(15%);
@@ -409,7 +409,7 @@ toolbarbutton .toolbarbutton-icon,
   filter: none !important;
 }
 
-/* No animar paneles */
+/* Disable panels animations */
 .panel-arrowcontainer {
   opacity: 1;
   transform: none;
@@ -432,7 +432,7 @@ findbar {
   transition: none !important;
 }
 
-/* Menu general desplegable boton toolbar */
+/* General menu, dropdown from toolbar button */
 photonpanelmultiview .panel-subview-body {
   margin: 0 !important;
 }
@@ -538,7 +538,7 @@ photonpanelmultiview
   display: none !important;
 }
 
-/* color aviso banner de permisos actualizar */
+/* Colors for update warning banner */
 :root[lwt-popup-brighttext] .addon-banner-item::after {
   fill: #829315 !important;
 }
@@ -571,7 +571,7 @@ html|*.textbox-textarea,
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Colores de containers */
+/* Containers colors */
 .tabbrowser-tab[usercontextid]
   > .tab-stack
   > .tab-background
@@ -595,7 +595,7 @@ html|*.textbox-textarea,
   filter: saturate(0.3) !important;
 }
 
-/* Despliegue de url, richbox, listresults */
+/* URL bar, richbox, list results */
 .ac-url {
   opacity: 0.5 !important;
 }
@@ -609,7 +609,7 @@ html|*.textbox-textarea,
   filter: saturate(0.6) !important;
 }
 
-/* Fondo oscuro para cargas, sacar el "destello blanco" */
+/* Dark background on content load | Fix white flash on new tabs */
 tabpanels {
   background: linear-gradient(
     178deg,
@@ -620,25 +620,26 @@ tabpanels {
     #0f1419
   ) !important;
 }
-/* Corregir color en los marcadores sidebar */
+
+/* Desaturate bookmark icons colors on sidebar */
 .sidebar-placesTreechildren {
   color: var(--chrome-color) !important;
   filter: saturate(0.5) !important;
 }
 
-/* fonts varias */
+/* Font size adjust */
 #urlbar-input {
   --urlbar-scheme-size: 8ch;
   font-weight: 500;
 }
 
-/* colores lista historial barra url */
+/* Colors on url history list */
 :root[lwt-popup-darktext] {
   --urlbar-popup-url-color: hsl(211.6, 94.2%, 72.7%);
   --urlbar-popup-action-color: hsl(177.9, 87.7%, 38.2%);
 }
 
-/* color borde top de tabs */
+/* Tabs: top border color */
 .tabbrowser-tab {
   --tab-line-color: rgb(248, 112, 140) !important;
   --tab-loading-fill: rgb(248, 112, 140) !important;
@@ -646,7 +647,7 @@ tabpanels {
 .tabbrowser-tab .tab-line {
   height: 3px !important;
 }
-/* badge de iconos de addons */
+/* Addons buttons bade */
 .toolbarbutton-badge {
   color: white !important;
   border-radius: 50px !important;
@@ -670,12 +671,13 @@ tabpanels {
 	border-color: #0f1419 !important;
 }
 
-/* Removes search engine support*/
+/* Removes search engine suggestion */
 #urlbar .search-one-offs {
-display: none !important;
+  display: none !important;
 }
 
-/* remove fullscreen banner */
+/* Remove fullscreen banner */
 #fullscreen-warning {
   display: none !important;
 }
+
