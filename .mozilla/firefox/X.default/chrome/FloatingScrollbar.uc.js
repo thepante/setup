@@ -45,6 +45,9 @@
         min-height: 10px;
         padding-top: 0px;
     }
+    :not(select):not(hbox) > scrollbar[orient = "horizontal"] slider {
+        padding-top: 4px;
+    }
     :not(select):not(hbox) > scrollbar[orient = "horizontal"] thumb {
         min-width: 20px;
     }
