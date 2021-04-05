@@ -152,7 +152,7 @@ function parseStat() {
             ioSpeed.set_text(dot + speedToString(speed));
         }
         else if (mode >= 2 && mode <= 3) {
-            ioSpeed.set_text("↓" + speedToString(speed - speedUp) + " ↑" + speedToString(speedUp));
+            ioSpeed.set_text(speedToString(speed - speedUp) + " ⇵ " + speedToString(speedUp));
         }
         else if (mode == 4) {
             if (resetNextCount == true) {
