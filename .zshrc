@@ -84,6 +84,15 @@ bindkey '^[^M' autosuggest-execute	# alt+enter
 bindkey '^H' backward-kill-word     # ctrl+backspace
 
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+KEYTIMEOUT=50
+
+# Change cursor shape for different vi modes
+MODE_CURSOR_VIINS="blinking bar"
+MODE_CURSOR_REPLACE="$MODE_CURSOR_VIINS"
+MODE_CURSOR_VICMD="blinking block"
+MODE_CURSOR_SEARCH="steady underline"
+MODE_CURSOR_VISUAL="wheat block"
+MODE_CURSOR_VLINE="$MODE_CURSOR_VISUAL"
 
 # Use vi navigation keys in menu completion
 zstyle ':completion:*' menu select
@@ -94,44 +103,17 @@ bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 bindkey -M menuselect 'j' vi-down-line-or-history
 
-# Change cursor shape for different vi modes
-function zle-keymap-select {
-  if [[ ${KEYMAP} == vicmd ]] ||
-     [[ $1 = 'block' ]]; then
-    echo -ne '\e[1 q'
-
-  elif [[ ${KEYMAP} == main ]] ||
-       [[ ${KEYMAP} == viins ]] ||
-       [[ ${KEYMAP} = '' ]] ||
-       [[ $1 = 'beam' ]]; then
-    echo -ne '\e[5 q'
-  fi
-  zle reset-prompt ; zle -R
-}
-zle -N zle-keymap-select
-
-# Cursor shape according to actual mode
-_fix_cursor() {
-   echo -ne '\e[5 q'
-}
-
-precmd_functions+=(_fix_cursor)
-
-fzf_excluded='\
-  -not \( -path "*/node_modules" -prune \) \
-  -not \( -path "*/.git" -prune \) \
-  -not \( -path "*.cache" -prune \) \
-  -not \( -path "*go/pkg" -prune \) \
-'
+# FZF related
+fzf_excluded="-E node_modules -E .git -E '*cache' -E '*go/pkg'"
 export FZF_DEFAULT_OPTS='--ansi --multi'
-export FZF_DEFAULT_COMMAND='find -L . '$fzf_excluded
-export FZF_DIRS_COMMAND='find -L . -type d '$fzf_excluded
+export FZF_DEFAULT_COMMAND='fd -HLI -t f '$fzf_excluded
+export FZF_DIRS_COMMAND='fd -HLI -t d '$fzf_excluded
 
 open_with_fzf() {
-  eval $FZF_DEFAULT_COMMAND | fzf --preview "batcat" | xargs -ro -d "\n" xdg-open 2>&-
+  eval $FZF_DEFAULT_COMMAND | fzf -m --preview=bat | xargs -ro -d "\n" xdg-open 2>&-
 }
 cd_with_fzf() {
-  cd ~ && cd "$(eval $FZF_DIRS_COMMAND | fzf )" && zle reset-prompt
+  cd ~ && cd "$(eval $FZF_DIRS_COMMAND | fzf)" && zle reset-prompt
 }
 zle -N open_with_fzf
 zle -N cd_with_fzf
