@@ -39,10 +39,6 @@
   -moz-binding: url("userChrome.xml#js");
 }
 
-#TabsToolbar {
-  background: #var(--chrome-background-color);
-}
-
 /* Adjusts for 'view tabs' button when pinned tab selected */
 #alltabs-button {
   display: none;
@@ -578,6 +574,7 @@ photonpanelmultiview
   background: transparent !important;
 }
 
+/* Toolbar */
 .toolbarbutton-animatable-box,
 .toolbarbutton-1,
 html|*.textbox-input,
@@ -586,7 +583,11 @@ html|*.textbox-textarea,
 #pageActionButton,
 #star-button[starred] {
   fill: var(--chrome-color) !important;
-  color: var(--chrome-color) !important;
+}
+
+toolbar .toolbarbutton-1 {
+	padding-left: 1px !important;
+	padding-right: 1px !important;
 }
 
 .panel-footer > button:not([disabled])[default] {
