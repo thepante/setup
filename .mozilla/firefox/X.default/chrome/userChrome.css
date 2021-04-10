@@ -1,4 +1,4 @@
-/* Gnome 04/2021 - u/thepante */
+/* Gnome 10/2021 - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 
@@ -27,7 +27,10 @@
   --autocomplete-popup-background: #2a2a2e !important;
   --arrowpanel-background: #181c20 !important;
   --arrow-panel-color: var(--chrome-color) !important;
-
+  --tab-border-radius: 0;
+  --tab-line-color: rgb(248, 112, 140);
+  --tab-loading-fill: var(--tab-line-color) !important;
+  --proton-tab-block-margin: 0;
   color: var(--chrome-color);
 }
 
@@ -76,12 +79,38 @@ menupopup#contentAreaContextMenu {
   border-color: #202020 !important;
 }
 
-.tabs-newtab-button,
-#TabsToolbar > #new-tab-button,
-#TabsToolbar > toolbarpaletteitem > #new-tab-button {
-  list-style-image: url(chrome://browser/skin/tabbrowser/newtab.svg);
+#tabs-newtab-button {
   margin-top: 2px !important;
   opacity: 0.3;
+  transition: opacity .2s ease-in-out;
+}
+
+#tabs-newtab-button:hover .toolbarbutton-icon {
+  fill: white !important;
+}
+
+/* Tabs: selected tab */
+.tabbrowser-tab > .tab-stack > .tab-content {
+  margin-top: 1px !important;
+}
+
+.tabbrowser-tab[selected] > .tab-stack {
+  margin-bottom: 0px;
+  border: 1px none transparent !important;
+  border-top-color: var(--tabs-border-color) !important;
+  border-top-style: solid !important;
+}
+
+.tabbrowser-tab[visuallyselected="true"] > .tab-stack > .tab-background {
+	box-shadow: 0 0 8px #000000 !important;
+}
+
+.tab-background {
+  border-top: 2px none transparent !important;
+}
+
+.tab-background[selected="true"] {
+  border-top: 2px solid var(--tab-line-color) !important;
 }
 
 #tabbrowser-tabs:not([movingtab])
@@ -639,15 +668,7 @@ tabpanels {
   --urlbar-popup-action-color: hsl(177.9, 87.7%, 38.2%);
 }
 
-/* Tabs: top border color */
-.tabbrowser-tab {
-  --tab-line-color: rgb(248, 112, 140) !important;
-  --tab-loading-fill: rgb(248, 112, 140) !important;
-}
-.tabbrowser-tab .tab-line {
-  height: 3px !important;
-}
-/* Addons buttons bade */
+/* Addons buttons badge */
 .toolbarbutton-badge {
   color: white !important;
   border-radius: 50px !important;
