@@ -52,6 +52,9 @@ nmap <C-j> o<Esc>k
 nmap <C-h> i<space><Right><Esc>
 nmap <C-l> a<space><Left><Esc>
 
+" Undo changes since last save
+nmap U :edit!<CR>
+
 " Clear search using enter
 noremap <CR> :noh<CR>
 
@@ -122,7 +125,6 @@ nnoremap <c-t> :split<CR>:ter<CR>:resize 15<CR>a
 " Files explore
 map <C-e> :NERDTreeToggle<CR>
 map <A-e> :ProjectFiles<CR>
-" map <A-e> :GFiles<CR>
 map <A-f> :FZF ~/<CR>
 map <A-b> :BLines<CR>
 map <A-.> :exe ":FZF " . expand("%:h")<CR>
@@ -193,6 +195,9 @@ Plug 'ap/vim-buftabline'
 Plug 'preservim/nerdtree'
 Plug 'itchyny/lightline.vim'
 
+Plug 'Yggdroot/indentLine'
+" Plug 'lukas-reineke/indent-blankline.nvim', {'branch': 'lua'}
+
 " Tools
 Plug 'yuezk/vim-js'
 Plug 'tpope/vim-commentary'
@@ -205,7 +210,6 @@ Plug 'junegunn/fzf.vim'
 Plug 'metakirby5/codi.vim'
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'editorconfig/editorconfig-vim'
-Plug 'Yggdroot/indentLine'
 
 " Formatting
 Plug 'rhysd/vim-clang-format'
@@ -231,13 +235,11 @@ Plug 'luochen1990/rainbow'
 
 " Themes
 Plug 'franbach/miramare'
-Plug 'jmoggee/mirage.vim'
 Plug 'sainnhe/gruvbox-material'
 Plug 'sainnhe/sonokai'
 Plug 'drewtempelmeyer/palenight.vim'
 Plug 'ghifarit53/tokyonight-vim'
 Plug 'AlessandroYorba/Alduin'
-Plug 'sts10/vim-pink-moon'
 Plug 'embark-theme/vim', { 'as': 'embark' }
 Plug 'tjammer/blayu.vim'
 Plug 'NLKNguyen/papercolor-theme'
@@ -254,7 +256,6 @@ let g:gruvbox_material_background = 'hard'
 " let g:gruvbox_contrast_dark = 'hard'
 " let g:tokyonight_style = 'night'
 " let g:sonokai_style = 'shusia'
-let g:miramare_cursor = 'blue'
 colorscheme miramare
 
 " set background=light
