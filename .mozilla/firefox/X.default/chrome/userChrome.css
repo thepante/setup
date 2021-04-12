@@ -457,97 +457,6 @@ findbar {
   transition: none !important;
 }
 
-/* General menu, dropdown from toolbar button */
-photonpanelmultiview .panel-subview-body {
-  margin: 0 !important;
-}
-#appMenu-edit-controls,
-#appMenu-edit-controls + toolbarseparator {
-  display: none;
-}
-#appMenu-popup .panel-arrowcontent {
-  margin: 4px 4px 0 !important;
-  padding: 0 !important;
-}
-#appMenu-popup .panel-subview-body {
-  margin: -6px 0;
-}
-#appMenu-mainView {
-  padding: 0 !important;
-}
-photonpanelmultiview
-  .PanelUI-subView
-  .toolbaritem-combined-buttons
-  > .subviewbutton:not(#appMenu-zoomReset-button):not(#appMenu-fxa-icon) {
-  padding: 10px !important;
-}
-#appMenu-zoom-controls {
-  margin: -6px 0;
-  margin-inline-end: 0 !important;
-}
-
-#appMenu-zoomReset-button {
-  border-radius: 0 !important;
-  border-width: 0 1px 0 1px !important;
-  border-color: var(--arrowpanel-dimmed) !important;
-  padding: 10px 10px 9px !important;
-}
-
-#appMenu-zoomEnlarge-button {
-  margin-inline-start: 0 !important;
-}
-#appMenu-quit-button {
-  padding: 10px !important;
-  margin-top: -5px !important;
-}
-#appMenu-fxa-container {
-  margin-bottom: -6px;
-  margin-inline-end: 0 !important;
-}
-#appMenu-fxa-container toolbarseparator[orient="vertical"],
-#appMenu-zoom-controls toolbarseparator[orient="vertical"] {
-  margin-inline-start: 0 !important;
-  margin-inline-end: 0 !important;
-}
-
-#appMenu-fxa-label {
-  padding: 10px 32px !important;
-}
-#appMenu-fxa-avatar {
-  border-radius: 50%;
-  width: 24px !important;
-  height: 24px !important;
-}
-#appMenu-fxa-icon {
-  padding: 10px !important;
-}
-#appMenu-fxa-status {
-  margin-left: -8px;
-}
-
-#appMenu-multiView {
-  color: var(--chrome-color);
-  border: 0px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 0 6px hsla(0, 0%, 0%, 0.2);
-  background: var(--chrome-background-color);
-  --arrowpanel-background: var(--chrome-background-color);
-}
-
-#appMenu-mainView .subviewbutton,
-#appMenu-mainView .toolbaritem-combined-buttons {
-  opacity: 0.7 !important;
-}
-#appMenu-zoomReduce-button,
-#appMenu-zoomEnlarge-button,
-#appMenu-fullscreen-button {
-  padding: 6px !important;
-  margin: 2px !important;
-  border-radius: 50%;
-}
-#appMenu-zoomReduce-button {
-  margin-right: -7px !important;
-}
-
 /* General */
 .panel-arrowcontent {
   box-shadow: 0 0 4px hsla(0, 0%, 0%, 0.7) !important;
@@ -567,8 +476,6 @@ photonpanelmultiview
 :root[lwt-popup-brighttext] .addon-banner-item::after {
   fill: #829315 !important;
 }
-:root[lwt-popup-brighttext] .addon-banner-item {
-}
 #main-window[sizemode="normal"] {
   border-radius: 3px 3px 0px 0px !important;
   background: transparent !important;
@@ -583,6 +490,7 @@ html|*.textbox-textarea,
 #pageActionButton,
 #star-button[starred] {
   fill: var(--chrome-color) !important;
+  color: var(--chrome-color) !important;
 }
 
 toolbar .toolbarbutton-1 {
