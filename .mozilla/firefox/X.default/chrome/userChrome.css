@@ -1,4 +1,4 @@
-/* Gnome 10/2021 - u/thepante */
+/* Gnome 12/2021 - u/thepante */
 @namespace html url("http://www.w3.org/1999/xhtml");
 @namespace svg url("http://www.w3.org/2000/svg");
 
@@ -32,11 +32,6 @@
   --tab-loading-fill: var(--tab-line-color) !important;
   --proton-tab-block-margin: 0;
   color: var(--chrome-color);
-}
-
-/* Inject .js */
-#alltabs-button {
-  -moz-binding: url("userChrome.xml#js");
 }
 
 /* Adjusts for 'view tabs' button when pinned tab selected */
@@ -319,9 +314,6 @@ toolbarbutton .toolbarbutton-icon,
 }
 
 /* Hide close tab icon | autohide */
-/* .close-icon {
-  border-radius: 2px !important;
-}*/
 .close-icon:hover {
   fill-opacity: 0.07;
 }
@@ -336,7 +328,7 @@ toolbarbutton .toolbarbutton-icon,
   height: 0px;
   width: 0px;
 }
-/* ACA - TODO - FIX */
+
 /*.tabbrowser-tab[selected="true"] .tab-close-button,*/
 .tabbrowser-tab:not([pinned="true"]):hover .tab-close-button {
   stroke-opacity: 0.5;
@@ -346,16 +338,6 @@ toolbarbutton .toolbarbutton-icon,
   height: 22px;
   width: 22px;
 }
-
-/* Fix close button when hover an unselected tab */
-#tabbrowser-tabs[closebuttons="activetab"]
-  > .tabbrowser-tab
-  > .tab-stack
-  > .tab-content
-  > .tab-close-button:not([selected="true"]):not([pinned="true"]) {
-  display: inherit !important;
-}
-/*   #tabbrowser-tabs:not([pinned="true"]):hover .tab-content:hover {min-width: 60px !important;} */
 
 /* Media blocked icon */
 .tab-icon-sound[activemedia-blocked] {
@@ -371,17 +353,9 @@ toolbarbutton .toolbarbutton-icon,
 }
 
 /* Hide arrow btn to show tabs list when tabs overflow */
-#tabbrowser-tabs toolbarbutton.scrollbutton-up,
-#tabbrowser-tabs toolbarbutton.scrollbutton-down,
+#tabbrowser-tabs toolbarbutton#scrollbutton-up,
+#tabbrowser-tabs toolbarbutton#scrollbutton-down,
 #tabbrowser-tabs spacer.arrowscrollbox-overflow-end-indicator {
-  display: none !important;
-}
-.tabbrowser-arrowscrollbox > .scrollbutton-up,
-.tabbrowser-arrowscrollbox > .scrollbutton-down {
-  -moz-context-properties: fill, fill-opacity;
-  fill: transparent;
-  fill-opacity: 0;
-  opacity: 0 !important;
   display: none !important;
 }
 
@@ -437,7 +411,7 @@ toolbarbutton .toolbarbutton-icon,
 /* Disable panels animations */
 .panel-arrowcontainer {
   opacity: 1;
-  transform: none;
+  transform: none !important;
   transition: none !important;
   pointer-events: all !important;
   color: #a7a592 !important;
@@ -581,7 +555,11 @@ tabpanels {
 .toolbarbutton-badge {
   color: white !important;
   border-radius: 50px !important;
-  font-size: 10px !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  background-color: #434343 !important;
+  box-shadow: none !important;
+  padding: 1px 3px !important;
 }
 
 #identity-box[pageproxystate="valid"].notSecureText,
@@ -596,8 +574,7 @@ tabpanels {
 	border-image-slice: 1;
 }
 
-#urlbar:not([focused=true])
-  > #urlbar-input-container {
+#urlbar:not([focused=true]) > #urlbar-input-container {
 	border-color: #0f1419 !important;
 }
 

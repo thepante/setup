@@ -1,12 +1,8 @@
-﻿cus {outline: none;}
+cus {outline: none;}
 ::-moz-focus-inner {border: 0;}
 input[type=range]::-moz-focus-outer {border: 0;}
 *:focus, *:visited, *:active, *:hover {outline: 0 !important;}
 *::-moz-focus-inner {border: 0;}
-/*
-body { background-color: white;  color: black;  display: block;  margin: 8px;  -moz-appearance: none !important;}
-* .OutlineContent {background-color: #fff !important;}
-*/
 
 @-moz-document url("about:blank") {
   prefpane,
@@ -37,7 +33,7 @@ body { background-color: white;  color: black;  display: block;  margin: 8px;  -
     background: linear-gradient(
 			146deg,
 			#0F1419,
-			#f7d045, 
+			#f7d045,
 			#0F1419,
 			#d8c582,
 			#d8c582,
