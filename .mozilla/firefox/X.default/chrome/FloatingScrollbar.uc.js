@@ -35,18 +35,18 @@
         margin-right: 0px;
     }
     :not(select):not(hbox) > scrollbar[orient = "vertical"] slider {
-        padding-left: 6px;
+        padding-left: 8px;
     }
     :not(select):not(hbox) > scrollbar[orient = "vertical"] thumb {
         min-height: 20px;
     }
    :not(select):not(hbox) > scrollbar[orient = "horizontal"] {
-        margin-top: -10px;
+        margin-top: -16px;
         min-height: 10px;
         padding-top: 0px;
     }
     :not(select):not(hbox) > scrollbar[orient = "horizontal"] slider {
-        padding-top: 4px;
+        padding-top: 8px;
     }
     :not(select):not(hbox) > scrollbar[orient = "horizontal"] thumb {
         min-width: 20px;
