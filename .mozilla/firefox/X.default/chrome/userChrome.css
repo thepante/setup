@@ -52,6 +52,11 @@ menupopup#contentAreaContextMenu {
   max-width: 260px !important;
 }
 
+/* Desaturate context menu icons */
+menupopup :where(menu, menuitem) image {
+  filter: saturate(.5);
+}
+
 /* URL&Tabs bar colors */
 #urlbar:-moz-lwtheme,
 #urlbar:-moz-lwtheme:hover,
@@ -557,8 +562,9 @@ tabpanels {
   border-radius: 50px !important;
   font-size: 9px !important;
   font-weight: 700 !important;
-  background-color: #434343 !important;
-  box-shadow: none !important;
+  /* background-color: #434343 !important; */
+  background-color: #2f2f2f !important;
+  /* box-shadow: none !important; */
   padding: 1px 3px !important;
 }
 
