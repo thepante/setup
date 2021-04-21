@@ -86,7 +86,7 @@ menupopup :where(menu, menuitem) image {
 }
 
 /* Tabs: selected tab */
-.tabbrowser-tab > .tab-stack > .tab-content {
+.tabbrowser-tab > .tab-stack > .tab-content > .tab-icon-stack {
   margin-top: 1px !important;
 }
 
@@ -105,7 +105,7 @@ menupopup :where(menu, menuitem) image {
   border-top: 2px none transparent !important;
 }
 
-.tab-background[selected="true"] {
+tab[selected="true"]:not([usercontextid]) .tab-background {
   border-top: 2px solid var(--tab-line-color) !important;
 }
 
