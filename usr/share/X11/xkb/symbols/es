@@ -19,15 +19,11 @@ xkb_symbols "basic" {
     key <AE11>	{ [   apostrophe,       question                                    ] };
     key <AE12>	{ [        equal,           plus                                    ] };
 
-
-  //key <AD11>	{ [ dead_grave, dead_circumflex,      bracketleft,   dead_abovering ] };
-  //key <AD12>	{ [       plus,        asterisk,     bracketright,      dead_macron ] };
-
-    key <AD11>	{ [ bracketleft,      braceleft,  dead_circumflex,   dead_abovering ] };
-    key <AD12>	{ [bracketright,     braceright,         asterisk,      dead_macron ] };
+    key <AD11>	{ [ bracketleft,      braceleft,            minus,   dead_abovering ] };
+    key <AD12>	{ [bracketright,     braceright,        ampersand,      dead_macron ] };
 
     key <AC10>	{ [     ntilde,          Ntilde,       asciitilde, dead_doubleacute ] };
-    key <AC11>	{ [ dead_acute,       braceleft,   dead_diaeresis,        braceleft ] };
+    key <AC11>	{ [ dead_acute, dead_circumflex,   dead_diaeresis,        braceleft ] };
     key <TLDE>	{ [  masculine,     ordfeminine,        backslash,        backslash ] };
 
     key <BKSL>	{ [      slash,        asterisk,           degree,            grave ] };
