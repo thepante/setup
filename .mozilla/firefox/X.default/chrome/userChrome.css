@@ -109,6 +109,7 @@ tab[selected="true"]:not([usercontextid]) .tab-background {
   border-top: 2px solid var(--tab-line-color) !important;
 }
 
+/* TODO - check it out */
 #tabbrowser-tabs:not([movingtab])
   > .tabbrowser-tab[beforeselected-visible]::after,
 #tabbrowser-tabs[movingtab] > .tabbrowser-tab[visuallyselected]::before,
@@ -137,6 +138,15 @@ tab[selected="true"]:not([usercontextid]) .tab-background {
   margin-bottom: 1px;
   opacity: 1;
   border-right: 0 transparent;
+}
+
+
+/* Tab: containers line */
+.tabbrowser-tab[usercontextid]
+  > .tab-stack
+  > .tab-background
+  > .tab-context-line {
+	margin: 0 !important;
 }
 
 /* Icons: Domain conection info */
@@ -573,7 +583,6 @@ tabpanels {
 #identity-box[pageproxystate="valid"].chromeUI,
 #identity-box[pageproxystate="valid"].extensionPage,
 #urlbar-label-box {
-  --color-separador: red;
 	margin-inline-end: 8px;
 	border-inline-end: 1px solid var(--color-separador);
 	border-image: linear-gradient(transparent 15%, var(--color-separador) 15%, var(--color-separador) 85%, transparent 85%);

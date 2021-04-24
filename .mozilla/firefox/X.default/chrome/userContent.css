@@ -1,76 +1,40 @@
-cus {outline: none;}
-::-moz-focus-inner {border: 0;}
-input[type=range]::-moz-focus-outer {border: 0;}
-*:focus, *:visited, *:active, *:hover {outline: 0 !important;}
-*::-moz-focus-inner {border: 0;}
-
-@-moz-document url("about:blank") {
-  prefpane,
-  prefpane > .content-box,
-  prefwindow,
-  window {
-    background-color: red !important;
-	}
-}
-
+/* Do not display dotted borderds on focused elements (eg: links) */
+*:focus, *:visited, *:active, *:hover { outline: 0 !important; }
+::-moz-focus-inner, *::-moz-focus-inner, input[type=range]::-moz-focus-outer { border: 0; }
 
 @-moz-document url("about:home"), url("about:newtab") {
-  body {background: linear-gradient(178deg, #222424, #0F1419, #0F1419, #0F1419, #0F1419);}
+	* {
+		font-family: 'SF Pro Display';
+	}
 
-  .activity-stream .onboarding-watermark { opacity: 0.2; }
-  .icon-settings { opacity: 0.1; }
-	/*.top-site-icon::before {
-		content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-		border-radius: 6px;
-		filter:blur(55px) !important;
-		opacity: 0.6;
-    background: linear-gradient(
-			146deg,
-			#0F1419,
-			#f7d045,
-			#0F1419,
-			#d8c582,
-			#d8c582,
-			#0F1419,
-		  #0F1419)
-			!important;
-  }/*
-  .top-site-outer .title .icon {display: none !important;}
-  .top-site-outer .title {
-	/*color: #7e7a7a;*//*
-	font: "SF Pro Display" !important;
-	font-weight: 800;
-	text-transform: uppercase;
-	font-size: 6.8pt !important;
-   }
-   .top-site-icon {color: transparent !important;}
-   .top-site-inner .screenshot {display: none !important;}
-   .top-site-outer .default-icon {
-	background-size: cover !important;
-	height: 100% !important;
-	inset-inline-start: 0 !important;
-	top: 0 !important;
-	width: 100% !important;
-	}*/
+	body {
+		background: linear-gradient(178deg, #222424, #0F1419, #0F1419, #0F1419, #0F1419);
+	}
 
-	*/
-	.top-site-outer .context-menu-button {
-	   background-color: #1e1e1e !important;
-	   box-shadow: 0 1px 3px rgb(30, 30, 30, 0.6) !important;
-	   fill: #c5c5c5 !important;
-		border: none !important;
-  }
-	.top-sites-list:not(.dnd-active) .top-site-outer:-moz-any(.active, :focus, :hover) .context-menu-button {
-  	transform: scale(0.7) !important;
-  	transition-delay: 33ms !important;
-  }
+	button.personalize-button,
+	.outer-wrapper.newtab-experience .top-site-outer .title .icon {
+		opacity: .3 !important;
+	}
+
+	.top-site-icon,
+	.top-site-outer {
+		transition: all .2s ease-in-out;
+	}
+
+	.top-site-outer .top-site-icon {
+		filter: saturate(.3);
+	}
+
+	.top-site-outer:hover .top-site-icon,
+	.top-site-outer.active .top-site-icon {
+		filter: saturate(.6);
+	}
+
+	.top-site-outer .title {
+		font-weight: 600;
+		text-transform: uppercase;
+		font-size: .6rem !important;
+	}
 
 }
-
 
