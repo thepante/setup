@@ -140,6 +140,11 @@ tab[selected="true"]:not([usercontextid]) .tab-background {
   border-right: 0 transparent;
 }
 
+/* Tab: show second label ('playing') */
+.tab-secondary-label:is([soundplaying], [pictureinpicture]) {
+  display: -moz-box !important;
+  margin-top:-1px !important;
+}
 
 /* Tab: containers line */
 .tabbrowser-tab[usercontextid]
@@ -602,4 +607,3 @@ tabpanels {
 #fullscreen-warning {
   display: none !important;
 }
-
