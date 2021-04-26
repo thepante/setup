@@ -1,11 +1,10 @@
 // Modified for a real Spanish keyboard by Jon Tombs.
-// + pante : slash (/) en vez de ç y degree (°) en vez de Ç · Orden: 890'¡ reordenado · grave (`) en guión/menos
+// Custom by github.com/thepante
 
-default  partial alphanumeric_keys
+default  partial alphanumeric_keys modifier_keys
 xkb_symbols "basic" {
 
     include "latin(type4)"
-
     name[Group1]="Spanish";
 
     key <AE01>	{ [            1,         exclam,              bar,      exclamdown ] };
@@ -30,6 +29,13 @@ xkb_symbols "basic" {
     key <AB08>	{ [      comma,       semicolon,             less,             less ] };
     key <AB09>	{ [     period,           colon,          greater,          greater ] };
     key <AB10>	{ [      minus,      underscore,            grave                   ] };
+
+
+    // hjkl as arrow keys with altr
+    key <AC06>  { type="THREE_LEVEL", [       h,               H,             Left  ] };
+    key <AC07>  { type="THREE_LEVEL", [       j,               J,             Down  ] };
+    key <AC08>  { type="THREE_LEVEL", [       k,               K,               Up  ] };
+    key <AC09>  { type="THREE_LEVEL", [       l,               L,            Right  ] };
 
     include "level3(ralt_switch)"
 };
@@ -90,7 +96,6 @@ partial alphanumeric_keys
 xkb_symbols "deadtilde" {
 
     include "es(basic)"
-
     name[Group1]="Spanish (dead tilde)";
 
     key <AE04>	{ [         4,     dollar,   dead_tilde,       dollar ] };
