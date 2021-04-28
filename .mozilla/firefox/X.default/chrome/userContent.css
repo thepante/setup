@@ -1,40 +1,39 @@
-/* Do not display dotted borderds on focused elements (eg: links) */
+/* Do not display dotted borders on focused elements (eg: links) */
 *:focus, *:visited, *:active, *:hover { outline: 0 !important; }
 ::-moz-focus-inner, *::-moz-focus-inner, input[type=range]::-moz-focus-outer { border: 0; }
 
 @-moz-document url("about:home"), url("about:newtab") {
 	* {
-		font-family: 'SF Pro Display';
+    font-family: 'SF Pro Display';
 	}
 
 	body {
-		background: linear-gradient(178deg, #222424, #0F1419, #0F1419, #0F1419, #0F1419);
+    background: linear-gradient(178deg, #222424, #0F1419, #0F1419, #0F1419, #0F1419);
 	}
 
 	button.personalize-button,
 	.outer-wrapper.newtab-experience .top-site-outer .title .icon {
-		opacity: .3 !important;
+    opacity: .3 !important;
 	}
 
 	.top-site-icon,
 	.top-site-outer {
-		transition: all .2s ease-in-out;
+    transition: all .2s ease-in-out;
 	}
 
 	.top-site-outer .top-site-icon {
-		filter: saturate(.3);
+    filter: saturate(.3);
 	}
 
 	.top-site-outer:hover .top-site-icon,
 	.top-site-outer.active .top-site-icon {
-		filter: saturate(.6);
+    filter: saturate(.6);
 	}
 
 	.top-site-outer .title {
-		font-weight: 600;
-		text-transform: uppercase;
-		font-size: .6rem !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: .6rem !important;
 	}
-
 }
 

@@ -22,9 +22,12 @@
   --lwt-selected-tab-background-color: inherit !important;
   --lwt-accent-color: var(--chrome-color) !important;
   --lwt-text-color: var(--chrome-color) !important;
+  --panel-font-size: inherit !important;
   --panel-disabled-color: var(--chrome-color) !important;
   --autocomplete-popup-highlight-background: #284163;
   --autocomplete-popup-background: #2a2a2e !important;
+  --arrowpanel-padding: 0.8em !important;
+  --arrowpanel-menuitem-padding: 4px !important;
   --arrowpanel-background: #181c20 !important;
   --arrow-panel-color: var(--chrome-color) !important;
   --tab-border-radius: 0;
