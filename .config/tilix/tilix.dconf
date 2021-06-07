@@ -11,12 +11,18 @@ window-style='disable-csd-hide-toolbar'
 
 [keybindings]
 session-add-down='<Primary><Alt>s'
-session-switch-to-terminal-down='<Primary><Alt>j'
-session-switch-to-terminal-left='<Primary><Alt>h'
-session-switch-to-terminal-right='<Primary><Alt>l'
-session-switch-to-terminal-up='<Primary><Alt>k'
+session-switch-to-terminal-down='<Shift><Alt>j'
+session-switch-to-terminal-left='<Shift><Alt>h'
+session-switch-to-terminal-right='<Shift><Alt>l'
+session-switch-to-terminal-up='<Shift><Alt>k'
 terminal-copy='<Primary>c'
 terminal-paste='<Primary>v'
+terminal-scroll-down='disabled'
+terminal-scroll-up='disabled'
+win-reorder-next-session='disabled'
+win-reorder-previous-session='disabled'
+win-switch-to-next-session='<Primary><Shift>j'
+win-switch-to-previous-session='<Primary><Shift>k'
 
 [profiles]
 list=['2b7c4080-0ddd-46c5-8f23-563fd3ba789d']
@@ -32,9 +38,11 @@ cursor-blink-mode='on'
 cursor-colors-set=false
 cursor-shape='ibeam'
 default-size-columns=90
+font='SF Pro Display Semi-Bold 12'
 foreground-color='#B2A38F'
 highlight-colors-set=false
 login-shell=true
 palette=['#2E3436', '#A45656', '#55AA7F', '#6D9162', '#7492B9', '#75507B', '#06989A', '#D3D7CF', '#555753', '#6D585F', '#3E7351', '#908744', '#5EA588', '#AD7F8A', '#458588', '#EEEEEC']
+use-system-font=true
 use-theme-colors=false
 visible-name='Default'
