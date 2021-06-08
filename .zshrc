@@ -106,8 +106,8 @@ bindkey -M menuselect 'j' vi-down-line-or-history
 # FZF related
 fzf_excluded="-E node_modules -E .git -E '*cache' -E '*go/pkg'"
 export FZF_DEFAULT_OPTS='--ansi --multi'
-export FZF_DEFAULT_COMMAND='fd -HLI -t f '$fzf_excluded
-export FZF_DIRS_COMMAND='fd -HLI -t d '$fzf_excluded
+export FZF_DEFAULT_COMMAND='fd -HLI -t f . '$fzf_excluded
+export FZF_DIRS_COMMAND='fd -HLI -t d . '$fzf_excluded
 
 open_with_fzf() {
   eval $FZF_DEFAULT_COMMAND | fzf -m --preview=bat | xargs -ro -d "\n" xdg-open 2>&-
@@ -121,3 +121,6 @@ zle -N cd_with_fzf
 bindkey '^O' open_with_fzf
 bindkey '^G' cd_with_fzf
 
+if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
+	source /etc/profile.d/vte.sh
+fi
