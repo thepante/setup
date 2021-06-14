@@ -20,6 +20,7 @@ set noswapfile
 set undofile
 set tabstop=2
 set expandtab
+set updatetime=300
 syntax enable
 
 " Escape insert mode
@@ -74,13 +75,6 @@ nnoremap <C-d> :bnext<CR>
 " Close buffer
 nnoremap <C-w> :b#<bar>bd#<CR>
 
-" Autoclose brackets
-inoremap {      {}<Left>
-inoremap {<CR>  {<CR>}<Esc>O
-inoremap {}     {}
-inoremap (      ()<Left>
-inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
-
 " Comment toggle
 nnoremap <C-_> :Commentary<CR>
 vnoremap <C-_> :Commentary<CR>
@@ -106,6 +100,7 @@ noremap <c-p> "ap
 
 " Delete around block
 nmap dao va{Vd
+
 " Delete around block, including comments on top of it
 nmap dab va{o{oVd
 
@@ -156,16 +151,14 @@ let g:clang_format#style_options = {
 " Coc extensions
 let g:coc_global_extensions = [
   \ 'coc-tsserver',
+  \ 'coc-json',
   \ 'coc-html',
   \ 'coc-css',
   \ 'coc-vetur',
+  \ 'coc-pairs',
   \ 'coc-pyright',
   \ 'coc-restclient'
   \ ]
-
-" Autopairs
-let g:AutoPairsShortcutToggle = ''
-let g:AutoPairsMapCR = 0
 
 " Vue settings
 let g:vim_vue_plugin_use_scss = 1
@@ -195,9 +188,7 @@ call plug#begin('~/.vim/plugged')
 Plug 'ap/vim-buftabline'
 Plug 'preservim/nerdtree'
 Plug 'itchyny/lightline.vim'
-
 Plug 'Yggdroot/indentLine'
-" Plug 'lukas-reineke/indent-blankline.nvim', {'branch': 'lua'}
 
 " Tools
 Plug 'yuezk/vim-js'
@@ -221,7 +212,8 @@ Plug 'AndrewRadev/splitjoin.vim'
 Plug 'tpope/vim-surround'
 
 " Auto pairs/close
-Plug 'jiangmiao/auto-pairs'
+Plug 'alvan/vim-closetag'
+Plug 'mattn/emmet-vim'
 
 " Movement
 Plug 'easymotion/vim-easymotion', Cond(!exists('g:vscode'))
@@ -286,7 +278,31 @@ let g:lightline = {
       \ },
     \ }
 
-set updatetime=300
+
+" --- Vim-Closetag
+" File extensions where the plugin is enabled
+let g:closetag_filenames = '*.html,*.xhtml,*.jsx,*.js,*.tsx'
+let g:closetag_xhtml_filenames = '*.xml,*.xhtml,*.jsx,*.js,*.tsx'
+let g:closetag_filetypes = 'html,xhtml,jsx,js,tsx'
+let g:closetag_xhtml_filetypes = 'html,xhtml,jsx,js,tsx'
+let g:closetag_emptyTags_caseSensitive = 1
+
+" Disables auto-close if not in a 'valid' region (based on filetype)
+let g:closetag_regions = {
+    \ 'typescript.tsx': 'jsxRegion,tsxRegion',
+    \ 'javascript.jsx': 'jsxRegion',
+    \ 'typescriptreact': 'jsxRegion,tsxRegion',
+    \ 'javascriptreact': 'jsxRegion',
+    \ }
+
+let g:closetag_shortcut = '>'
+
+" Add > at current position without closing the current tag, default is ''
+let g:closetag_close_shortcut = '<leader>>'
+
+" Emmet trigger
+let g:user_emmet_leader_key=','
+
 
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
@@ -350,7 +366,6 @@ endfunction
 
 " Highlight the symbol and its references when holding the cursor.
 autocmd CursorHold * silent call CocActionAsync('highlight')
-
 
 augroup mygroun
   autocmd!

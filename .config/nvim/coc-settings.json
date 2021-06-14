@@ -1,4 +1,5 @@
 {
   "python.pythonPath": "python3",
-  "vetur.ignoreProjectWarning": true
+  "vetur.ignoreProjectWarning": true,
+  "pairs.enableCharacters": ["(", "[", "{", "'", "\"", "`"]
 }
