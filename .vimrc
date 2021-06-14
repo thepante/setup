@@ -1,5 +1,4 @@
 set number
-set mouse=a
 set numberwidth=1
 set clipboard=unnamedplus
 set showcmd
@@ -19,6 +18,8 @@ set splitbelow
 set scrolloff=2
 set noswapfile
 set undofile
+set tabstop=2
+set expandtab
 syntax enable
 
 " Escape insert mode
@@ -226,10 +227,11 @@ Plug 'jiangmiao/auto-pairs'
 Plug 'easymotion/vim-easymotion', Cond(!exists('g:vscode'))
 Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymotion' })
 
-" Syntax highlight
+" Syntax highlight / text objects
 Plug 'sheerun/vim-polyglot'
 Plug 'leafOfTree/vim-vue-plugin'
-Plug 'nvim-treesitter/nvim-treesitter', { 'commit': '3c07232'}
+Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'luochen1990/rainbow'
 " Plug 'posva/vim-vue'
 
@@ -260,6 +262,22 @@ colorscheme miramare
 
 " set background=light
 " colorscheme PaperColor
+
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  textobjects = {
+    select = {
+      enable = true,
+      keymaps = {
+        ["af"] = "@function.outer",
+        ["if"] = "@function.inner",
+        ["ac"] = "@class.outer",
+        ["ic"] = "@class.inner",
+      },
+    },
+  },
+}
+EOF
 
 let g:lightline = {
       \ 'colorscheme': 'embark',

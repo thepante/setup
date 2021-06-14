@@ -122,5 +122,5 @@ bindkey '^O' open_with_fzf
 bindkey '^G' cd_with_fzf
 
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-	source /etc/profile.d/vte.sh
+  source /etc/profile.d/vte.sh
 fi
