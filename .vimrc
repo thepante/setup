@@ -75,6 +75,13 @@ nnoremap <C-d> :bnext<CR>
 " Close buffer
 nnoremap <C-w> :b#<bar>bd#<CR>
 
+" Autoclose brackets
+inoremap {      {}<Left>
+inoremap {<CR>  {<CR>}<Esc>O
+inoremap {}     {}
+inoremap (      ()<Left>
+inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
+
 " Comment toggle
 nnoremap <C-_> :Commentary<CR>
 vnoremap <C-_> :Commentary<CR>
@@ -124,6 +131,9 @@ map <A-e> :ProjectFiles<CR>
 map <A-f> :FZF ~/<CR>
 map <A-b> :BLines<CR>
 map <A-.> :exe ":FZF " . expand("%:h")<CR>
+
+imap <A-,> <
+imap <A-.> >
 
 " NERDTree autoclose on open file
 let NERDTreeQuitOnOpen=1
@@ -300,9 +310,10 @@ let g:closetag_shortcut = '>'
 " Add > at current position without closing the current tag, default is ''
 let g:closetag_close_shortcut = '<leader>>'
 
-" Emmet trigger
-let g:user_emmet_leader_key=','
-
+" Emmet
+imap ,, <C-y>,
+let g:user_emmet_install_global = 0
+autocmd FileType html,css,jsx,tsx,vue EmmetInstall
 
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c

@@ -41,15 +41,18 @@ setopt histfindnodups
 
 setopt HIST_FIND_NO_DUPS
 
-source $HOME/.aliases
+source ~/.aliases
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 source ~/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.zsh/shf.zsh
 source ~/.zsh/k/k.sh
+source ~/.zsh/zsh-z/zsh-z.plugin.zsh
 
 ZSH_HIGHLIGHT_STYLES[suffix-alias]=fg=002
 ZSH_HIGHLIGHT_STYLES[precommand]=fg=002
 ZSH_HIGHLIGHT_STYLES[arg0]=bold
+
+ZSHZ_CASE=ignore
 
 # colored man - https://github.com/ael-code/zsh-colored-man-pages
 function man() {
