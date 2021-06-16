@@ -232,7 +232,8 @@ Plug 'asvetliakov/vim-easymotion', Cond(exists('g:vscode'), { 'as': 'vsc-easymot
 " Syntax highlight / text objects
 Plug 'sheerun/vim-polyglot'
 Plug 'leafOfTree/vim-vue-plugin'
-Plug 'nvim-treesitter/nvim-treesitter'
+" Plug 'nvim-treesitter/nvim-treesitter'
+Plug 'nvim-treesitter/nvim-treesitter', { 'commit': '3c07232'}
 Plug 'nvim-treesitter/nvim-treesitter-textobjects'
 Plug 'luochen1990/rainbow'
 " Plug 'posva/vim-vue'
@@ -306,9 +307,6 @@ let g:closetag_regions = {
     \ }
 
 let g:closetag_shortcut = '>'
-
-" Add > at current position without closing the current tag, default is ''
-let g:closetag_close_shortcut = '<leader>>'
 
 " Emmet
 imap ,, <C-y>,
