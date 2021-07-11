@@ -88,6 +88,11 @@ menupopup :where(menu, menuitem) image {
   fill: white !important;
 }
 
+#tabbrowser-tabs .tabbrowser-tab > .tab-stack > .tab-background {
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+
 /* Tabs: selected tab */
 .tabbrowser-tab > .tab-stack > .tab-content > .tab-icon-stack {
   margin-top: 1px !important;
